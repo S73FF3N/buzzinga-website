@@ -1,0 +1,25 @@
+{% extends "index.html" %}
+{% load static %}
+{% load widget_tweaks %}
+{% load i18n %}
+
+{% block title %}
+    Download
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <form action="" method="POST" class="post-form">
+        {% csrf_token %}
+        {{ form.media }}
+        <h1>Download</h1>
+        <div class="row">
+            <div class="col-12 col-lg-6 form-group">
+                {{ form.elements.label_tag }}
+                {% render_field form.elements class="form-control" %}
+            </div>
+        </div>
+        <button type="submit" id="submit" class="btn btn-primary btn-sm"><i class="fa fa-save"></i></button>
+    </form>
+</div>
+{% endblock %}

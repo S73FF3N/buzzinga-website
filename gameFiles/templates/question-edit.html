@@ -1,0 +1,62 @@
+{% extends "index.html" %}
+{% load static %}
+{% load widget_tweaks %}
+{% load i18n %}
+
+{% block title %}
+    Frage ändern
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <form action="" method="POST" class="post-form">
+        {% csrf_token %}
+        {{ form.media }}
+        <h1>Frage ändern</h1>
+        <div class="row">
+            <div class="col-12 col-lg-6 form-group">
+                {{ form.quiz_question.label_tag }}
+                {% render_field form.quiz_question class="form-control" %}
+            </div>
+            <div class="col-12 col-lg-6 form-group">
+                {{ form.solution.label_tag }}
+                {% render_field form.solution class="form-control" %}
+            </div>
+            <div class="col-12 col-lg-6 form-group">
+                {{ form.option1.label_tag }}
+                {% render_field form.option1 class="form-control" %}
+            </div>
+            <div class="col-12 col-lg-6 form-group">
+                {{ form.option2.label_tag }}
+                {% render_field form.option2 class="form-control" %}
+            </div>
+            <div class="col-12 col-lg-6 form-group">
+                {{ form.option3.label_tag }}
+                {% render_field form.option3 class="form-control" %}
+            </div>
+            <div class="col-12 col-lg-6 form-group">
+                {{ form.difficulty.label_tag }}
+                {% render_field form.difficulty class="form-control" %}
+            </div>
+            <div class="col-12 col-lg-6 form-group">
+                {{ form.explicit.label_tag }}
+                {% render_field form.explicit class="form-control" %}
+            </div>
+            <div class="col-12 col-lg-6 form-group">
+                {{ form.private_new.label_tag }}
+                {% render_field form.private_new class="form-control" %}
+            </div>
+            <div class="col-12 col-lg-6 form-group">
+                {{ form.tags.label_tag }}
+                {% render_field form.tags class="form-control" %}
+            </div>
+            <div class="col-12 col-lg-6 form-group">
+                {{ form.category.label_tag }}
+                {% render_field form.category class="form-control" %}
+            </div>
+        </div>
+        <button type="submit" id="submit" class="btn btn-primary btn-sm"><i class="fa fa-save"></i></button>
+    </form>
+</div>
+{% endblock %}
+

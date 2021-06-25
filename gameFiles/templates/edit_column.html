@@ -1,0 +1,15 @@
+{% load i18n %}
+{% load gameFiles_tags %}
+<a class="btn btn-info btn-sm"href="
+{% if record|to_class_name == 'Category' %}
+    {% url 'gamefiles:category-edit' record.pk %}
+{% else %}
+    {% if record.category.game_type.pk == 1 %}
+        {% url 'gamefiles:image-edit' record.pk %}
+    {% elif record.category.game_type.pk == 2 %}
+        {% url 'gamefiles:sound-edit' record.pk %}
+    {% else %}
+        {% url 'gamefiles:question-edit' record.pk %}
+    {% endif %}
+{% endif %}
+"><i class="fa fa-edit"></i></a>

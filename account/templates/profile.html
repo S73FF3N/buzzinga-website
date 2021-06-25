@@ -1,0 +1,272 @@
+{% extends "index.html" %}
+{% load render_table from django_tables2 %}
+{% load widget_tweaks %}
+{% block content %}
+<div id="profileTable" class="container"  style="margin-top:8vw">
+    <div class="card">
+      <div class="card-header">
+        <div class="row">
+          <div class="col-6">
+            <ul class="nav nav-tabs card-header-tabs">
+              <li>
+                <a class="nav-link" id="categories_table-label" data-toggle="tab" href="#categories_table-tab" role="tab" aria-controls="categories_table-tab" aria-selected="false">
+                  Kategorien
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'gamefiles:category-create' %}" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i></a>
+              </li>
+              <li>
+                <a class="nav-link active" id="images_table-label" data-toggle="tab" href="#images_table-tab" role="tab" aria-controls="images_table-tab" aria-selected="false">
+                  Bilder
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'gamefiles:image-create' %}" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i></a>
+              </li>
+              <li>
+                <a class="nav-link" id="sounds_table-label" data-toggle="tab" href="#sounds_table-tab" role="tab" aria-controls="sounds_table-tab" aria-selected="false">
+                  Sounds
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'gamefiles:sound-create' %}" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i></a>
+              </li>
+              <li>
+                <a class="nav-link" id="questions_table-label" data-toggle="tab" href="#questions_table-tab" role="tab" aria-controls="questions_table-tab" aria-selected="false">
+                  Questions
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'gamefiles:question-create' %}" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i></a>
+              </li>
+            </ul>
+          </div>
+          <div class="col-2">
+            <ul class="nav nav-tabs card-header-tabs justify-content-end">
+              <li>
+                <form>
+                  <label class="nav-link" for="per_page_form" style="display:inline-block;">per page:</label>
+                  <select id="per_page_form" name="per_page" style="display:inline-block;">
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>
+                </form>
+              </li>
+            </ul>
+          </div>
+          <div class="col-4">
+            <ul class="nav nav-tabs card-header-tabs justify-content-end">
+              <li>
+                <a id="profile-collapse-link" class="nav-link" data-toggle="collapse" href="#profile-filter" role="button" aria-expanded="false" aria-controls="profile-filter">
+                  Filter <i id="profile-filter-img" class="fa fa-chevron-right" aria-hidden="true"></i>
+                </a>
+              </li>
+              <li>
+                <button id="profile-filter-submit" class="btn btn-primary btn-sm" style="transform:translate(0,3px);margin-right:0.5rem;border-radius:2px;">
+                  <i class="fa fa-filter"></i>
+                </button>
+              </li>
+              <li>
+                <a href="{% url 'account:download' active_table='images_' %}" id="download_elements" class="btn btn-primary btn-sm" style="transform:translate(0,3px);margin-right:0.5rem;border-radius:2px;">
+                  <i class="fa fa-download"></i>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card-body tab-content">
+        <form id="profile-filter-form" method="get">
+          <div id="profile-filter" class="collapse row">
+            {{ profile_filter.form.media }}
+            <div class="col-6 col-lg-2 form-form">
+                {{ profile_filter.form.solution.label_tag }}
+                {% render_field profile_filter.form.solution class="form-control" %}
+            </div>
+            <div class="col-6 col-lg-4 form-form">
+                {{ profile_filter.form.category.label_tag }}
+                {% render_field profile_filter.form.category class="form-control" %}
+            </div>
+            <div class="col-6 col-lg-4 form-form">
+                {{ profile_filter.form.tags.label_tag }}
+                {% render_field profile_filter.form.tags class="form-control" %}
+            </div>
+            <div class="col-6 col-lg-2 form-form">
+                {{ profile_filter.form.private_new.label_tag }}
+                {% render_field profile_filter.form.private_new class="form-control" %}
+            </div>
+          </div>
+        </form>
+        <div class="tab-pane fade profile-table-container" role="tabpanel" aria-labelledby="categories_table-label" id="categories_table-tab">
+          {% render_table categories_table %}
+        </div>
+        <div class="tab-pane fade show profile-table-container active" role="tabpanel" aria-labelledby="images_table-label" id="images_table-tab">
+          {% render_table images_table %}
+        </div>
+        <div class="tab-pane fade profile-table-container" role="tabpanel" aria-labelledby="sounds_table-label" id="sounds_table-tab">
+          {% render_table sounds_table %}
+        </div>
+        <div class="tab-pane fade profile-table-container" role="tabpanel" aria-labelledby="questions_table-label" id="questions_table-tab">
+          {% render_table questions_table %}
+        </div>
+      </div>
+    </div>
+</div>
+<script type="text/javascript">
+  $(document).ready(function() {
+      var segments = window.location.href.split( '/' );
+      console.log(segments);
+      var per_page = segments[segments.length - 2];
+      console.log(per_page);
+      $("#per_page_form").val(per_page);
+  });
+
+  $("#download_elements").click(function( ev ) {
+      var active_table_id = document.getElementsByClassName('profile-table-container active')[0].id;
+      var active_table = active_table_id.split('_')[0] + "_";
+      var segments = $(this).attr('href').split( '/' );
+      var url_base = "/"+segments[1]+"/"+segments[2]+"/";
+      $(this).attr("href", "");
+      $(this).attr("href", url_base + active_table + "/");
+      var checkboxes = $(".select_checkbox");
+      for (checkbox of checkboxes) {
+          var href = $(this).attr("href");
+          if($(checkbox).is(":checked")){
+              let checkbox_id = $(checkbox).attr("id");
+              let element_id = checkbox_id.split("_")[1];
+              if (href[href.length-1] == "/"){
+                  $(this).attr("href", href + element_id);
+              }else{
+                  $(this).attr("href", href + "+" + element_id);
+              }
+          }
+      }
+  });
+
+  $("#images_table-label").click(function() {
+    $(':checkbox').each(function() {
+            this.checked = false;
+        });
+  });
+
+  $("#sounds_table-label").click(function() {
+    $(':checkbox').each(function() {
+            this.checked = false;
+        });
+  });
+
+  $("#questions_table-label").click(function() {
+    $(':checkbox').each(function() {
+            this.checked = false;
+        });
+  });
+
+  $('.table-row-header').click(function(){
+    $(this).nextUntil('.table-row-header').css('display', function(i,v){
+      return this.style.display === 'table-row' ? 'none' : 'table-row';
+    });
+  });
+
+  $('.collapse-header').click(function(){
+    $("#" + $(this).attr("id") + "-collapse").collapse('toggle');
+  });
+
+  $('.profile-table-container').on("click", ".orderable a", function(ev){
+    get_table_data(ev, $(this));
+  });
+
+  $('.profile-table-container').on("click", ".page-link", function(ev){
+    get_table_data(ev, $(this));
+  });
+
+  function get_table_data(ev, clicked_object){
+    ev.preventDefault();
+
+    document.body.style.cursor = "wait";
+    clicked_object.css('cursor','wait');
+
+    $.ajax({
+      url: clicked_object.attr("href"),
+      type: 'GET',
+      data: {},
+      success: function(data){
+        if(data["active_table"] == "error"){
+          alert(data["msg"]);
+        }else{
+          $("#"+data["active_table"]+"table-tab").html(data["html"]);
+        }
+      },
+      complete: function(){
+        document.body.style.cursor = "auto";
+      }
+    });
+  }
+
+  $("#profile-filter-submit").click(function(){
+    $("#profile-filter-form").submit();
+  });
+
+  $("#profile-filter-form").on("submit", function(ev){
+    ev.preventDefault();
+    document.body.style.cursor = "wait";
+    $("#profile-filter-submit").css('cursor','wait');
+    var per_page = $('#per_page_form').val();
+    var url = '{% url "gamefiles:set_profile_filter" "10" %}';
+    url = url.replace('10', per_page)
+
+    $.ajax({
+      url: url,
+      type: 'GET',
+      data: $(this).serialize(),
+      success: function(data){
+        for(key in data){
+          $("#"+key+"-tab").html(data[key]);
+        }
+      },
+      complete: function(){
+        document.body.style.cursor = "auto";
+        $("#profile-filter-submit").css('cursor','pointer');
+      }
+    });
+  });
+
+  $('#profile-collapse-link').click(function(ev){
+    handle_filter_collapse('#profile-filter-img');
+  });
+
+  $('#per_page_form').change(function(ev){
+    ev.preventDefault();
+    var per_page = $(this).val();
+    //var url = '{% url "account:profile" "10" %}';
+    //url = url.replace('10', per_page)
+    //window.location.href = url;
+    var url = '{% url "gamefiles:set_profile_filter" "10" %}';
+    url = url.replace('10', per_page)
+
+    $.ajax({
+      url: url,
+      type: 'GET',
+      data: $("#profile-filter-form").serialize(),
+      success: function(data){
+        for(key in data){
+          $("#"+key+"-tab").html(data[key]);
+        }
+      },
+    });
+  });
+
+  function handle_filter_collapse(img_id){
+    if ($(img_id).hasClass("fa-chevron-down")){
+      $(img_id).removeClass("fa-chevron-down");
+      $(img_id).addClass("fa-chevron-right");
+    }else{
+      $(img_id).removeClass("fa-chevron-right");
+      $(img_id).addClass("fa-chevron-down");
+    }
+  }
+</script>
+{% endblock %}

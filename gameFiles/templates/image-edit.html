@@ -1,0 +1,49 @@
+{% extends "index.html" %}
+{% load static %}
+{% load widget_tweaks %}
+{% load i18n %}
+
+{% block title %}
+    Bild ändern
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <form action="" method="POST" class="post-form" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.media }}
+        <h1>Bild ändern</h1>
+        <div class="row">
+            <div class="col-12 col-lg-6 form-group">
+                {{ form.image_file.label_tag }}
+                {% render_field form.image_file class="form-control" %}
+            </div>
+            <div class="col-12 col-lg-6 form-group">
+                {{ form.solution.label_tag }}
+                {% render_field form.solution class="form-control" %}
+            </div>
+            <div class="col-12 col-lg-6 form-group">
+                {{ form.difficulty.label_tag }}
+                {% render_field form.difficulty class="form-control" %}
+            </div>
+            <div class="col-12 col-lg-6 form-group">
+                {{ form.explicit.label_tag }}
+                {% render_field form.explicit class="form-control" %}
+            </div>
+            <div class="col-12 col-lg-6 form-group">
+                {{ form.private_new.label_tag }}
+                {% render_field form.private_new class="form-control" %}
+            </div>
+            <div class="col-12 col-lg-6 form-group">
+                {{ form.tags.label_tag }}
+                {% render_field form.tags class="form-control" %}
+            </div>
+            <div class="col-12 col-lg-6 form-group">
+                {{ form.category.label_tag }}
+                {% render_field form.category class="form-control" %}
+            </div>
+        </div>
+        <button type="submit" id="submit" class="btn btn-primary btn-sm"><i class="fa fa-save"></i></button>
+    </form>
+</div>
+{% endblock %}

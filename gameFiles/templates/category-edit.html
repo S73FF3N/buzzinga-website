@@ -1,0 +1,33 @@
+{% extends "index.html" %}
+{% load static %}
+{% load widget_tweaks %}
+{% load i18n %}
+
+{% block title %}
+    Kategorie ändern
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <form action="" method="POST" class="post-form" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.media }}
+        <h1>Kategorie ändern</h1>
+        <div class="row">
+            <div class="col-12 col-lg-6 form-group">
+                {{ form.name_de.label_tag }}
+                {% render_field form.name_de class="form-control" %}
+            </div>
+            <div class="col-12 col-lg-6 form-group">
+                {{ form.game_type.label_tag }}
+                {% render_field form.game_type class="form-control" %}
+            </div>
+            <div class="col-12 col-lg-6 form-group">
+                {{ form.private.label_tag }}
+                {% render_field form.private class="form-control" %}
+            </div>
+        </div>
+        <button type="submit" id="submit" class="btn btn-primary btn-sm"><i class="fa fa-save"></i></button>
+    </form>
+</div>
+{% endblock %}
