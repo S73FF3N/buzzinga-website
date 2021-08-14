@@ -4,19 +4,22 @@ from django.http import JsonResponse, HttpResponse
 from django.views.generic import FormView
 from django.urls import reverse
 from django.conf import settings
+from django.core import serializers
 
 from django_tables2.config import RequestConfig
 from io import BytesIO
 import zipfile
+import json
+import tempfile
 
 from gameFiles.tables import ProfileTable, CategoryTable
-from gameFiles.filters import ProfileFilter, CategoryFilter
-from gameFiles.models import Category, CategoryElement, Image, Sound, Question
+from gameFiles.filters import ImageFilter, SoundFilter, QuestionFilter, CategoryFilter
+from gameFiles.models import Category, Image, Sound, Question
 from .forms import DownloadForm
 
 def profile_view(request, per_page=4):
     context = {}
-    context['profile_filter'] = ProfileFilter(prefix="profile")
+    context['profile_filter'] = QuestionFilter(prefix="profile")
     context['images_table'] = create_profile_table(request, "images_", per_page)
     context['sounds_table'] = create_profile_table(request, "sounds_", per_page)
     context['questions_table'] = create_profile_table(request, "questions_", per_page)
@@ -47,13 +50,13 @@ def set_profile_filter(request, per_page):
 def create_profile_table(request, table_name, per_page):
     user = request.user
     if table_name == "images_":
-        filter_obj = ProfileFilter(request.GET, CategoryElement.objects.filter(created_by=user, category__game_type=1), prefix="profile")
+        filter_obj = ImageFilter(request.GET, Image.objects.filter(created_by=user), prefix="profile")
         table = ProfileTable(filter_obj.qs, prefix=table_name)
     elif table_name == "sounds_":
-        filter_obj = ProfileFilter(request.GET, CategoryElement.objects.filter(created_by=user, category__game_type=2), prefix="profile")
+        filter_obj = SoundFilter(request.GET, Sound.objects.filter(created_by=user), prefix="profile")
         table = ProfileTable(filter_obj.qs, prefix=table_name)
     elif table_name == "questions_":
-        filter_obj = ProfileFilter(request.GET, CategoryElement.objects.filter(created_by=user, category__game_type=3), prefix="profile")
+        filter_obj = QuestionFilter(request.GET, Question.objects.filter(created_by=user), prefix="profile")
         table = ProfileTable(filter_obj.qs, prefix=table_name)
     elif table_name == "categories_":
         filter_obj = CategoryFilter(request.GET, Category.objects.filter(created_by=user), prefix="profile")
@@ -78,7 +81,7 @@ def download_elements(self, active_table, element_string):
                              "Bilder/" + image_name_split[1] + "/" + image_name_split[2])
                 else:
                     continue
-    else:
+    elif active_table == "sounds_":
         elements = Sound.objects.filter(id__in=element_ids)
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
             for i in elements:
@@ -88,6 +91,18 @@ def download_elements(self, active_table, element_string):
                              "Audio/" + sound_name_split[1] + "/" + sound_name_split[2])
                 else:
                     continue
+    elif active_table == "questions_":
+        elements = Question.objects.filter(id__in=element_ids)
+        categories = elements.values_list('category', flat=True).distinct()
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
+            for c in categories:
+                category_elements = elements.filter(category=c)
+                json_str = serializers.serialize('json', category_elements, fields=('quiz_question','solution', 'option1', 'option2', 'option3'))
+                tmp_file = tempfile.NamedTemporaryFile(mode="w+")
+                json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
+                category_name = Category.objects.get(id=c).name_de
+                tmp_file.seek(0)
+                zf.write(tmp_file.name, "Questions/" + category_name + ".json")
     zip_buffer.seek(0)
     resp = HttpResponse(zip_buffer, content_type="application/zip")
     resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
@@ -106,7 +121,7 @@ def download_all_elements(self, active_table):
                              "Bilder/" + image_name_split[1] + "/" + image_name_split[2])
                 else:
                     continue
-    else:
+    elif active_table == "sounds_":
         elements = Sound.objects.all()
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
             for i in elements:
@@ -116,37 +131,20 @@ def download_all_elements(self, active_table):
                              "Audio/" + sound_name_split[1] + "/" + sound_name_split[2])
                 else:
                     continue
+    elif active_table == "questions_":
+        elements = Question.objects.all()
+        categories = elements.values_list('category', flat=True).distinct()
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
+            for c in categories:
+                category_elements = elements.filter(category=c)
+                json_str = serializers.serialize('json', category_elements, fields=('question','solution', 'option1', 'option2', 'option3'))
+                tmp_file = tempfile.NamedTemporaryFile(mode="w+")
+                json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
+                category_name = Category.objects.get(id=c).name_de
+                tmp_file.seek(0)
+                zf.write(tmp_file.name, "Questions/" + category_name + ".json")
     zip_buffer.seek(0)
     resp = HttpResponse(zip_buffer, content_type="application/zip")
     resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
     return resp
 
-class DownloadView(FormView):
-    template_name = 'download-form.html'
-    form_class = DownloadForm
-
-    def get_success_url(self):
-        return reverse('account:profile')
-
-    def get_form_kwargs(self):
-
-        kwargs = super(DownloadView, self).get_form_kwargs()
-        kwargs['queryset'] = get_filtered_queryset(self.request, self.request.GET.get("active_table"))
-        return kwargs
-
-    def form_valid(self, form):
-
-        category_name = Category.objects.get(pk=form.cleaned_data["category"].pk).name_de
-        zip_filename = "%s.zip" % category_name
-        zip_buffer = BytesIO()
-        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
-            for i in images:
-                image_name_split = i.image_file.name.split("/")
-                if len(image_name_split[2]) > 4:
-                    zf.write(settings.MEDIA_ROOT+"/"+i.image_file.name, "Bilder/"+image_name_split[1]+"/"+image_name_split[2])
-                else:
-                    continue
-        zip_buffer.seek(0)
-        resp = HttpResponse(zip_buffer, content_type="application/zip")
-        resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
-        return resp

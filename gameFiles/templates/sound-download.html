@@ -1,52 +1,63 @@
+{% extends "index.html" %}
+{% load static %}
 {% load widget_tweaks %}
 {% load i18n %}
-{% load static %}
 
-<div class="modal-dialog" role="document">
-    <form id="sound-download" action="{% url 'gamefiles:sound-download' category_id=category_id %}" method="post">{% csrf_token %}
-        <div class="modal-content rounded-0">
-            <div class="modal-header">
-                <h2 id="category-element-modal-title" class="modal-title">Download</h2>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div><!-- modal-header -->
-            <div id="category-element-modal-body" class="modal-body">{{ form.media }}
-                <div class="row">
-                    <div class="col-6 form-group">
-                        {{ form.min_difficulty.label_tag }}
-                        {% render_field form.min_difficulty class="form-control" %}
-                    </div>
-                    <div class="col-6 form-group">
-                        {{ form.max_difficulty.label_tag }}
-                        {% render_field form.max_difficulty class="form-control" %}
-                    </div>
-                    <div class="col-6 form-group">
-                        {{ form.explicit.label_tag }}
-                        {% render_field form.explicit class="form-control" %}
-                    </div>
-                    <div class="col-6 form-group">
-                        {{ form.private_new.label_tag }}
-                        {% render_field form.private_new class="form-control" %}
-                    </div>
-                    <div class="col-12 form-group">
-                        {{ form.tags.label_tag }}
-                        {% render_field form.tags class="form-control" %}
-                    </div>
-                    <div class="col-6 form-group">
-                        {{ form.amount.label_tag }}
-                        {% render_field form.amount class="form-control" %}
-                    </div>
-                    <div class="col-6 form-group">
-                        {{ form.category.label_tag }}
-                        {% render_field form.category class="form-control" %}
-                    </div>
-                </div>
+{% block title %}
+    Download
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <form action="" method="POST" class="post-form">{% csrf_token %}
+        {% csrf_token %}
+        {{ form.media }}
+        <h1>Download</h1>
+        <div class="row">
+            <div class="col-6 form-group">
+                {{ form.min_difficulty.label_tag }}
+                {% render_field form.min_difficulty class="form-control" %}
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Abbrechen</button>
-                <input type="submit" class="btn btn-primary" value="Download" />
-            </div><!-- modal-footer -->
-        </div><!-- modal-content -->
+            <div class="col-6 form-group">
+                {{ form.max_difficulty.label_tag }}
+                {% render_field form.max_difficulty class="form-control" %}
+            </div>
+            <div class="col-6 form-group">
+                {{ form.max_upload_date.label_tag }}
+                {% render_field form.max_upload_date class="form-control" %}
+            </div>
+            <div class="col-6 form-group">
+                {{ form.min_upload_date.label_tag }}
+                {% render_field form.min_upload_date class="form-control" %}
+            </div>
+            <div class="col-6 form-group">
+                {{ form.explicit.label_tag }}
+                {% render_field form.explicit class="form-control" %}
+            </div>
+            <div class="col-6 form-group">
+                {{ form.private_new.label_tag }}
+                {% render_field form.private_new class="form-control" %}
+            </div>
+            <div class="col-6 form-group">
+                {{ form.tags.label_tag }}
+                {% render_field form.tags class="form-control" %}
+            </div>
+            <div class="col-6 form-group">
+                {{ form.created_by.label_tag }}
+                {% render_field form.created_by class="form-control" %}
+            </div>
+            <div class="col-6 form-group">
+                {{ form.amount.label_tag }}
+                {% render_field form.amount class="form-control" %}
+            </div>
+            <div class="col-6 form-group">
+                {{ form.category.label_tag }}
+                {% render_field form.category class="form-control" %}
+            </div>
+        </div>
+        <button type="submit" id="submit" class="btn btn-primary btn-sm" title="Download"><i class="fa fa-download"></i></button>
+        <a href="{% url 'gamefiles:category_detail' game_type=game_type_id id=category_id %}" title="Zurück" class="btn btn-primary btn-sm"><i class="fa fa-backward"></i></a>
     </form>
-  </div><!-- modal-dialog -->
+</div>
+{% endblock %}
+

@@ -12,7 +12,14 @@
     <form action="" method="POST" class="post-form" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.media }}
-        <h1>Bild ändern</h1>
+        {% if form.errors %}
+           {% for error in form.non_field_errors %}
+              <div class="alert alert-danger">
+                   <strong>{{ error|escape }}</strong>
+              </div>
+           {% endfor %}
+        {% endif %}
+        <h1>Bild</h1>
         <div class="row">
             <div class="col-12 col-lg-6 form-group">
                 {{ form.image_file.label_tag }}
@@ -21,6 +28,9 @@
             <div class="col-12 col-lg-6 form-group">
                 {{ form.solution.label_tag }}
                 {% render_field form.solution class="form-control" %}
+                {% for error in form.solution.errors %}
+                  <span class="help-block">{{ error }}</span>
+                {% endfor %}
             </div>
             <div class="col-12 col-lg-6 form-group">
                 {{ form.difficulty.label_tag }}
@@ -41,6 +51,9 @@
             <div class="col-12 col-lg-6 form-group">
                 {{ form.category.label_tag }}
                 {% render_field form.category class="form-control" %}
+                {% for error in form.category.errors %}
+                  <span class="help-block">{{ error }}</span>
+                {% endfor %}
             </div>
         </div>
         <button type="submit" id="submit" class="btn btn-primary btn-sm"><i class="fa fa-save"></i></button>

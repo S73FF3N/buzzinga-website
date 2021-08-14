@@ -5,29 +5,23 @@
     {{ category.name_de}}
 {% endblock %}
 
-{% block head %}
-    <!-- autocomplete CSS -->
-    <link href="{% static 'admin/css/vendor/select2/select2.css' %}" rel="stylesheet">
-    <link href="{% static 'admin/css/autocomplete.css' %}" rel="stylesheet">
-    <link href="{% static 'autocomplete_light/select2.css' %}" rel="stylesheet">
-{% endblock %}
-
 {% block content %}
-    <!-- Modal -->
-    <div id="createCategoryElement" class="modal" tabindex="-1" role="dialog" aria-labelledby="createCategoryElement" aria-hidden="true">
-    </div><!-- modal -->
-    <div id="downloadElements" class="modal" tabindex="-1" role="dialog" aria-labelledby="downloadElements" aria-hidden="true">
-    </div><!-- modal -->
-
     <div class="container" style="margin-top:8vw">
         <div class="row">
-            <div class="col-12" style="padding-left:0;">
+            <div class="col-10" style="padding-left:0;">
                 <h1>{{ category.name_de }}</h1>
                 <p style="color:#dc2019;">
                     <a href="{% url 'gamefiles:game_type_list' %}" style="text-decoration: none;color:#dc2019;">Spielarten</a> >
                     <a href="{% url 'gamefiles:category_list' category.game_type.pk %}" style="text-decoration: none;color:#dc2019;">{{ category.game_type }}</a> >
                     {{ category.name_de }}
                 </p>
+            </div>
+            <div class="col-2 text-center align-self-center" style="background-color:#dc2019;padding-top:1%;padding-bottom:1%;">
+                <a {% if category.game_type.id == 1 %}href="{% url 'gamefiles:image-download' category.pk %}"
+                   {% elif category.game_type.id == 2 %}href="{% url 'gamefiles:sound-download' category.pk %}"
+                   {% else %}href="{% url 'gamefiles:question-download' category.pk %}"{% endif %}>
+                    <h4 style="color:white;">Download</h4>
+                </a>
             </div>
         </div>
         <div class="row">
@@ -144,47 +138,5 @@
             }
         }
     });
-
-    $('#createCategoryElement').on('show.bs.modal', function (event) {
-        var modal = $(this)
-        var segments = $(location).attr('href').split( '/' );
-        var url_base = segments[0]+"//"+segments[2]+"/"+segments[3]+"/";
-        let game_type;
-        if (segments[4] === '1') {
-            game_type = 'image-';
-        } else if (segments[4] === '2') {
-            game_type = 'sound-';
-        } else {
-            game_type = 'question-';
-        }
-        var category_id = segments[5];
-        $.ajax({
-            url: url_base+game_type+"create/"+category_id,
-            context: document.body
-        }).done(function(response) {
-            modal.html(response);
-        });
-    })
-
-    $('#downloadElements').on('show.bs.modal', function (event) {
-        var modal = $(this)
-        var segments = $(location).attr('href').split( '/' );
-        var url_base = segments[0]+"//"+segments[2]+"/"+segments[3]+"/";
-        let game_type;
-        if (segments[4] === '1') {
-            game_type = 'image-';
-        } else if (segments[4] === '2') {
-            game_type = 'sound-';
-        } else {
-            game_type = 'question-';
-        }
-        var category_id = segments[5];
-        $.ajax({
-            url: url_base+game_type+"download/"+category_id,
-            context: document.body
-        }).done(function(response) {
-            modal.html(response);
-        });
-    })
   </script>
 {% endblock %}

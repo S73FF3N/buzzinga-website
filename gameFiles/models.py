@@ -11,7 +11,12 @@ class Tag(models.Model):
         ordering = ['name_de']
 
     def amount_elements_with_tag(self, category):
-        elements = CategoryElement.objects.filter(category=category, tags__in=[self])
+        if category.game_type == 1:
+            elements = Sound.objects.filter(category=category, tags__in=[self])
+        elif category.game_type == 2:
+            elements = Image.objects.filter(category=category, tags__in=[self])
+        else:
+            elements = Question.objects.filter(category=category, tags__in=[self])
         return len(elements)
 
     def __str__(self):
@@ -40,11 +45,21 @@ class Category(models.Model):
     created_by = models.ForeignKey('auth.User', default=1, on_delete=models.SET_DEFAULT)
 
     def amount_files(self):
-        files = CategoryElement.objects.filter(category=self, private_new=False)
+        if self.game_type == 1:
+            files = Sound.objects.filter(category=self, private_new=False)
+        elif self.game_type == 2:
+            files = Image.objects.filter(category=self, private_new=False)
+        else:
+            files = Question.objects.filter(category=self, private_new=False)
         return len(files)
 
     def tags_used(self):
-        elements = CategoryElement.objects.filter(category=self, private_new=False)
+        if self.game_type == 1:
+            elements = Sound.objects.filter(category=self, private_new=False)
+        elif self.game_type == 2:
+            elements = Image.objects.filter(category=self, private_new=False)
+        else:
+            elements = Question.objects.filter(category=self, private_new=False)
         used_tags = []
         for e in elements:
             for tag in e.tags.all():
@@ -53,16 +68,26 @@ class Category(models.Model):
         return used_tags
 
     def examples(self):
-        categoryElement_id_list = list(CategoryElement.objects.filter(category=self, private_new=False).values_list('id', flat=True))
+        if self.game_type == 1:
+            categoryElement_id_list = list(Sound.objects.filter(category=self, private_new=False).values_list('id', flat=True))
+        elif self.game_type == 2:
+            categoryElement_id_list = list(Image.objects.filter(category=self, private_new=False).values_list('id', flat=True))
+        else:
+            categoryElement_id_list = list(Question.objects.filter(category=self, private_new=False).values_list('id', flat=True))
         random_categoryElement_id_list = random.sample(categoryElement_id_list, min(len(categoryElement_id_list), 5))
-        elements = CategoryElement.objects.filter(id__in=random_categoryElement_id_list)
+        if self.game_type == 1:
+            elements = Sound.objects.filter(id__in=random_categoryElement_id_list)
+        elif self.game_type == 2:
+            elements = Image.objects.filter(id__in=random_categoryElement_id_list)
+        else:
+            elements = Question.objects.filter(id__in=random_categoryElement_id_list)
         return elements
 
     def __str__(self):
         return self.name_de
 
 class CategoryElement(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, )
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
     private_new = models.BooleanField(default=False)
     explicit = models.BooleanField(default=False)
     solution = models.CharField(max_length=80)
@@ -71,6 +96,12 @@ class CategoryElement(models.Model):
 
     created_on = models.DateTimeField(auto_now_add=True, db_index=True)
     created_by = models.ForeignKey('auth.User', default=1, on_delete=models.SET_DEFAULT)
+
+    class Meta:
+        abstract = True
+        constraints = [
+            models.UniqueConstraint(fields=['solution', 'category'], name='%(class)s_unique_solution_per_category')
+        ]
 
     def __str__(self):
         return self.solution

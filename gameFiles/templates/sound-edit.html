@@ -12,7 +12,14 @@
     <form action="" method="POST" class="post-form" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.media }}
-        <h1>Sound ändern</h1>
+        {% if form.errors %}
+           {% for error in form.non_field_errors %}
+              <div class="alert alert-danger">
+                   <strong>{{ error|escape }}</strong>
+              </div>
+           {% endfor %}
+        {% endif %}
+        <h1>Sound/h1>
         <div class="row">
             <div class="col-12 col-lg-6 form-group">
                 {{ form.sound_file.label_tag }}
