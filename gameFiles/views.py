@@ -320,7 +320,7 @@ class QuestionDownloadView(LoginRequiredMixin, FormView):
             random_ids = sample(questions_ids, form.cleaned_data["amount"])
             questions = questions.filter(id__in=random_ids)
         category_name = Category.objects.get(pk=form.cleaned_data["category"].pk).name_de
-        json_str = serializers.serialize('json', questions, fields=('quiz_question','solution', 'option1', 'option2', 'option3'))
+        json_str = serializers.serialize('json', questions)#, fields=('quiz_question', 'solution', 'option1', 'option2', 'option3'))
         tmp_file = tempfile.NamedTemporaryFile(mode="w+")
         json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
         tmp_file.seek(0)
