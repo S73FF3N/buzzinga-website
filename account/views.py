@@ -13,8 +13,8 @@ import json
 import tempfile
 
 from gameFiles.tables import ProfileTable, CategoryTable
-from gameFiles.filters import ImageFilter, SoundFilter, QuestionFilter, CategoryFilter
-from gameFiles.models import Category, Image, Sound, Question
+from gameFiles.filters import ImageFilter, SoundFilter, QuestionFilter, CategoryFilter, HintFilter
+from gameFiles.models import Category, Image, Sound, Question, Hints
 from .forms import DownloadForm
 
 def profile_view(request, per_page=4):
@@ -23,13 +23,14 @@ def profile_view(request, per_page=4):
     context['images_table'] = create_profile_table(request, "images_", per_page)
     context['sounds_table'] = create_profile_table(request, "sounds_", per_page)
     context['questions_table'] = create_profile_table(request, "questions_", per_page)
+    context['hints_table'] = create_profile_table(request, "hints_", per_page)
     context['categories_table'] = create_profile_table(request, "categories_", per_page)
     return render(request, 'profile.html', context)
 
 def get_profile_table(request, user_id, per_page):
 
     active_table = request.GET.get("active_table")
-    if active_table in ["images_", "sounds_", "questions_", "categories_"]:
+    if active_table in ["images_", "sounds_", "questions_", "categories_", "hints_"]:
         data = {
             "active_table":active_table,
             "html":render_to_string('profile_table_view.html', {'request':request, 'table':create_profile_table(request, active_table, per_page)})
@@ -43,6 +44,10 @@ def set_profile_filter(request, per_page):
     context['images_table'] = render_to_string('profile_table_view.html', {'request':request, 'table':create_profile_table(request, "images_", per_page)})
     context['sounds_table'] = render_to_string('profile_table_view.html', {'request':request, 'table':create_profile_table(request, "sounds_", per_page)})
     context['questions_table'] = render_to_string('profile_table_view.html', {'request':request, 'table':create_profile_table(request, "questions_", per_page)})
+    context['hints_table'] = render_to_string('profile_table_view.html', {'request': request,
+                                                                              'table': create_profile_table(request,
+                                                                                                            "hints_",
+                                                                                                            per_page)})
     context['categories_table'] = render_to_string('profile_table_view.html', {'request': request, 'table': create_profile_table(request, "categories_", per_page)})
 
     return JsonResponse(context)
@@ -57,6 +62,9 @@ def create_profile_table(request, table_name, per_page):
         table = ProfileTable(filter_obj.qs, prefix=table_name)
     elif table_name == "questions_":
         filter_obj = QuestionFilter(request.GET, Question.objects.filter(created_by=user), prefix="profile")
+        table = ProfileTable(filter_obj.qs, prefix=table_name)
+    elif table_name == "hints_":
+        filter_obj = HintFilter(request.GET, Hints.objects.filter(created_by=user), prefix="profile")
         table = ProfileTable(filter_obj.qs, prefix=table_name)
     elif table_name == "categories_":
         filter_obj = CategoryFilter(request.GET, Category.objects.filter(created_by=user), prefix="profile")
@@ -103,6 +111,18 @@ def download_elements(self, active_table, element_string):
                 category_name = Category.objects.get(id=c).name_de
                 tmp_file.seek(0)
                 zf.write(tmp_file.name, "Questions/" + category_name + ".json")
+    elif active_table == "hints_":
+        elements = Hints.objects.filter(id__in=element_ids)
+        categories = elements.values_list('category', flat=True).distinct()
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
+            for c in categories:
+                category_elements = elements.filter(category=c)
+                json_str = serializers.serialize('json', category_elements, fields=('solution', 'hint1', 'hint2', 'hint3', 'hint4', 'hint5', 'hint6', 'hint7', 'hint8', 'hint9', 'hint10'))
+                tmp_file = tempfile.NamedTemporaryFile(mode="w+")
+                json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
+                category_name = Category.objects.get(id=c).name_de
+                tmp_file.seek(0)
+                zf.write(tmp_file.name, "Hints/" + category_name + ".json")
     zip_buffer.seek(0)
     resp = HttpResponse(zip_buffer, content_type="application/zip")
     resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
@@ -137,12 +157,24 @@ def download_all_elements(self, active_table):
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
             for c in categories:
                 category_elements = elements.filter(category=c)
-                json_str = serializers.serialize('json', category_elements, fields=('question','solution', 'option1', 'option2', 'option3'))
+                json_str = serializers.serialize('json', category_elements, fields=('quiz_question','solution', 'option1', 'option2', 'option3'))
                 tmp_file = tempfile.NamedTemporaryFile(mode="w+")
                 json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
                 category_name = Category.objects.get(id=c).name_de
                 tmp_file.seek(0)
                 zf.write(tmp_file.name, "Questions/" + category_name + ".json")
+    elif active_table == "hints_":
+        elements = Hints.objects.all()
+        categories = elements.values_list('category', flat=True).distinct()
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
+            for c in categories:
+                category_elements = elements.filter(category=c)
+                json_str = serializers.serialize('json', category_elements, fields=('solution', 'hint1', 'hint2', 'hint3', 'hint4', 'hint5', 'hint6', 'hint7', 'hint8', 'hint9', 'hint10'))
+                tmp_file = tempfile.NamedTemporaryFile(mode="w+")
+                json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
+                category_name = Category.objects.get(id=c).name_de
+                tmp_file.seek(0)
+                zf.write(tmp_file.name, "Hints/" + category_name + ".json")
     zip_buffer.seek(0)
     resp = HttpResponse(zip_buffer, content_type="application/zip")
     resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename

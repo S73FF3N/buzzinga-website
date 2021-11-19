@@ -128,3 +128,15 @@ class Question(CategoryElement):
     option2 = models.CharField(max_length=80)
     option3 = models.CharField(max_length=80)
 
+class Hints(CategoryElement):
+    hint1 = models.CharField(max_length=80)
+    hint2 = models.CharField(max_length=80)
+    hint3 = models.CharField(max_length=80)
+    hint4 = models.CharField(max_length=80)
+    hint5 = models.CharField(max_length=80)
+    hint6 = models.CharField(max_length=80)
+    hint7 = models.CharField(max_length=80)
+    hint8 = models.CharField(max_length=80)
+    hint9 = models.CharField(max_length=80)
+    hint10 = models.CharField(max_length=80)
+

@@ -6,7 +6,7 @@
     <div class="card">
       <div class="card-header">
         <div class="row">
-          <div class="col-6">
+          <div class="col-8">
             <ul class="nav nav-tabs card-header-tabs">
               <li>
                 <a class="nav-link" id="categories_table-label" data-toggle="tab" href="#categories_table-tab" role="tab" aria-controls="categories_table-tab" aria-selected="false">
@@ -40,6 +40,14 @@
               <li>
                 <a href="{% url 'gamefiles:question-create' %}" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i></a>
               </li>
+              <li>
+                <a class="nav-link" id="hints_table-label" data-toggle="tab" href="#hints_table-tab" role="tab" aria-controls="hints_table-tab" aria-selected="false">
+                  Hinweise
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'gamefiles:hint-create' %}" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i></a>
+              </li>
             </ul>
           </div>
           <div class="col-2">
@@ -58,7 +66,7 @@
               </li>
             </ul>
           </div>
-          <div class="col-4">
+          <div class="col-2">
             <ul class="nav nav-tabs card-header-tabs justify-content-end">
               <li>
                 <a id="profile-collapse-link" class="nav-link" data-toggle="collapse" href="#profile-filter" role="button" aria-expanded="false" aria-controls="profile-filter">
@@ -112,6 +120,9 @@
         </div>
         <div class="tab-pane fade profile-table-container" role="tabpanel" aria-labelledby="questions_table-label" id="questions_table-tab">
           {% render_table questions_table %}
+        </div>
+        <div class="tab-pane fade profile-table-container" role="tabpanel" aria-labelledby="hints_table-label" id="hints_table-tab">
+          {% render_table hints_table %}
         </div>
       </div>
     </div>

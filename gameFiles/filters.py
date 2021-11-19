@@ -1,7 +1,7 @@
 import django_filters
 from dal import autocomplete
 
-from .models import Tag, Image, Sound, Question, Category
+from .models import Tag, Image, Sound, Question, Category, Hints
 
 class ProfileFilter(django_filters.FilterSet):
     solution = django_filters.CharFilter(lookup_expr='icontains', label="Lösung")
@@ -24,6 +24,12 @@ class SoundFilter(ProfileFilter):
 class QuestionFilter(ProfileFilter):
     class Meta:
         model = Question
+        fields = ['solution', 'category', 'private_new', 'tags']
+        order_by = ['pk']
+
+class HintFilter(ProfileFilter):
+    class Meta:
+        model = Hints
         fields = ['solution', 'category', 'private_new', 'tags']
         order_by = ['pk']
 
