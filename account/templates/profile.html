@@ -217,6 +217,10 @@
     });
   }
 
+  function print_user(ev, clicked_object){
+
+  }
+
   $("#profile-filter-submit").click(function(){
     $("#profile-filter-form").submit();
   });
@@ -252,9 +256,6 @@
   $('#per_page_form').change(function(ev){
     ev.preventDefault();
     var per_page = $(this).val();
-    //var url = '{% url "account:profile" "10" %}';
-    //url = url.replace('10', per_page)
-    //window.location.href = url;
     var url = '{% url "gamefiles:set_profile_filter" "10" %}';
     url = url.replace('10', per_page)
 

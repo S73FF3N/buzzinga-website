@@ -5,6 +5,7 @@ from django.views.generic import FormView
 from django.urls import reverse
 from django.conf import settings
 from django.core import serializers
+from django.contrib.auth.decorators import login_required
 
 from django_tables2.config import RequestConfig
 from io import BytesIO
@@ -17,6 +18,7 @@ from gameFiles.filters import ImageFilter, SoundFilter, QuestionFilter, Category
 from gameFiles.models import Category, Image, Sound, Question, Hints
 from .forms import DownloadForm
 
+@login_required
 def profile_view(request, per_page=4):
     context = {}
     context['profile_filter'] = QuestionFilter(prefix="profile")
@@ -27,7 +29,7 @@ def profile_view(request, per_page=4):
     context['categories_table'] = create_profile_table(request, "categories_", per_page)
     return render(request, 'profile.html', context)
 
-def get_profile_table(request, user_id, per_page):
+def get_profile_table(request, per_page):
 
     active_table = request.GET.get("active_table")
     if active_table in ["images_", "sounds_", "questions_", "categories_", "hints_"]:
