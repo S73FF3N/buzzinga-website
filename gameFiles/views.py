@@ -84,6 +84,7 @@ class CategoryCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.created_on = datetime.datetime.now()
+        form.instance.created_by = self.request.user
         self.object = form.save()
         return super().form_valid(form)
 
@@ -139,6 +140,7 @@ class HintEditView(LoginRequiredMixin, UpdateView):
 class ParentCreateView(CreateView):
     def form_valid(self, form):
         form.instance.created_on = datetime.datetime.now()
+        form.instance.created_by = self.request.user
         tags = form.cleaned_data["tags"]
         self.object = form.save()
         self.object.tags.add(*tags)
