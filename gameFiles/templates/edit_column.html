@@ -8,8 +8,10 @@
         {% url 'gamefiles:image-edit' record.pk %}
     {% elif record.category.game_type.pk == 2 %}
         {% url 'gamefiles:sound-edit' record.pk %}
-    {% else %}
+    {% elif record.category.game_type.pk == 3 %}
         {% url 'gamefiles:question-edit' record.pk %}
+    {% else %}
+        {% url 'gamefiles:hint-edit' record.pk %}
     {% endif %}
 {% endif %}
 "><i class="fa fa-edit"></i></a>
