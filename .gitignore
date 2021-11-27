@@ -7,7 +7,9 @@ media/
 *.mo
 __pycache__
 media
-# buzzinga_website/settings.py
+buzzinga_website/settings.py
+
+*.sqlite3
 
 .idea/**/workspace.xml
 .idea/**/tasks.xml
