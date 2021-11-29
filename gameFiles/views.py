@@ -447,7 +447,10 @@ class TagAutocomplete(autocomplete.Select2QuerySetView):
 
 class CategoryAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        qs = Category.objects.all()
+        qs_created_by_current_user = Category.objects.filter(created_by=self.request.user)
+        qs_private = Category.objects.filter(private=False)
+
+        qs = qs_created_by_current_user | qs_private
 
         game_type = self.forwarded.get('game_type', None)
 
