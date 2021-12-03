@@ -21,7 +21,7 @@ urlpatterns = [
     path('sound-download/<int:category_id>', views.SoundDownloadView.as_view(), name='sound-download'),
     path('question-download/<int:category_id>', views.QuestionDownloadView.as_view(), name='question-download'),
     path('hint-download/<int:category_id>', views.HintDownloadView.as_view(), name='hint-download'),
-    path('ajax/get_profile_table/<int:user_id>/<str:per_page>/', account_views.get_profile_table, name='get_profile_table'),
+    path('ajax/get_profile_table/<str:per_page>/', account_views.get_profile_table, name='get_profile_table'),
     path('ajax/set_profile_filter/<str:per_page>/', account_views.set_profile_filter, name='set_profile_filter'),
     path('tag-autocomplete', views.TagAutocomplete.as_view(create_field='name_de'), name='tag-autocomplete'),
     path('category-autocomplete', views.CategoryAutocomplete.as_view(), name='category-autocomplete'),

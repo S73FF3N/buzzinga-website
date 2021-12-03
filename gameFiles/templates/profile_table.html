@@ -11,7 +11,7 @@
                 {% for column in table.columns %}
                     <th {{ column.attrs.th.as_html }}>
                         {% if column.orderable %}
-                            <a href="{% url "gamefiles:get_profile_table" user_id=table.user_id per_page=table.per_page %}{% querystring table.prefixed_order_by_field=column.order_by_alias.next "active_table"=table.prefix %}">{{ column.header }}</a>
+                            <a href="{% url "gamefiles:get_profile_table" per_page=table.per_page %}{% querystring table.prefixed_order_by_field=column.order_by_alias.next "active_table"=table.prefix %}">{{ column.header }}</a>
                         {% else %}
                             {{ column.header }}
                         {% endif %}
@@ -61,7 +61,7 @@
             {% if table.page.has_previous %}
                 {% block pagination.previous %}
                 <li class="previous page-item">
-                    <a href="{% url "gamefiles:get_profile_table" user_id=table.user_id per_page=table.per_page %}{% querystring table.prefixed_page_field=table.page.previous_page_number "active_table"=table.prefix %}" class="page-link">
+                    <a href="{% url "gamefiles:get_profile_table" per_page=table.per_page %}{% querystring table.prefixed_page_field=table.page.previous_page_number "active_table"=table.prefix %}" class="page-link">
                         <span aria-hidden="true">&laquo;</span>
                         {% trans 'previous' %}
                     </a>
@@ -72,7 +72,7 @@
             {% block pagination.range %}
             {% for p in table.page|table_page_range:table.paginator %}
                 <li class="page-item{% if table.page.number == p %} active{% endif %}">
-                    <a class="page-link" {% if p != '...' %}href="{% url "gamefiles:get_profile_table" user_id=table.user_id per_page=table.per_page %}{% querystring table.prefixed_page_field=p "active_table"=table.prefix %}"{% endif %}>
+                    <a class="page-link" {% if p != '...' %}href="{% url "gamefiles:get_profile_table" per_page=table.per_page %}{% querystring table.prefixed_page_field=p "active_table"=table.prefix %}"{% endif %}>
                         {{ p }}
                     </a>
                 </li>
@@ -82,7 +82,7 @@
             {% if table.page.has_next %}
                 {% block pagination.next %}
                 <li class="next page-item">
-                    <a href="{% url "gamefiles:get_profile_table" user_id=table.user_id per_page=table.per_page %}{% querystring table.prefixed_page_field=table.page.next_page_number "active_table"=table.prefix %}" class="page-link">
+                    <a href="{% url "gamefiles:get_profile_table" per_page=table.per_page %}{% querystring table.prefixed_page_field=table.page.next_page_number "active_table"=table.prefix %}" class="page-link">
                         {% trans 'next' %}
                         <span aria-hidden="true">&raquo;</span>
                     </a>
