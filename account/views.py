@@ -51,7 +51,7 @@ def set_profile_filter(request, per_page):
                                                                                                             "hints_",
                                                                                                             per_page)})
     context['categories_table'] = render_to_string('profile_table_view.html', {'request': request, 'table': create_profile_table(request, "categories_", per_page)})
-
+    print(context)
     return JsonResponse(context)
 
 def create_profile_table(request, table_name, per_page):
