@@ -40,7 +40,7 @@ def get_profile_table(request, per_page):
         return JsonResponse(data)
     return JsonResponse({"active_table":"error","msg":_("Invalid table name")})
 
-def set_profile_filter(request, per_page):
+def set_profile_filter(request, per_page, active_table):
 
     context = {}
     context['images_table'] = render_to_string('profile_table_view.html', {'request':request, 'table':create_profile_table(request, "images_", per_page)})

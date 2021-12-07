@@ -226,12 +226,15 @@
   });
 
   $("#profile-filter-form").on("submit", function(ev){
+    var active_table_id = document.getElementsByClassName('profile-table-container active')[0].id;
+    var active_table = active_table_id.split('_')[0] + "_";
     ev.preventDefault();
     document.body.style.cursor = "wait";
     $("#profile-filter-submit").css('cursor','wait');
     var per_page = $('#per_page_form').val();
-    var url = '{% url "gamefiles:set_profile_filter" "10" %}';
+    var url = '{% url "gamefiles:set_profile_filter" "10" "images_" %}';
     url = url.replace('10', per_page)
+    url = url.replace('images_', active_table)
 
     $.ajax({
       url: url,
@@ -254,10 +257,13 @@
   });
 
   $('#per_page_form').change(function(ev){
+    var active_table_id = document.getElementsByClassName('profile-table-container active')[0].id;
+    var active_table = active_table_id.split('_')[0] + "_";
     ev.preventDefault();
     var per_page = $(this).val();
-    var url = '{% url "gamefiles:set_profile_filter" "10" %}';
+    var url = '{% url "gamefiles:set_profile_filter" "10" "images_" %}';
     url = url.replace('10', per_page)
+    url = url.replace('images_', active_table)
 
     $.ajax({
       url: url,
