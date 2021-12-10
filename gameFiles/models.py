@@ -15,8 +15,10 @@ class Tag(models.Model):
             elements = Sound.objects.filter(category=category, tags__in=[self])
         elif category.game_type == 2:
             elements = Image.objects.filter(category=category, tags__in=[self])
-        else:
+        elif category.game_type == 3:
             elements = Question.objects.filter(category=category, tags__in=[self])
+        else:
+            elements = Hints.objects.filter(category=category, tags__in=[self])
         return len(elements)
 
     def __str__(self):
@@ -49,8 +51,10 @@ class Category(models.Model):
             files = Sound.objects.filter(category=self, private_new=False)
         elif self.game_type == 2:
             files = Image.objects.filter(category=self, private_new=False)
-        else:
+        elif self.game_type == 3:
             files = Question.objects.filter(category=self, private_new=False)
+        else:
+            files = Hints.objects.filter(category=self, private_new=False)
         return len(files)
 
     def tags_used(self):
@@ -58,8 +62,10 @@ class Category(models.Model):
             elements = Sound.objects.filter(category=self, private_new=False)
         elif self.game_type == 2:
             elements = Image.objects.filter(category=self, private_new=False)
-        else:
+        elif self.game_type == 3:
             elements = Question.objects.filter(category=self, private_new=False)
+        else:
+            elements = Hints.objects.filter(category=self, private_new=False)
         used_tags = []
         for e in elements:
             for tag in e.tags.all():
@@ -72,15 +78,20 @@ class Category(models.Model):
             categoryElement_id_list = list(Sound.objects.filter(category=self, private_new=False).values_list('id', flat=True))
         elif self.game_type == 2:
             categoryElement_id_list = list(Image.objects.filter(category=self, private_new=False).values_list('id', flat=True))
-        else:
+        elif self.game_type ==3:
             categoryElement_id_list = list(Question.objects.filter(category=self, private_new=False).values_list('id', flat=True))
+        else:
+            categoryElement_id_list = list(
+                Hints.objects.filter(category=self, private_new=False).values_list('id', flat=True))
         random_categoryElement_id_list = random.sample(categoryElement_id_list, min(len(categoryElement_id_list), 5))
         if self.game_type == 1:
             elements = Sound.objects.filter(id__in=random_categoryElement_id_list)
         elif self.game_type == 2:
             elements = Image.objects.filter(id__in=random_categoryElement_id_list)
-        else:
+        elif self.game_type == 3:
             elements = Question.objects.filter(id__in=random_categoryElement_id_list)
+        else:
+            elements = Hints.objects.filter(id__in=random_categoryElement_id_list)
         return elements
 
     def __str__(self):
