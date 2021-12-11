@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.core import serializers
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .models import GameType, Category, Image, Sound, Question, Tag, Hints
+from .models import GameType, Category, Image, Sound, Question, Tag, Hints, CategoryElement
 from .forms import CategoryForm, ImageForm, SoundForm, QuestionForm, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm
 
 from dal import autocomplete
@@ -434,6 +434,17 @@ class HintDownloadView(LoginRequiredMixin, FormView):
         resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
         return resp
 
+def solution(request, category, category_element):
+    category = Category.objects.get(id=category)
+    if category.game_type.name_de == "Audio":
+        solution = Sound.objects.get(category=category, id=category_element)
+    elif category.game_type.name_de == "Bilder":
+        solution = Image.objects.get(category=category, id=category_element)
+    elif category.game_type.name_de == "Multiple Choice":
+        solution = Question.objects.get(category=category, id=category_element)
+    elif category.game_type.name_de == "10 Hinweise":
+        solution = Hints.objects.get(category=category, id=category_element)
+    return render(request, 'solution.html', {'solution': solution})
 
 class TagAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
