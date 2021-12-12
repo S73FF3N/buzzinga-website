@@ -1,8 +1,6 @@
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.http import JsonResponse, HttpResponse
-from django.views.generic import FormView
-from django.urls import reverse
 from django.conf import settings
 from django.core import serializers
 from django.contrib.auth.decorators import login_required
@@ -13,15 +11,14 @@ import zipfile
 import json
 import tempfile
 
-from gameFiles.tables import ProfileTable, CategoryTable
+from gameFiles.tables import SoundTable, ImageTable, QuestionTable, HintTable, CategoryTable
 from gameFiles.filters import ImageFilter, SoundFilter, QuestionFilter, CategoryFilter, HintFilter
 from gameFiles.models import Category, Image, Sound, Question, Hints
-from .forms import DownloadForm
 
 @login_required
-def profile_view(request, per_page=4):
+def profile_view(request, per_page=10):
     context = {}
-    context['profile_filter'] = QuestionFilter(prefix="profile")
+    context['profile_filter'] = HintFilter(prefix="profile")
     context['images_table'] = create_profile_table(request, "images_", per_page)
     context['sounds_table'] = create_profile_table(request, "sounds_", per_page)
     context['questions_table'] = create_profile_table(request, "questions_", per_page)
@@ -42,7 +39,9 @@ def get_profile_table(request, per_page):
 
 def set_profile_filter(request, per_page):
 
+    get_data = request.GET
     context = {}
+    context['get_data'] = request.GET
     context['images_table'] = render_to_string('profile_table_view.html', {'request':request, 'table':create_profile_table(request, "images_", per_page)})
     context['sounds_table'] = render_to_string('profile_table_view.html', {'request':request, 'table':create_profile_table(request, "sounds_", per_page)})
     context['questions_table'] = render_to_string('profile_table_view.html', {'request':request, 'table':create_profile_table(request, "questions_", per_page)})
@@ -57,16 +56,16 @@ def create_profile_table(request, table_name, per_page):
     user = request.user
     if table_name == "images_":
         filter_obj = ImageFilter(request.GET, Image.objects.filter(created_by=user), prefix="profile")
-        table = ProfileTable(filter_obj.qs, prefix=table_name)
+        table = ImageTable(filter_obj.qs, prefix=table_name)
     elif table_name == "sounds_":
         filter_obj = SoundFilter(request.GET, Sound.objects.filter(created_by=user), prefix="profile")
-        table = ProfileTable(filter_obj.qs, prefix=table_name)
+        table = SoundTable(filter_obj.qs, prefix=table_name)
     elif table_name == "questions_":
         filter_obj = QuestionFilter(request.GET, Question.objects.filter(created_by=user), prefix="profile")
-        table = ProfileTable(filter_obj.qs, prefix=table_name)
+        table = QuestionTable(filter_obj.qs, prefix=table_name)
     elif table_name == "hints_":
         filter_obj = HintFilter(request.GET, Hints.objects.filter(created_by=user), prefix="profile")
-        table = ProfileTable(filter_obj.qs, prefix=table_name)
+        table = HintTable(filter_obj.qs, prefix=table_name)
     elif table_name == "categories_":
         filter_obj = CategoryFilter(request.GET, Category.objects.filter(created_by=user), prefix="profile")
         table = CategoryTable(filter_obj.qs, prefix=table_name)

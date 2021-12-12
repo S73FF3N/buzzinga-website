@@ -179,15 +179,16 @@
     $("#profile-filter-submit").css('cursor','wait');
     var per_page = $('#per_page_form').val();
     var url = '{% url "gamefiles:set_profile_filter" "10" %}';
-    url = url.replace('10', per_page)
+    url = url.replace('10', per_page);
+    console.log(url);
 
     $.ajax({
       url: url,
       type: 'GET',
       data: $(this).serialize(),
       success: function(data){
+        console.log(data);
         for(key in data){
-          console.log(key);
           $("#"+key+"-tab").html(data[key]);
         }
       },
@@ -206,7 +207,8 @@
     ev.preventDefault();
     var per_page = $(this).val();
     var url = '{% url "gamefiles:set_profile_filter" "10" %}';
-    url = url.replace('10', per_page)
+    url = url.replace('10', per_page);
+    console.log(url);
 
     $.ajax({
       url: url,
@@ -214,7 +216,6 @@
       data: $("#profile-filter-form").serialize(),
       success: function(data){
         for(key in data){
-          console.log(key);
           $("#"+key+"-tab").html(data[key]);
         }
       },
