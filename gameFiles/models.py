@@ -30,7 +30,7 @@ class GameType(models.Model):
     available = models.BooleanField(default=True)
 
     def amount_categories(self):
-        categories = Category.objects.filter(game_type=self)
+        categories = Category.objects.filter(game_type=self, private=False)
         return len(categories)
 
     def __str__(self):
