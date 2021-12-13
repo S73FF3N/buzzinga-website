@@ -23,7 +23,7 @@ class ImageForm(forms.ModelForm):
         form_tag = False
         fields = ('solution', 'image_file', 'difficulty', 'explicit', 'tags', 'category', 'private_new')
         widgets = {'tags': autocomplete.ModelSelect2Multiple(url='gamefiles:tag-autocomplete'),
-                   'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete', forward=(forward.Const(1, 'game_type'),))}
+                   'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete', forward=(forward.Const(2, 'game_type'),))}
         labels = {
             "name_de": "Name",
             "description_de": "Beschreibung",
@@ -42,7 +42,7 @@ class SoundForm(forms.ModelForm):
         form_tag = False
         fields = ('solution', 'sound_file', 'difficulty', 'explicit', 'tags', 'category', 'private_new')
         widgets = {'tags': autocomplete.ModelSelect2Multiple(url='gamefiles:tag-autocomplete'),
-                   'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete', forward=(forward.Const(2, 'game_type'),))}
+                   'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete', forward=(forward.Const(1, 'game_type'),))}
         labels = {
             "name_de": "Name",
             "description_de": "Beschreibung",

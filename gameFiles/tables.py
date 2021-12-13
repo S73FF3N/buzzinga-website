@@ -1,6 +1,6 @@
 import django_tables2 as dt2
 
-from .models import Category, CategoryElement, Sound, Image, Question, Hints
+from .models import Category, Sound, Image, Question, Hints
 
 class SoundTable(dt2.Table):
     select = dt2.TemplateColumn(template_name='select_column.html', orderable=False)

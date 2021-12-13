@@ -180,14 +180,12 @@
     var per_page = $('#per_page_form').val();
     var url = '{% url "gamefiles:set_profile_filter" "10" %}';
     url = url.replace('10', per_page);
-    console.log(url);
 
     $.ajax({
       url: url,
       type: 'GET',
       data: $(this).serialize(),
       success: function(data){
-        console.log(data);
         for(key in data){
           $("#"+key+"-tab").html(data[key]);
         }
@@ -208,7 +206,6 @@
     var per_page = $(this).val();
     var url = '{% url "gamefiles:set_profile_filter" "10" %}';
     url = url.replace('10', per_page);
-    console.log(url);
 
     $.ajax({
       url: url,

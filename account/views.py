@@ -12,13 +12,13 @@ import json
 import tempfile
 
 from gameFiles.tables import SoundTable, ImageTable, QuestionTable, HintTable, CategoryTable
-from gameFiles.filters import ImageFilter, SoundFilter, QuestionFilter, CategoryFilter, HintFilter
+from gameFiles.filters import ProfileFilter, ImageFilter, SoundFilter, QuestionFilter, CategoryFilter, HintFilter
 from gameFiles.models import Category, Image, Sound, Question, Hints
 
 @login_required
 def profile_view(request, per_page=10):
     context = {}
-    context['profile_filter'] = HintFilter(prefix="profile")
+    context['profile_filter'] = ImageFilter(prefix="profile")
     context['images_table'] = create_profile_table(request, "images_", per_page)
     context['sounds_table'] = create_profile_table(request, "sounds_", per_page)
     context['questions_table'] = create_profile_table(request, "questions_", per_page)
@@ -38,39 +38,34 @@ def get_profile_table(request, per_page):
     return JsonResponse({"active_table":"error","msg":_("Invalid table name")})
 
 def set_profile_filter(request, per_page):
-
-    get_data = request.GET
     context = {}
-    context['get_data'] = request.GET
     context['images_table'] = render_to_string('profile_table_view.html', {'request':request, 'table':create_profile_table(request, "images_", per_page)})
-    context['sounds_table'] = render_to_string('profile_table_view.html', {'request':request, 'table':create_profile_table(request, "sounds_", per_page)})
-    context['questions_table'] = render_to_string('profile_table_view.html', {'request':request, 'table':create_profile_table(request, "questions_", per_page)})
-    context['hints_table'] = render_to_string('profile_table_view.html', {'request': request,
-                                                                              'table': create_profile_table(request,
-                                                                                                            "hints_",
-                                                                                                            per_page)})
+    context['sounds_table'] = render_to_string('profile_table_view.html', {'request': request, 'table': create_profile_table(request, "sounds_", per_page)})
+    context['questions_table'] = render_to_string('profile_table_view.html', {'request': request, 'table': create_profile_table(request, "questions_", per_page)})
+    context['hints_table'] = render_to_string('profile_table_view.html', {'request': request, 'table': create_profile_table(request, "hints_", per_page)})
     context['categories_table'] = render_to_string('profile_table_view.html', {'request': request, 'table': create_profile_table(request, "categories_", per_page)})
     return JsonResponse(context)
+
 
 def create_profile_table(request, table_name, per_page):
     user = request.user
     if table_name == "images_":
         filter_obj = ImageFilter(request.GET, Image.objects.filter(created_by=user), prefix="profile")
-        table = ImageTable(filter_obj.qs, prefix=table_name)
+        table = ImageTable(filter_obj.qs, prefix="images_")
     elif table_name == "sounds_":
         filter_obj = SoundFilter(request.GET, Sound.objects.filter(created_by=user), prefix="profile")
-        table = SoundTable(filter_obj.qs, prefix=table_name)
+        table = SoundTable(filter_obj.qs, prefix="sounds_")
     elif table_name == "questions_":
         filter_obj = QuestionFilter(request.GET, Question.objects.filter(created_by=user), prefix="profile")
-        table = QuestionTable(filter_obj.qs, prefix=table_name)
+        table = QuestionTable(filter_obj.qs, prefix="questions_")
     elif table_name == "hints_":
         filter_obj = HintFilter(request.GET, Hints.objects.filter(created_by=user), prefix="profile")
-        table = HintTable(filter_obj.qs, prefix=table_name)
+        table = HintTable(filter_obj.qs, prefix="hints_")
     elif table_name == "categories_":
         filter_obj = CategoryFilter(request.GET, Category.objects.filter(created_by=user), prefix="profile")
-        table = CategoryTable(filter_obj.qs, prefix=table_name)
+        table = CategoryTable(filter_obj.qs, prefix="category_")
 
-    table.user_id = user.id
+    #table.user_id = user.id
     table.per_page = int(per_page)
     RequestConfig(request, paginate={"per_page":int(per_page)}).configure(table)
     return table
