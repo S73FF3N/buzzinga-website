@@ -6,7 +6,7 @@ from .models import Tag, Image, Sound, Question, Category, Hints
 
 class ProfileFilter(django_filters.FilterSet):
     solution = django_filters.CharFilter(lookup_expr='icontains', label="Lösung")
-    category = django_filters.ModelMultipleChoiceFilter(queryset=Category.objects.filter(private=False),
+    category = django_filters.ModelMultipleChoiceFilter(queryset=Category.objects.all(),
                                                         widget=autocomplete.ModelSelect2Multiple(
                                                             url='gamefiles:category-autocomplete'), label="Kategorie")
     tags = django_filters.ModelMultipleChoiceFilter(queryset=Tag.objects.all(),
