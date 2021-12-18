@@ -50,19 +50,34 @@ def set_profile_filter(request, per_page):
 def create_profile_table(request, table_name, per_page):
     user = request.user
     if table_name == "images_":
-        filter_obj = ImageFilter(request.GET, Image.objects.filter(created_by=user), prefix="profile")
+        qs_created_by_current_user = Image.objects.filter(created_by=user)
+        qs_private = Image.objects.filter(category__private=False, private_new=False)
+        elements = qs_created_by_current_user | qs_private
+        filter_obj = ImageFilter(request.GET, elements, prefix="profile")
         table = ImageTable(filter_obj.qs, prefix="images_")
     elif table_name == "sounds_":
-        filter_obj = SoundFilter(request.GET, Sound.objects.filter(created_by=user), prefix="profile")
+        qs_created_by_current_user = Sound.objects.filter(created_by=user)
+        qs_private = Sound.objects.filter(category__private=False, private_new=False)
+        elements = qs_created_by_current_user | qs_private
+        filter_obj = SoundFilter(request.GET, elements, prefix="profile")
         table = SoundTable(filter_obj.qs, prefix="sounds_")
     elif table_name == "questions_":
-        filter_obj = QuestionFilter(request.GET, Question.objects.filter(created_by=user), prefix="profile")
+        qs_created_by_current_user = Question.objects.filter(created_by=user)
+        qs_private = Question.objects.filter(category__private=False, private_new=False)
+        elements = qs_created_by_current_user | qs_private
+        filter_obj = QuestionFilter(request.GET, elements, prefix="profile")
         table = QuestionTable(filter_obj.qs, prefix="questions_")
     elif table_name == "hints_":
-        filter_obj = HintFilter(request.GET, Hints.objects.filter(created_by=user), prefix="profile")
+        qs_created_by_current_user = Hints.objects.filter(created_by=user)
+        qs_private = Hints.objects.filter(category__private=False, private_new=False)
+        elements = qs_created_by_current_user | qs_private
+        filter_obj = HintFilter(request.GET, elements, prefix="profile")
         table = HintTable(filter_obj.qs, prefix="hints_")
     elif table_name == "categories_":
-        filter_obj = CategoryFilter(request.GET, Category.objects.filter(created_by=user), prefix="profile")
+        qs_created_by_current_user = Category.objects.filter(created_by=user)
+        qs_private = Category.objects.filter(private=False)
+        elements = qs_created_by_current_user | qs_private
+        filter_obj = CategoryFilter(request.GET, elements, prefix="profile")
         table = CategoryTable(filter_obj.qs, prefix="category_")
 
     #table.user_id = user.id
@@ -126,8 +141,11 @@ def download_elements(self, active_table, element_string):
 def download_all_elements(self, active_table):
     zip_filename = "BuzzingaDownloads.zip"
     zip_buffer = BytesIO()
+    user = self.user
     if active_table == "images_":
-        elements = Image.objects.all()
+        qs_created_by_current_user = Image.objects.filter(created_by=user)
+        qs_private = Image.objects.filter(category__private=False, private_new=False)
+        elements = qs_created_by_current_user | qs_private
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
             for i in elements:
                 image_name_split = i.image_file.name.split("/")
@@ -137,7 +155,9 @@ def download_all_elements(self, active_table):
                 else:
                     continue
     elif active_table == "sounds_":
-        elements = Sound.objects.all()
+        qs_created_by_current_user = Sound.objects.filter(created_by=user)
+        qs_private = Sound.objects.filter(category__private=False, private_new=False)
+        elements = qs_created_by_current_user | qs_private
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
             for i in elements:
                 sound_name_split = i.sound_file.name.split("/")
@@ -147,7 +167,9 @@ def download_all_elements(self, active_table):
                 else:
                     continue
     elif active_table == "questions_":
-        elements = Question.objects.all()
+        qs_created_by_current_user = Question.objects.filter(created_by=user)
+        qs_private = Question.objects.filter(category__private=False, private_new=False)
+        elements = qs_created_by_current_user | qs_private
         categories = elements.values_list('category', flat=True).distinct()
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
             for c in categories:
@@ -159,7 +181,9 @@ def download_all_elements(self, active_table):
                 tmp_file.seek(0)
                 zf.write(tmp_file.name, "Questions/" + category_name + ".json")
     elif active_table == "hints_":
-        elements = Hints.objects.all()
+        qs_created_by_current_user = Hints.objects.filter(created_by=user)
+        qs_private = Hints.objects.filter(category__private=False, private_new=False)
+        elements = qs_created_by_current_user | qs_private
         categories = elements.values_list('category', flat=True).distinct()
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
             for c in categories:
