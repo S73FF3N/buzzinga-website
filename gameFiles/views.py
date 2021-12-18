@@ -439,11 +439,11 @@ def solution(request, game_type, category_element):
     if game_type.name_de == "Audio":
         solution = Sound.objects.get(id=category_element)
     elif game_type.name_de == "Bilder":
-        solution = Image.objects.get(category=category, id=category_element)
+        solution = Image.objects.get(id=category_element)
     elif game_type.name_de == "Multiple Choice":
-        solution = Question.objects.get(category=category, id=category_element)
+        solution = Question.objects.get(id=category_element)
     elif game_type.name_de == "10 Hinweise":
-        solution = Hints.objects.get(category=category, id=category_element)
+        solution = Hints.objects.get(id=category_element)
     return render(request, 'solution.html', {'solution': solution})
 
 class TagAutocomplete(autocomplete.Select2QuerySetView):
