@@ -434,15 +434,14 @@ class HintDownloadView(LoginRequiredMixin, FormView):
         resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
         return resp
 
-def solution(request, category, category_element):
-    category = Category.objects.get(id=category)
-    if category.game_type.name_de == "Audio":
-        solution = Sound.objects.get(category=category, id=category_element)
-    elif category.game_type.name_de == "Bilder":
+def solution(request, game_type, category_element):
+    if game_type.name_de == "Audio":
+        solution = Sound.objects.get(id=category_element)
+    elif game_type.name_de == "Bilder":
         solution = Image.objects.get(category=category, id=category_element)
-    elif category.game_type.name_de == "Multiple Choice":
+    elif game_type.name_de == "Multiple Choice":
         solution = Question.objects.get(category=category, id=category_element)
-    elif category.game_type.name_de == "10 Hinweise":
+    elif game_type.name_de == "10 Hinweise":
         solution = Hints.objects.get(category=category, id=category_element)
     return render(request, 'solution.html', {'solution': solution})
 
