@@ -435,6 +435,7 @@ class HintDownloadView(LoginRequiredMixin, FormView):
         return resp
 
 def solution(request, game_type, category_element):
+    game_type = GameType.objects.get(id=game_type)
     if game_type.name_de == "Audio":
         solution = Sound.objects.get(id=category_element)
     elif game_type.name_de == "Bilder":
