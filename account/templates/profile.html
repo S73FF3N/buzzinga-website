@@ -265,6 +265,12 @@
         });
   });
 
+  function toggle(source) {
+    checkboxes = document.getElementsByName('select');
+    for(var i in checkboxes)
+        checkboxes[i].checked = source.checked;
+  }
+
   function handle_filter_collapse(img_id){
     if ($(img_id).hasClass("fa-chevron-down")){
       $(img_id).removeClass("fa-chevron-down");
