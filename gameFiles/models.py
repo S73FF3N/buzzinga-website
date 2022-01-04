@@ -1,4 +1,8 @@
 from django.db import models
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
+
+upload_storage = FileSystemStorage(location=settings.UPLOAD_ROOT, base_url='/usb-drive')
 
 import random
 
@@ -124,12 +128,12 @@ def get_upload_path(instance, filename):
     return '{0}/{1}/{2}'.format(instance.category.game_type.name_de, instance.category.name_de, filename_solution)
 
 class Image(CategoryElement):
-    image_file = models.ImageField(upload_to=get_upload_path)
+    image_file = models.ImageField(upload_to=get_upload_path, storage=upload_storage)
     #user_holds_rights = models.BooleanField(default=False)
     #source = models.CharField(max_length=100)
 
 class Sound(CategoryElement):
-    sound_file = models.FileField(upload_to=get_upload_path)
+    sound_file = models.FileField(upload_to=get_upload_path, storage=upload_storage)
     #user_holds_rights = models.BooleanField(default=False)
     #source = models.CharField(max_length=100)
 
