@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from django.core import serializers
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.files.base import ContentFile
 
 from .models import GameType, Category, Image, Sound, Question, Tag, Hints, CategoryElement
 from .forms import CategoryForm, ImageForm, SoundForm, QuestionForm, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm
@@ -17,6 +18,7 @@ from random import sample
 import datetime
 import tempfile
 import json
+from PIL import Image, ImageFont, ImageDraw
 
 
 def home(request):
@@ -151,6 +153,30 @@ class ImageCreateView(LoginRequiredMixin, ParentCreateView):
     model = Image
     form_class = ImageForm
     template_name = 'image-edit.html'
+
+    def form_valid(self, form):
+        form.instance.created_on = datetime.datetime.now()
+        form.instance.created_by = self.request.user
+        tags = form.cleaned_data["tags"]
+        img = form.instance.image_file
+        file_name = form.instance.solution
+        img = Image.open(img)
+        width, height = img.size
+        font = ImageFont.truetype("Montserrat-Regular.ttf", 10)
+        text = form.instance.license
+        text_width = font.getsize(text)[0]
+        text_height = font.getsize(text)[1]
+        print(text_width)
+        img_edit = ImageDraw.Draw(img)
+        img_edit.text((width-text_width-5, height-text_height-5), text, (222, 222, 222), font=font)
+        image_io = BytesIO()
+        img.save(image_io, format=img.format)
+        image_name = '{}.{}'.format(file_name, img.format)
+        img = ContentFile(image_io.getvalue(), image_name)
+        form.instance.image_file = img
+        self.object = form.save()
+        self.object.tags.add(*tags)
+        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse('account:profile', kwargs={'per_page': 10})
