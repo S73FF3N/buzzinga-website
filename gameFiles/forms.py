@@ -21,7 +21,7 @@ class ImageForm(forms.ModelForm):
     class Meta:
         model = Image
         form_tag = False
-        fields = ('solution', 'image_file', 'difficulty', 'explicit', 'tags', 'category', 'private_new')
+        fields = ('solution', 'image_file', 'difficulty', 'explicit', 'tags', 'category', 'private_new', 'author', 'license', 'file_changed')
         widgets = {'tags': autocomplete.ModelSelect2Multiple(url='gamefiles:tag-autocomplete'),
                    'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete', forward=(forward.Const(2, 'game_type'),))}
         labels = {
@@ -33,7 +33,10 @@ class ImageForm(forms.ModelForm):
             "solution": "Lösung",
             "difficulty": "Schwierigkeit",
             "explicit": "explizit",
-            "image_file": "Bilddatei"
+            "image_file": "Bilddatei",
+            "author": "Urheber",
+            "license": "Lizenz",
+            "file_changed": "Datei bearbeitet?"
         }
 
 class SoundForm(forms.ModelForm):
