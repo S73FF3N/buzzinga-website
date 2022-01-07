@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from django.core import serializers
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.files.base import ContentFile
 
 from .models import GameType, Category, Image, Sound, Question, Tag, Hints, CategoryElement
 from .forms import CategoryForm, ImageForm, SoundForm, QuestionForm, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm
@@ -17,6 +18,7 @@ from random import sample
 import datetime
 import tempfile
 import json
+from PIL import Image, ImageFont, ImageDraw
 
 
 def home(request):
@@ -151,6 +153,43 @@ class ImageCreateView(LoginRequiredMixin, ParentCreateView):
     model = Image
     form_class = ImageForm
     template_name = 'image-edit.html'
+
+    def form_valid(self, form):
+        form.instance.created_on = datetime.datetime.now()
+        form.instance.created_by = self.request.user
+        tags = form.cleaned_data["tags"]
+        img = form.instance.image_file
+        file_name = form.instance.solution
+        img = Image.open(img)
+        width, height = img.size
+        font_size = int(min(width, height)/50)
+        font = ImageFont.truetype("Montserrat-Regular.ttf", font_size)
+        if form.instance.file_changed:
+            text = "by "+form.instance.author+" (modified from original) licensed under "+form.instance.license
+        else:
+            text = "by "+form.instance.author+" licensed under "+form.instance.license
+        if form.instance.license == "CC0":
+            text_license = "https://creativecommons.org/publicdomain/zero/1.0/deed.de"
+        elif form.instance.license == "CC BY":
+            text_license = "https://creativecommons.org/licenses/by/4.0/deed.de"
+        else:
+            text_license = "https://creativecommons.org/licenses/by-sa/3.0/de/"
+        text_width = font.getsize(text)[0]
+        text_height = font.getsize(text)[1]
+        text_license_width = font.getsize(text_license)[0]
+        text_license_height = font.getsize(text_license)[1]
+        img_edit = ImageDraw.Draw(img)
+        img_edit.text((width - text_width - 5, height - text_height - text_license_height - 10), text, (222, 222, 222), font=font)
+        img_edit.text((width - text_license_width - 5, height - text_license_height - 5), text_license, (222, 222, 222),
+                      font=font)
+        image_io = BytesIO()
+        img.save(image_io, format=img.format)
+        image_name = '{}.{}'.format(file_name, img.format)
+        img = ContentFile(image_io.getvalue(), image_name)
+        form.instance.image_file = img
+        self.object = form.save()
+        self.object.tags.add(*tags)
+        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse('account:profile', kwargs={'per_page': 10})

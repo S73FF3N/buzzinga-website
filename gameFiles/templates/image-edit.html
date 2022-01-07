@@ -36,11 +36,11 @@
                 {{ form.difficulty.label_tag }}
                 {% render_field form.difficulty class="form-control" %}
             </div>
-            <div class="col-12 col-lg-6 form-group">
+            <div class="col-6 col-lg-3 form-group">
                 {{ form.explicit.label_tag }}
                 {% render_field form.explicit class="form-control" %}
             </div>
-            <div class="col-12 col-lg-6 form-group">
+            <div class="col-6 col-lg-3 form-group">
                 {{ form.private_new.label_tag }}
                 {% render_field form.private_new class="form-control" %}
             </div>
@@ -54,6 +54,18 @@
                 {% for error in form.category.errors %}
                   <span class="help-block">{{ error }}</span>
                 {% endfor %}
+            </div>
+            <div class="col-12 col-lg-6 form-group">
+                {{ form.author.label_tag }}
+                {% render_field form.author class="form-control" %}
+            </div>
+            <div class="col-12 col-lg-6 form-group">
+                {{ form.license.label_tag }}
+                {% render_field form.license class="form-control" %}
+            </div>
+            <div class="col-12 col-lg-6 form-group">
+                {{ form.file_changed.label_tag }}
+                {% render_field form.file_changed class="form-control" %}
             </div>
         </div>
         <button type="submit" id="submit" class="btn btn-primary btn-sm"><i class="fa fa-save"></i></button>
