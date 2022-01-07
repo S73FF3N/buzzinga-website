@@ -163,12 +163,24 @@ class ImageCreateView(LoginRequiredMixin, ParentCreateView):
         img = Image.open(img)
         width, height = img.size
         font = ImageFont.truetype("Montserrat-Regular.ttf", 10)
-        text = form.instance.license
+        if form.instance.file_changed:
+            text = "by "+form.instance.author+" (modified from original) licensed under "+form.instance.license
+        else:
+            text = "by "+form.instance.author+" licensed under "+form.instance.license
+        if form.instance.license == "CC0":
+            text_license = "https://creativecommons.org/publicdomain/zero/1.0/deed.de"
+        elif form.instance.license == "CC BY":
+            text_license = "https://creativecommons.org/licenses/by/4.0/deed.de"
+        else:
+            text_license = "https://creativecommons.org/licenses/by-sa/3.0/de/"
         text_width = font.getsize(text)[0]
         text_height = font.getsize(text)[1]
-        print(text_width)
+        text_license_width = font.getsize(text_license)[0]
+        text_license_height = font.getsize(text_license)[1]
         img_edit = ImageDraw.Draw(img)
-        img_edit.text((width-text_width-5, height-text_height-5), text, (222, 222, 222), font=font)
+        img_edit.text((width - text_width - 5, height - text_height - text_license_height - 10), text, (222, 222, 222), font=font)
+        img_edit.text((width - text_license_width - 5, height - text_license_height - 5), text, (222, 222, 222),
+                      font=font)
         image_io = BytesIO()
         img.save(image_io, format=img.format)
         image_name = '{}.{}'.format(file_name, img.format)
