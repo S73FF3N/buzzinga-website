@@ -134,7 +134,7 @@ def get_upload_path(instance, filename):
     return '{0}/{1}/{2}'.format(instance.category.game_type.name_de, instance.category.name_de, filename_solution)
 
 class Image(CategoryElement):
-    image_file = models.ImageField(upload_to=get_upload_path)#, storage=upload_storage)
+    image_file = models.ImageField(upload_to=get_upload_path, storage=upload_storage)
     author = models.CharField(max_length=50)
     license = models.CharField(choices=LICENSE, max_length=100)
     file_changed = models.BooleanField(default=False)
