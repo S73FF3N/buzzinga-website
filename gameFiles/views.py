@@ -162,7 +162,8 @@ class ImageCreateView(LoginRequiredMixin, ParentCreateView):
         file_name = form.instance.solution
         img = Image.open(img)
         width, height = img.size
-        font = ImageFont.truetype("Montserrat-Regular.ttf", 10)
+        font_size = int(min(width, height)/50)
+        font = ImageFont.truetype("Montserrat-Regular.ttf", font_size)
         if form.instance.file_changed:
             text = "by "+form.instance.author+" (modified from original) licensed under "+form.instance.license
         else:
@@ -179,7 +180,7 @@ class ImageCreateView(LoginRequiredMixin, ParentCreateView):
         text_license_height = font.getsize(text_license)[1]
         img_edit = ImageDraw.Draw(img)
         img_edit.text((width - text_width - 5, height - text_height - text_license_height - 10), text, (222, 222, 222), font=font)
-        img_edit.text((width - text_license_width - 5, height - text_license_height - 5), text, (222, 222, 222),
+        img_edit.text((width - text_license_width - 5, height - text_license_height - 5), text_license, (222, 222, 222),
                       font=font)
         image_io = BytesIO()
         img.save(image_io, format=img.format)
