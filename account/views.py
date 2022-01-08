@@ -150,7 +150,7 @@ def download_all_elements(self, active_table):
             for i in elements:
                 image_name_split = i.image_file.name.split("/")
                 if len(image_name_split[2]) > 4:
-                    zf.write(settings.MEDIA_ROOT + "/" + i.image_file.name,
+                    zf.write(settings.UPLOAD_ROOT + "/" + i.image_file.name,
                              "Bilder/" + image_name_split[1] + "/" + image_name_split[2])
                 else:
                     continue
@@ -162,7 +162,7 @@ def download_all_elements(self, active_table):
             for i in elements:
                 sound_name_split = i.sound_file.name.split("/")
                 if len(sound_name_split[2]) > 4:
-                    zf.write(settings.MEDIA_ROOT + "/" + i.sound_file.name,
+                    zf.write(settings.UPLOAD_ROOT_ROOT + "/" + i.sound_file.name,
                              "Audio/" + sound_name_split[1] + "/" + sound_name_split[2])
                 else:
                     continue
