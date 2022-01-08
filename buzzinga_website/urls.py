@@ -14,4 +14,4 @@ urlpatterns = [
 ]
 
 urlpatterns += staticfiles_urlpatterns()
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.UPLOAD_ROOT)
+urlpatterns += static('uploads', document_root=settings.UPLOAD_ROOT)
