@@ -147,7 +147,7 @@ class Sound(CategoryElement):
     #source = models.CharField(max_length=100)
 
 class Question(CategoryElement):
-    quiz_question = models.CharField(max_length=80)
+    quiz_question = models.CharField(max_length=150)
     option1 = models.CharField(max_length=80)
     option2 = models.CharField(max_length=80)
     option3 = models.CharField(max_length=80)
