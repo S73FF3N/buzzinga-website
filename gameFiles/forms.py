@@ -39,6 +39,12 @@ class ImageForm(forms.ModelForm):
             "file_changed": "Datei bearbeitet?"
         }
 
+    image_file = forms.ImageField(disabled=True)
+    solution = forms.CharField(disabled=True)
+    author = forms.CharField(disabled=True)
+    license = forms.CharField(disabled=True)
+    file_changed = forms.BooleanField(disabled=True)
+
 class SoundForm(forms.ModelForm):
     class Meta:
         model = Sound
@@ -57,6 +63,7 @@ class SoundForm(forms.ModelForm):
             "explicit": "explizit",
             "sound_file": "Sounddatei"
         }
+
 
 class QuestionForm(forms.ModelForm):
     class Meta:

@@ -18,7 +18,8 @@ from random import sample
 import datetime
 import tempfile
 import json
-from PIL import Image, ImageFont, ImageDraw
+from PIL import ImageFont, ImageDraw
+from PIL import Image as PILImage
 
 
 def home(request):
@@ -160,7 +161,7 @@ class ImageCreateView(LoginRequiredMixin, ParentCreateView):
         tags = form.cleaned_data["tags"]
         img = form.instance.image_file
         file_name = form.instance.solution
-        img = Image.open(img)
+        img = PILImage.open(img)
         width, height = img.size
         font_size = int(min(width, height)/50)
         font = ImageFont.truetype("Montserrat-Regular.ttf", font_size)
