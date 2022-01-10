@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
-from django.views.generic import ListView, FormView, CreateView, UpdateView
+from django.views.generic import ListView, FormView, CreateView, UpdateView, DeleteView
 from django.conf import settings
 from django.urls import reverse
 from django.contrib.auth.models import User
@@ -9,7 +9,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.base import ContentFile
 
 from .models import GameType, Category, Image, Sound, Question, Tag, Hints, CategoryElement
-from .forms import CategoryForm, ImageForm, SoundForm, QuestionForm, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm
+from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm
 
 from dal import autocomplete
 from io import BytesIO
@@ -106,7 +106,7 @@ class CategoryEditView(LoginRequiredMixin, UpdateView):
 
 class ImageEditView(LoginRequiredMixin, UpdateView):
     model = Image
-    form_class = ImageForm
+    form_class = ImageEditForm
     template_name = 'image-edit.html'
 
     def get_success_url(self):
@@ -138,6 +138,56 @@ class HintEditView(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('account:profile', kwargs={'per_page':10})
+
+
+class CategoryDeleteView(LoginRequiredMixin, DeleteView):
+    model = Category
+
+    def get_success_url(self):
+        return reverse('account:profile', kwargs={'per_page':10})
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
+
+
+class ImageDeleteView(LoginRequiredMixin, DeleteView):
+    model = Image
+
+    def get_success_url(self):
+        return reverse('account:profile', kwargs={'per_page':10})
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
+
+
+class SoundDeleteView(LoginRequiredMixin, DeleteView):
+    model = Sound
+
+    def get_success_url(self):
+        return reverse('account:profile', kwargs={'per_page':10})
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
+
+
+class QuestionDeleteView(LoginRequiredMixin, DeleteView):
+    model = Question
+
+    def get_success_url(self):
+        return reverse('account:profile', kwargs={'per_page':10})
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
+
+
+class HintDeleteView(LoginRequiredMixin, DeleteView):
+    model = Hints
+
+    def get_success_url(self):
+        return reverse('account:profile', kwargs={'per_page':10})
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
 
 
 class ParentCreateView(CreateView):

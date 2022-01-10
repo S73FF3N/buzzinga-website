@@ -1,6 +1,9 @@
 from django.db import models
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
+from django.dispatch import receiver
+
+import os
 
 upload_storage = FileSystemStorage(location=settings.UPLOAD_ROOT, base_url='/uploads')
 
@@ -13,6 +16,7 @@ LICENSE = (
     ('CC BY', 'Creative Commons Attribution'),
     ('CC BY-SA', 'Creative Commons Attribution-ShareAlike')
 )
+
 
 class Tag(models.Model):
     name_de = models.CharField(max_length=50)
@@ -138,13 +142,10 @@ class Image(CategoryElement):
     author = models.CharField(max_length=50)
     license = models.CharField(choices=LICENSE, max_length=100)
     file_changed = models.BooleanField(default=False)
-    #user_holds_rights = models.BooleanField(default=False)
-    #source = models.CharField(max_length=100)
+
 
 class Sound(CategoryElement):
     sound_file = models.FileField(upload_to=get_upload_path, storage=upload_storage)
-    #user_holds_rights = models.BooleanField(default=False)
-    #source = models.CharField(max_length=100)
 
 class Question(CategoryElement):
     quiz_question = models.CharField(max_length=150)
@@ -163,4 +164,15 @@ class Hints(CategoryElement):
     hint8 = models.CharField(max_length=80)
     hint9 = models.CharField(max_length=80)
     hint10 = models.CharField(max_length=80)
+
+def _delete_file(path):
+   """ Deletes file from filesystem. """
+   if os.path.isfile(path):
+       os.remove(path)
+
+@receiver(models.signals.post_delete, sender=Image)
+def delete_file(sender, instance, *args, **kwargs):
+    """ Deletes image files on `post_delete` """
+    if instance.image_file:
+        _delete_file(instance.image_file.path)
 

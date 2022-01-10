@@ -225,6 +225,10 @@
       $("#per_page_form").val(per_page);
   });
 
+  $(document).on('click', '.confirm-delete', function(){
+    return confirm('Are you sure you want to delete this?');
+  })
+
   $("#download_elements").click(function( ev ) {
       var active_table_id = document.getElementsByClassName('profile-table-container active')[0].id;
       var active_table = active_table_id.split('_')[0] + "_";

@@ -39,6 +39,8 @@ class ImageForm(forms.ModelForm):
             "file_changed": "Datei bearbeitet?"
         }
 
+class ImageEditForm(ImageForm):
+
     image_file = forms.ImageField(disabled=True)
     solution = forms.CharField(disabled=True)
     author = forms.CharField(disabled=True)
