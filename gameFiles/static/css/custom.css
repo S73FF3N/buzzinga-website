@@ -18,7 +18,7 @@ h4 {
   color:#092f57;
 }
 h5 {
-  color:#f06990;
+  color:#ffffff;
 }
 .text-left {
   text-align: left;
@@ -97,24 +97,6 @@ h5 {
     background-color:#092f57;
 }
 
-/* ---------  SIDEBAR  ----------*/
-.sidebar {
-  position: fixed;
-  left:0;
-  top:50%;
-  width:12vw;
-  overflow-y:auto;
-  background-color:#dc2019;
-  z-index:5;
-}
-.sidebar > .navbar-nav > li > a {
-  color:#ffffff;
-}
-.sidebar > .navbar-nav > li > a:hover {
-  text-decoration: none;
-  background-color: #780905;
-}
-
 /* ---------  SHAPE  ----------*/
 .shape {
   margin-top: 1vh;
@@ -130,6 +112,16 @@ h5 {
 .shape>h2 {
   position:absolute;
   z-index:2;
+}
+.shape>h5 {
+  color:white;
+  position: absolute;
+  height: 20%;
+  bottom:50%;
+  left:5%;
+  opacity:.99;
+  overflow:hidden;
+  z-index:1;
 }
 .shape>i {
   position: absolute;

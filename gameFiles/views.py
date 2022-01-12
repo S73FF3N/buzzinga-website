@@ -22,8 +22,17 @@ from PIL import ImageFont, ImageDraw
 from PIL import Image as PILImage
 
 
+def myFunc(e):
+    return e['latest_create_date']
+
 def home(request):
-    return render(request, 'home.html')
+    newest_categories = Category.objects.filter(private=False).order_by('-created_on')[0:4]
+    categories = Category.objects.filter(private=False)
+    latest_create_dates = []
+    for c in categories:
+        latest_create_dates.append(c.latest_elements())
+    latest_create_dates.sort(key=lambda x:x['latest_create_date'])
+    return render(request, 'home.html', {'newest_categories': newest_categories, 'latest_create_dates': latest_create_dates[0:4]})
 
 
 class GameTypeView(ListView):
