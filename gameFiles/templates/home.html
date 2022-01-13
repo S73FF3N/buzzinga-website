@@ -31,7 +31,7 @@
                 <div class="col-12 col-md-3">
                     <div class="shape">
                         <h2>{{ d.category_name }}</h2>
-                        <h5>{{ d.amount_elements }} Elemente hinzugefügt am {{ d.latest_create_date }}</h5>
+                        <p>+ {{ d.amount_elements }} Elemente am {{ d.latest_create_date|date:'d.m.Y' }}</p>
                     </div>
                 </div>
             {% endfor %}
