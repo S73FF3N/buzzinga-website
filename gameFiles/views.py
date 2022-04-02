@@ -26,12 +26,13 @@ def myFunc(e):
     return e['latest_create_date']
 
 def home(request):
-    newest_categories = Category.objects.filter(private=False).order_by('-created_on')[0:4]
-    categories = Category.objects.filter(private=False)
+    categories = Category.objects.filter(private=False).order_by('-created_on')
+    newest_categories = [c for c in categories if c.amount_files() > 0]
+    newest_categories = newest_categories[0:4]
     latest_create_dates = []
     for c in categories:
         latest_create_dates.append(c.latest_elements())
-    latest_create_dates.sort(key=lambda x:x['latest_create_date'])
+    latest_create_dates.sort(key=lambda x:x['latest_create_date'], reverse=True)
     return render(request, 'home.html', {'newest_categories': newest_categories, 'latest_create_dates': latest_create_dates[0:4]})
 
 

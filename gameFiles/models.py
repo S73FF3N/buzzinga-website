@@ -4,6 +4,7 @@ from django.conf import settings
 from django.dispatch import receiver
 
 import os
+from datetime import date
 
 upload_storage = FileSystemStorage(location=settings.UPLOAD_ROOT, base_url='/uploads')
 
@@ -49,6 +50,7 @@ class GameType(models.Model):
 
     def __str__(self):
         return self.name_de
+
 
 class Category(models.Model):
     name_de = models.CharField(max_length=50)
@@ -109,22 +111,27 @@ class Category(models.Model):
         return elements
 
     def latest_elements(self):
-        if self.game_type.id == 1:
-            latest_create_date = Sound.objects.filter(category=self).order_by('-created_on')[0].created_on.date()
-            amount_elements = Sound.objects.filter(category=self, created_on__date=latest_create_date).count()
-        elif self.game_type.id == 2:
-            latest_create_date = Image.objects.filter(category=self).order_by('-created_on')[0].created_on.date()
-            amount_elements = Image.objects.filter(category=self, created_on__date=latest_create_date).count()
-        elif self.game_type.id == 3:
-            latest_create_date = Question.objects.filter(category=self).order_by('-created_on')[0].created_on.date()
-            amount_elements = Question.objects.filter(category=self, created_on__date=latest_create_date).count()
+        if self.amount_files() > 0:
+            if self.game_type.id == 1:
+                latest_create_date = Sound.objects.filter(category=self).order_by('-created_on')[0].created_on.date()
+                amount_elements = Sound.objects.filter(category=self, created_on__date=latest_create_date).count()
+            elif self.game_type.id == 2:
+                latest_create_date = Image.objects.filter(category=self).order_by('-created_on')[0].created_on.date()
+                amount_elements = Image.objects.filter(category=self, created_on__date=latest_create_date).count()
+            elif self.game_type.id == 3:
+                latest_create_date = Question.objects.filter(category=self).order_by('-created_on')[0].created_on.date()
+                amount_elements = Question.objects.filter(category=self, created_on__date=latest_create_date).count()
+            else:
+                latest_create_date = Hints.objects.filter(category=self).order_by('-created_on')[0].created_on.date()
+                amount_elements = Hints.objects.filter(category=self, created_on__date=latest_create_date).count()
         else:
-            latest_create_date = Hints.objects.filter(category=self).order_by('-created_on')[0].created_on.date()
-            amount_elements = Hints.objects.filter(category=self, created_on__date=latest_create_date).count()
+            latest_create_date = date(1900,1,1)
+            amount_elements = 0
         return {'category_name': self.name_de, 'amount_elements': amount_elements, 'latest_create_date': latest_create_date}
 
     def __str__(self):
         return self.name_de
+
 
 class CategoryElement(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
