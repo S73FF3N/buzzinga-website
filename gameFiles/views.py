@@ -220,7 +220,7 @@ class ImageCreateView(LoginRequiredMixin, ParentCreateView):
         form.instance.created_by = self.request.user
         tags = form.cleaned_data["tags"]
         img = form.instance.image_file
-        file_name = form.instance.solution.maketrans(special_char_map)
+        file_name = form.instance.solution
         img = PILImage.open(img)
         width, height = img.size
         font_size = int(min(width, height)/50)
