@@ -153,9 +153,12 @@ class CategoryElement(models.Model):
     def __str__(self):
         return self.solution
 
+
 def get_upload_path(instance, filename):
+    special_char_map = {'ä': 'ae', 'ü': 'ue', 'ö': 'oe', 'ß': 'ss', ' ': '_'}
+    special_char_map = instance.solution.maketrans(special_char_map)
     ext = filename.split('.')[-1]
-    solution = instance.solution.replace(" ", "_")
+    solution = instance.solution.translate(special_char_map)
     filename_solution = solution+"."+ext
     return '{0}/{1}/{2}'.format(instance.category.game_type.name_de, instance.category.name_de, filename_solution)
 
