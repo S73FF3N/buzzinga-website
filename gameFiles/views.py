@@ -8,10 +8,10 @@ from django.core import serializers
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.base import ContentFile
 
-from .models import GameType, Category, Image, Sound, Question, Tag, Hints, WhoKnowsMore
+from .models import GameType, Category, Image, Sound, Question, Tag, Hints, WhoKnowsMore, WhoKnowsMoreElement
 from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, WhoKnowsMoreForm, \
     WhoKnowsMoreElementFormSet, WhoKnowsMoreElementFormSetUpdate, ImageDownloadForm, SoundDownloadForm, \
-    QuestionDownloadForm, HintForm, HintDownloadForm
+    QuestionDownloadForm, HintForm, HintDownloadForm, WhoKnowsMoreDownloadForm
 
 from dal import autocomplete
 from io import BytesIO
@@ -22,6 +22,8 @@ import tempfile
 import json
 from PIL import ImageFont, ImageDraw
 from PIL import Image as PILImage
+from rest_framework import serializers as srlz
+from rest_framework.renderers import JSONRenderer
 
 
 def myFunc(e):
@@ -649,6 +651,86 @@ class HintDownloadView(LoginRequiredMixin, FormView):
         zip_buffer = BytesIO()
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
             zf.write(tmp_file.name, "Hints/" + category_name + ".json")
+        zip_buffer.seek(0)
+        resp = HttpResponse(zip_buffer, content_type="application/zip")
+        resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
+        return resp
+
+
+class WhoKnowsMoreElementSerializer(srlz.ModelSerializer):
+    class Meta:
+        model = WhoKnowsMoreElement
+        fields = ('id', 'category_element', 'answer')
+
+
+class WhoKnowsMoreSerializer(srlz.ModelSerializer):
+    answers = WhoKnowsMoreElementSerializer(many=True)
+
+    class Meta:
+        model = WhoKnowsMore
+        fields = ('id', 'solution', 'category', 'answers')
+
+
+class WhoKnowsMoreDownloadView(LoginRequiredMixin, FormView):
+    template_name = 'sound-download.html'
+    form_class = WhoKnowsMoreDownloadForm
+
+    def get_success_url(self, **kwargs):
+        category = Category.objects.get(pk=self.kwargs['category_id'])
+        game_type = category.game_type.id
+        return reverse('gamefiles:category_detail', kwargs={'id': category.id, 'game_type': game_type})
+
+    def get_context_data(self, **kwargs):
+        ctx = super(WhoKnowsMoreDownloadView, self).get_context_data(**kwargs)
+        ctx['category_id'] = self.kwargs['category_id']
+        category = Category.objects.get(pk=self.kwargs['category_id'])
+        game_type_id = category.game_type.id
+        ctx['game_type_id'] = game_type_id
+        return ctx
+
+    def get_initial(self):
+        return {
+            'category': self.kwargs['category_id'],
+        }
+
+    def form_valid(self, form):
+        current_user = self.request.user
+        tags = form.cleaned_data["tags"]
+        created_by = form.cleaned_data["created_by"]
+        if not created_by:
+            created_by = User.objects.all()
+        difficulty_range = [int(form.cleaned_data["max_difficulty"]) - i for i in range(
+            int(form.cleaned_data["max_difficulty"]) - int(form.cleaned_data["min_difficulty"]) + 1)]
+        if not tags:
+            whoknowsmore = WhoKnowsMore.objects.filter(category=form.cleaned_data["category"], created_by__in=created_by,
+                                         private_new=False, difficulty__in=difficulty_range).distinct()
+        else:
+            whoknowsmore = WhoKnowsMore.objects.filter(category=form.cleaned_data["category"], tags__in=tags,
+                                         created_by__in=created_by,
+                                         private_new=False, difficulty__in=difficulty_range, ).distinct()
+        if form.cleaned_data["explicit"]:
+            whoknowsmore.filter(explicit=False)
+        if form.cleaned_data["min_upload_date"]:
+            whoknowsmore.filter(created_on__gte=form.cleaned_data["min_upload_date"])
+        if form.cleaned_data["max_upload_date"]:
+            whoknowsmore.filter(created_on__lte=form.cleaned_data["max_upload_date"])
+        if not form.cleaned_data["private_new"]:
+            private_whoknowsmore = WhoKnowsMore.objects.filter(created_by=current_user, private_new=True).distinct()
+            whoknowsmore = whoknowsmore | private_whoknowsmore
+        whoknowsmore_ids = set(list(whoknowsmore.values_list('id', flat=True)))
+        if form.cleaned_data["amount"] < len(whoknowsmore_ids):
+            random_ids = sample(whoknowsmore_ids, form.cleaned_data["amount"])
+            whoknowsmore = whoknowsmore.filter(id__in=random_ids)
+        category_name = Category.objects.get(pk=form.cleaned_data["category"].pk).name_de
+        serialized_whoknowsmore = WhoKnowsMoreSerializer(whoknowsmore, many=True).data
+        json_str = JSONRenderer().render(serialized_whoknowsmore)
+        tmp_file = tempfile.NamedTemporaryFile(mode="w+")
+        json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
+        tmp_file.seek(0)
+        zip_filename = "%s.zip" % category_name
+        zip_buffer = BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
+            zf.write(tmp_file.name, "Wer weiß mehr?/" + category_name + ".json")
         zip_buffer.seek(0)
         resp = HttpResponse(zip_buffer, content_type="application/zip")
         resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename

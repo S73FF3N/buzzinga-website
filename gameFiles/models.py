@@ -72,8 +72,10 @@ class Category(models.Model):
             files = Image.objects.filter(category=self, private_new=False)
         elif self.game_type.id == 3:
             files = Question.objects.filter(category=self, private_new=False)
-        else:
+        elif self.game_type.id == 4:
             files = Hints.objects.filter(category=self, private_new=False)
+        else:
+            files = WhoKnowsMore.objects.filter(category=self, private_new=False)
         return len(files)
 
     def tags_used(self):
@@ -203,11 +205,11 @@ class Hints(CategoryElement):
 
 class WhoKnowsMore(CategoryElement):
     def show_solution(self):
-        return self.whoknowsmoreelement_set.objects.all().values_list('answer', flat=True)
+        return self.answers.objects.all().values_list('answer', flat=True)
 
 
 class WhoKnowsMoreElement(models.Model):
-    category_element = models.ForeignKey(WhoKnowsMore, on_delete=models.CASCADE)
+    category_element = models.ForeignKey(WhoKnowsMore, related_name="answers", on_delete=models.CASCADE)
     answer = models.CharField(max_length=80, verbose_name="Antwort")
 
 

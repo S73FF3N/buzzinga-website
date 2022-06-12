@@ -201,3 +201,30 @@ class HintDownloadForm(forms.ModelForm):
                   'explicit': "Anstößiges ausschließen",
                   'category': "Kategorie",
                   'created_by': "Ersteller"}
+
+
+class WhoKnowsMoreDownloadForm(forms.ModelForm):
+    min_difficulty = forms.ChoiceField(choices=DIFFICULTY, label="Minimale Schwierigkeit")
+    max_difficulty = forms.ChoiceField(choices=DIFFICULTY, label="Maximale Schwierigkeit")
+    min_upload_date = forms.DateField(widget=forms.widgets.DateInput(attrs={'type': 'date'}),
+                                      label="Neuestes Erstelldatum", required=False)
+    max_upload_date = forms.DateField(widget=forms.widgets.DateInput(attrs={'type': 'date'}),
+                                      label="Ältestes Erstelldatum", required=False)
+    amount = forms.IntegerField(label="Anzahl")
+
+    def __init__(self, *args, **kwargs):
+        super(WhoKnowsMoreDownloadForm, self).__init__(*args, **kwargs)
+        self.fields['created_by'].initial = None
+        self.fields['created_by'].required = False
+        self.fields['max_difficulty'].initial = 10
+
+    class Meta:
+        model = WhoKnowsMore
+        form_tag = False
+        fields = ('tags', 'explicit', 'category', 'private_new', 'created_by')
+        widgets = {'tags': autocomplete.ModelSelect2Multiple(url='gamefiles:tag-autocomplete'),
+                   'created_by': autocomplete.ModelSelect2Multiple(url='gamefiles:user-autocomplete')}
+        labels = {'private_new': "Privates ausschließen",
+                  'explicit': "Anstößiges ausschließen",
+                  'category': "Kategorie",
+                  'created_by': "Ersteller"}
