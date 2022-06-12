@@ -10,7 +10,7 @@ upload_storage = FileSystemStorage(location=settings.UPLOAD_ROOT, base_url='/upl
 
 import random
 
-DIFFICULTY = [(i+1,i+1) for i in range(10)]
+DIFFICULTY = [(i + 1, i + 1) for i in range(10)]
 
 LICENSE = (
     ('CC0', 'Creative Commons Zero Public Domain'),
@@ -32,15 +32,18 @@ class Tag(models.Model):
             elements = Image.objects.filter(category=category, tags__in=[self])
         elif category.game_type.id == 3:
             elements = Question.objects.filter(category=category, tags__in=[self])
-        else:
+        elif category.game_type.id == 4:
             elements = Hints.objects.filter(category=category, tags__in=[self])
+        else:
+            elements = WhoKnowsMore.objects.filter(category=category, tags__in=[self])
         return len(elements)
 
     def __str__(self):
         return self.name_de
 
+
 class GameType(models.Model):
-    name_de = models.CharField(max_length=50)
+    name_de = models.CharField(max_length=50, verbose_name="Name")
     logo = models.CharField(max_length=20, blank=True)
     available = models.BooleanField(default=True)
 
@@ -53,10 +56,10 @@ class GameType(models.Model):
 
 
 class Category(models.Model):
-    name_de = models.CharField(max_length=50)
-    game_type = models.ForeignKey(GameType, default=1, on_delete=models.CASCADE, )
-    description_de = models.TextField()
-    private = models.BooleanField(default=False)
+    name_de = models.CharField(max_length=50, verbose_name="Name")
+    game_type = models.ForeignKey(GameType, default=1, on_delete=models.CASCADE, verbose_name="Spielart")
+    description_de = models.TextField(verbose_name="Beschreibung")
+    private = models.BooleanField(default=False, verbose_name="Privat")
     logo = models.CharField(max_length=20, blank=True)
 
     created_on = models.DateTimeField(auto_now_add=True, db_index=True)
@@ -91,23 +94,26 @@ class Category(models.Model):
 
     def examples(self):
         if self.game_type.id == 1:
-            categoryElement_id_list = list(Sound.objects.filter(category=self, private_new=False).values_list('id', flat=True))
+            category_element_id_list = list(
+                Sound.objects.filter(category=self, private_new=False).values_list('id', flat=True))
         elif self.game_type.id == 2:
-            categoryElement_id_list = list(Image.objects.filter(category=self, private_new=False).values_list('id', flat=True))
+            category_element_id_list = list(
+                Image.objects.filter(category=self, private_new=False).values_list('id', flat=True))
         elif self.game_type.id == 3:
-            categoryElement_id_list = list(Question.objects.filter(category=self, private_new=False).values_list('id', flat=True))
+            category_element_id_list = list(
+                Question.objects.filter(category=self, private_new=False).values_list('id', flat=True))
         else:
-            categoryElement_id_list = list(
+            category_element_id_list = list(
                 Hints.objects.filter(category=self, private_new=False).values_list('id', flat=True))
-        random_categoryElement_id_list = random.sample(categoryElement_id_list, min(len(categoryElement_id_list), 5))
+        random_category_element_id_list = random.sample(category_element_id_list, min(len(category_element_id_list), 5))
         if self.game_type.id == 1:
-            elements = Sound.objects.filter(id__in=random_categoryElement_id_list)
+            elements = Sound.objects.filter(id__in=random_category_element_id_list)
         elif self.game_type.id == 2:
-            elements = Image.objects.filter(id__in=random_categoryElement_id_list)
+            elements = Image.objects.filter(id__in=random_category_element_id_list)
         elif self.game_type.id == 3:
-            elements = Question.objects.filter(id__in=random_categoryElement_id_list)
+            elements = Question.objects.filter(id__in=random_category_element_id_list)
         else:
-            elements = Hints.objects.filter(id__in=random_categoryElement_id_list)
+            elements = Hints.objects.filter(id__in=random_category_element_id_list)
         return elements
 
     def latest_elements(self):
@@ -125,20 +131,21 @@ class Category(models.Model):
                 latest_create_date = Hints.objects.filter(category=self).order_by('-created_on')[0].created_on.date()
                 amount_elements = Hints.objects.filter(category=self, created_on__date=latest_create_date).count()
         else:
-            latest_create_date = date(1900,1,1)
+            latest_create_date = date(1900, 1, 1)
             amount_elements = 0
-        return {'category_name': self.name_de, 'amount_elements': amount_elements, 'latest_create_date': latest_create_date}
+        return {'category_name': self.name_de, 'amount_elements': amount_elements,
+                'latest_create_date': latest_create_date}
 
     def __str__(self):
         return self.name_de
 
 
 class CategoryElement(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    private_new = models.BooleanField(default=False)
-    explicit = models.BooleanField(default=False)
-    solution = models.CharField(max_length=80)
-    difficulty = models.PositiveIntegerField(choices=DIFFICULTY)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name="Kategorie")
+    private_new = models.BooleanField(default=False, verbose_name="Privat")
+    explicit = models.BooleanField(default=False, verbose_name="Explizit")
+    solution = models.CharField(max_length=80, verbose_name="Lösung")
+    difficulty = models.PositiveIntegerField(choices=DIFFICULTY, verbose_name="Schwierigkeit")
     tags = models.ManyToManyField(Tag, blank=True)
 
     created_on = models.DateTimeField(auto_now_add=True, db_index=True)
@@ -159,45 +166,59 @@ def get_upload_path(instance, filename):
     special_char_map = instance.solution.maketrans(special_char_map)
     ext = filename.split('.')[-1]
     solution = instance.solution.translate(special_char_map)
-    filename_solution = solution+"."+ext
+    filename_solution = solution + "." + ext
     return '{0}/{1}/{2}'.format(instance.category.game_type.name_de, instance.category.name_de, filename_solution)
 
+
 class Image(CategoryElement):
-    image_file = models.ImageField(upload_to=get_upload_path, storage=upload_storage)
-    author = models.CharField(max_length=50)
-    license = models.CharField(choices=LICENSE, max_length=100)
-    file_changed = models.BooleanField(default=False)
+    image_file = models.ImageField(upload_to=get_upload_path, storage=upload_storage, verbose_name="Bilddatei")
+    author = models.CharField(max_length=50, verbose_name="Urheber")
+    license = models.CharField(choices=LICENSE, max_length=100, verbose_name="Lizenz")
+    file_changed = models.BooleanField(default=False, verbose_name="Datei bearbeitet?")
 
 
 class Sound(CategoryElement):
-    sound_file = models.FileField(upload_to=get_upload_path, storage=upload_storage)
+    sound_file = models.FileField(upload_to=get_upload_path, storage=upload_storage, verbose_name="Sounddatei")
+
 
 class Question(CategoryElement):
-    quiz_question = models.CharField(max_length=150)
-    option1 = models.CharField(max_length=80)
-    option2 = models.CharField(max_length=80)
-    option3 = models.CharField(max_length=80)
+    quiz_question = models.CharField(max_length=150, verbose_name="Frage")
+    option1 = models.CharField(max_length=80, verbose_name="Option 1")
+    option2 = models.CharField(max_length=80, verbose_name="Option 2")
+    option3 = models.CharField(max_length=80, verbose_name="Option 3")
+
 
 class Hints(CategoryElement):
-    hint1 = models.CharField(max_length=80)
-    hint2 = models.CharField(max_length=80)
-    hint3 = models.CharField(max_length=80)
-    hint4 = models.CharField(max_length=80)
-    hint5 = models.CharField(max_length=80)
-    hint6 = models.CharField(max_length=80)
-    hint7 = models.CharField(max_length=80)
-    hint8 = models.CharField(max_length=80)
-    hint9 = models.CharField(max_length=80)
-    hint10 = models.CharField(max_length=80)
+    hint1 = models.CharField(max_length=80, verbose_name="Hinweis 1")
+    hint2 = models.CharField(max_length=80, verbose_name="Hinweis 2")
+    hint3 = models.CharField(max_length=80, verbose_name="Hinweis 3")
+    hint4 = models.CharField(max_length=80, verbose_name="Hinweis 4")
+    hint5 = models.CharField(max_length=80, verbose_name="Hinweis 5")
+    hint6 = models.CharField(max_length=80, verbose_name="Hinweis 6")
+    hint7 = models.CharField(max_length=80, verbose_name="Hinweis 7")
+    hint8 = models.CharField(max_length=80, verbose_name="Hinweis 8")
+    hint9 = models.CharField(max_length=80, verbose_name="Hinweis 9")
+    hint10 = models.CharField(max_length=80, verbose_name="Hinweis 10")
+
+
+class WhoKnowsMore(CategoryElement):
+    def show_solution(self):
+        return self.whoknowsmoreelement_set.objects.all().values_list('answer', flat=True)
+
+
+class WhoKnowsMoreElement(models.Model):
+    category_element = models.ForeignKey(WhoKnowsMore, on_delete=models.CASCADE)
+    answer = models.CharField(max_length=80, verbose_name="Antwort")
+
 
 def _delete_file(path):
-   """ Deletes file from filesystem. """
-   if os.path.isfile(path):
-       os.remove(path)
+    """ Deletes file from filesystem. """
+    if os.path.isfile(path):
+        os.remove(path)
+
 
 @receiver(models.signals.post_delete, sender=Image)
 def delete_file(sender, instance, *args, **kwargs):
     """ Deletes image files on `post_delete` """
     if instance.image_file:
         _delete_file(instance.image_file.path)
-

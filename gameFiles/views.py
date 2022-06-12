@@ -1,5 +1,5 @@
-from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import ListView, FormView, CreateView, UpdateView, DeleteView
 from django.conf import settings
 from django.urls import reverse
@@ -8,8 +8,10 @@ from django.core import serializers
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.base import ContentFile
 
-from .models import GameType, Category, Image, Sound, Question, Tag, Hints, CategoryElement
-from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm
+from .models import GameType, Category, Image, Sound, Question, Tag, Hints, WhoKnowsMore
+from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, WhoKnowsMoreForm, \
+    WhoKnowsMoreElementFormSet, WhoKnowsMoreElementFormSetUpdate, ImageDownloadForm, SoundDownloadForm, \
+    QuestionDownloadForm, HintForm, HintDownloadForm
 
 from dal import autocomplete
 from io import BytesIO
@@ -25,6 +27,7 @@ from PIL import Image as PILImage
 def myFunc(e):
     return e['latest_create_date']
 
+
 def home(request):
     categories = Category.objects.filter(private=False).order_by('-created_on')
     newest_categories = [c for c in categories if c.amount_files() > 0]
@@ -32,8 +35,9 @@ def home(request):
     latest_create_dates = []
     for c in categories:
         latest_create_dates.append(c.latest_elements())
-    latest_create_dates.sort(key=lambda x:x['latest_create_date'], reverse=True)
-    return render(request, 'home.html', {'newest_categories': newest_categories, 'latest_create_dates': latest_create_dates[0:4]})
+    latest_create_dates.sort(key=lambda x: x['latest_create_date'], reverse=True)
+    return render(request, 'home.html',
+                  {'newest_categories': newest_categories, 'latest_create_dates': latest_create_dates[0:4]})
 
 
 class GameTypeView(ListView):
@@ -70,7 +74,7 @@ def category_detail(request, game_type, id=id):
     tags = []
     for t in category.tags_used():
         tags.append((t.name_de, t.amount_elements_with_tag(category=category)))
-    sorted_tags = sorted(tags, key=lambda x:x[1])
+    sorted_tags = sorted(tags, key=lambda x: x[1])
     sorted_tags = sorted_tags[::-1]
 
     if game_type == 1:
@@ -79,15 +83,19 @@ def category_detail(request, game_type, id=id):
         category_elements = Image.objects.filter(category=category, private_new=False)
     elif game_type == 3:
         category_elements = Question.objects.filter(category=category, private_new=False)
-    else:
+    elif game_type == 4:
         category_elements = Hints.objects.filter(category=category, private_new=False)
+    else:
+        category_elements = WhoKnowsMore.objects.filter(category=category, private_new=False)
     difficulty_count = {}
     for e in category_elements.all():
         if e.difficulty not in difficulty_count.keys():
             difficulty_count[e.difficulty] = 1
         else:
             difficulty_count[e.difficulty] += 1
-    return render(request, 'category_detail.html', {'game_type': game_type, 'category': category, 'tags': sorted_tags[:5], 'labels': list(difficulty_count.keys()), 'data': list(difficulty_count.values())})
+    return render(request, 'category_detail.html',
+                  {'game_type': game_type, 'category': category, 'tags': sorted_tags[:5],
+                   'labels': list(difficulty_count.keys()), 'data': list(difficulty_count.values())})
 
 
 class CategoryCreateView(LoginRequiredMixin, CreateView):
@@ -102,7 +110,7 @@ class CategoryCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page':10})
+        return reverse('account:profile', kwargs={'per_page': 10})
 
 
 class CategoryEditView(LoginRequiredMixin, UpdateView):
@@ -111,7 +119,7 @@ class CategoryEditView(LoginRequiredMixin, UpdateView):
     template_name = 'category-edit.html'
 
     def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page':10})
+        return reverse('account:profile', kwargs={'per_page': 10})
 
 
 class ImageEditView(LoginRequiredMixin, UpdateView):
@@ -120,7 +128,7 @@ class ImageEditView(LoginRequiredMixin, UpdateView):
     template_name = 'image-edit.html'
 
     def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page':10})
+        return reverse('account:profile', kwargs={'per_page': 10})
 
 
 class SoundEditView(LoginRequiredMixin, UpdateView):
@@ -129,7 +137,7 @@ class SoundEditView(LoginRequiredMixin, UpdateView):
     template_name = 'sound-edit.html'
 
     def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page':10})
+        return reverse('account:profile', kwargs={'per_page': 10})
 
 
 class QuestionEditView(LoginRequiredMixin, UpdateView):
@@ -138,7 +146,7 @@ class QuestionEditView(LoginRequiredMixin, UpdateView):
     template_name = 'question-edit.html'
 
     def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page':10})
+        return reverse('account:profile', kwargs={'per_page': 10})
 
 
 class HintEditView(LoginRequiredMixin, UpdateView):
@@ -147,14 +155,60 @@ class HintEditView(LoginRequiredMixin, UpdateView):
     template_name = 'hint-edit.html'
 
     def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page':10})
+        return reverse('account:profile', kwargs={'per_page': 10})
+
+
+class WhoKnowsMoreEditView(LoginRequiredMixin, UpdateView):
+    model = WhoKnowsMore
+    form_class = WhoKnowsMoreForm
+    template_name = 'who-knows-more-edit.html'
+    object = None
+
+    def get_object(self, queryset=None):
+        self.object = super(WhoKnowsMoreEditView, self).get_object()
+        return self.object
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        formset = WhoKnowsMoreElementFormSetUpdate(instance=self.object)
+        return self.render_to_response(
+            self.get_context_data(form=WhoKnowsMoreForm(instance=self.object),
+                                  formset=formset,
+                                  )
+        )
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = WhoKnowsMoreForm(data=self.request.POST, instance=self.object)
+        formset = WhoKnowsMoreElementFormSetUpdate(data=self.request.POST,
+                                                   instance=self.object)
+        if form.is_valid() and formset.is_valid():
+            print(formset.is_valid())
+            return self.form_valid(form, formset)
+        else:
+            return self.form_invalid(form, formset)
+
+    def form_valid(self, form, formset):
+        self.object = form.save()
+        instances = formset.save(commit=False)
+        for instance in instances:
+            instance.category_element = self.object
+            instance.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def form_invalid(self, form, formset):
+        return self.render_to_response(self.get_context_data(form=form,
+                                                             formset=formset))
+
+    def get_success_url(self):
+        return reverse('account:profile', kwargs={'per_page': 10})
 
 
 class CategoryDeleteView(LoginRequiredMixin, DeleteView):
     model = Category
 
     def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page':10})
+        return reverse('account:profile', kwargs={'per_page': 10})
 
     def get(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
@@ -164,7 +218,7 @@ class ImageDeleteView(LoginRequiredMixin, DeleteView):
     model = Image
 
     def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page':10})
+        return reverse('account:profile', kwargs={'per_page': 10})
 
     def get(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
@@ -174,7 +228,7 @@ class SoundDeleteView(LoginRequiredMixin, DeleteView):
     model = Sound
 
     def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page':10})
+        return reverse('account:profile', kwargs={'per_page': 10})
 
     def get(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
@@ -184,7 +238,7 @@ class QuestionDeleteView(LoginRequiredMixin, DeleteView):
     model = Question
 
     def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page':10})
+        return reverse('account:profile', kwargs={'per_page': 10})
 
     def get(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
@@ -194,7 +248,17 @@ class HintDeleteView(LoginRequiredMixin, DeleteView):
     model = Hints
 
     def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page':10})
+        return reverse('account:profile', kwargs={'per_page': 10})
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
+
+
+class WhoKnowsMoreDeleteView(LoginRequiredMixin, DeleteView):
+    model = WhoKnowsMore
+
+    def get_success_url(self):
+        return reverse('account:profile', kwargs={'per_page': 10})
 
     def get(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
@@ -223,12 +287,12 @@ class ImageCreateView(LoginRequiredMixin, ParentCreateView):
         file_name = form.instance.solution
         img = PILImage.open(img)
         width, height = img.size
-        font_size = int(min(width, height)/50)
+        font_size = int(min(width, height) / 50)
         font = ImageFont.truetype("Montserrat-Regular.ttf", font_size)
         if form.instance.file_changed:
-            text = "by "+form.instance.author+" (modified from original) licensed under "+form.instance.license
+            text = "by " + form.instance.author + " (modified from original) licensed under " + form.instance.license
         else:
-            text = "by "+form.instance.author+" licensed under "+form.instance.license
+            text = "by " + form.instance.author + " licensed under " + form.instance.license
         if form.instance.license == "CC0":
             text_license = "https://creativecommons.org/publicdomain/zero/1.0/deed.de"
         elif form.instance.license == "CC BY":
@@ -240,7 +304,8 @@ class ImageCreateView(LoginRequiredMixin, ParentCreateView):
         text_license_width = font.getsize(text_license)[0]
         text_license_height = font.getsize(text_license)[1]
         img_edit = ImageDraw.Draw(img)
-        img_edit.text((width - text_width - 5, height - text_height - text_license_height - 10), text, (222, 222, 222), font=font)
+        img_edit.text((width - text_width - 5, height - text_height - text_license_height - 10), text, (222, 222, 222),
+                      font=font)
         img_edit.text((width - text_license_width - 5, height - text_license_height - 5), text_license, (222, 222, 222),
                       font=font)
         image_io = BytesIO()
@@ -283,6 +348,52 @@ class HintCreateView(LoginRequiredMixin, ParentCreateView):
         return reverse('account:profile', kwargs={'per_page': 10})
 
 
+class WhoKnowsMoreCreateView(LoginRequiredMixin, ParentCreateView):
+    model = WhoKnowsMore
+    form_class = WhoKnowsMoreForm
+    template_name = 'who-knows-more-edit.html'
+
+    def get(self, request, *args, **kwargs):
+        self.object = None
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        formset = WhoKnowsMoreElementFormSet()
+        return self.render_to_response(
+            self.get_context_data(form=form,
+                                  formset=formset,
+                                  )
+        )
+
+    def post(self, request, *args, **kwargs):
+        self.object = None
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        formset = WhoKnowsMoreElementFormSet(self.request.POST)
+        print(formset.data)
+        if form.is_valid() and formset.is_valid():
+            return self.form_valid(form, formset)
+        else:
+            return self.form_invalid(form, formset)
+
+    def form_valid(self, form, formset):
+        formset = formset
+        if formset.is_valid and form.is_valid():
+            self.object = form.save()
+            instances = formset.save(commit=False)
+            for instance in instances:
+                instance.category_element = self.object
+                instance.save()
+            return redirect(self.get_success_url())
+        else:
+            return self.form_invalid(form, formset)
+
+    def form_invalid(self, form, formset):
+        return self.render_to_response(self.get_context_data(form=form, formset=formset))
+
+    def get_success_url(self):
+        return reverse('account:profile', kwargs={'per_page': 10})
+
+
 class ImageDownloadView(LoginRequiredMixin, FormView):
     template_name = 'sound-download.html'
     form_class = ImageDownloadForm
@@ -311,9 +422,11 @@ class ImageDownloadView(LoginRequiredMixin, FormView):
         created_by = form.cleaned_data["created_by"]
         if not created_by:
             created_by = User.objects.all()
-        difficulty_range = [int(form.cleaned_data["max_difficulty"])-i for i in range(int(form.cleaned_data["max_difficulty"])-int(form.cleaned_data["min_difficulty"])+1)]
+        difficulty_range = [int(form.cleaned_data["max_difficulty"]) - i for i in range(
+            int(form.cleaned_data["max_difficulty"]) - int(form.cleaned_data["min_difficulty"]) + 1)]
         if not tags:
-            images = Image.objects.filter(category=form.cleaned_data["category"], created_by__in=created_by, private_new=False, difficulty__in=difficulty_range).distinct()
+            images = Image.objects.filter(category=form.cleaned_data["category"], created_by__in=created_by,
+                                          private_new=False, difficulty__in=difficulty_range).distinct()
         else:
             images = Image.objects.filter(category=form.cleaned_data["category"], tags__in=tags,
                                           created_by__in=created_by,
@@ -338,7 +451,8 @@ class ImageDownloadView(LoginRequiredMixin, FormView):
             for i in images:
                 image_name_split = i.image_file.name.split("/")
                 if len(image_name_split[2]) > 4:
-                    zf.write(settings.MEDIA_ROOT+"/"+i.image_file.name, "Bilder/"+image_name_split[1]+"/"+image_name_split[2])
+                    zf.write(settings.MEDIA_ROOT + "/" + i.image_file.name,
+                             "Bilder/" + image_name_split[1] + "/" + image_name_split[2])
                 else:
                     continue
         zip_buffer.seek(0)
@@ -374,10 +488,12 @@ class SoundDownloadView(LoginRequiredMixin, FormView):
         difficulty_range = [int(form.cleaned_data["max_difficulty"]) - i for i in range(
             int(form.cleaned_data["max_difficulty"]) - int(form.cleaned_data["min_difficulty"]) + 1)]
         if not tags:
-            sounds = Sound.objects.filter(category=form.cleaned_data["category"], created_by__in=created_by, private_new=False, difficulty__in=difficulty_range).distinct()
+            sounds = Sound.objects.filter(category=form.cleaned_data["category"], created_by__in=created_by,
+                                          private_new=False, difficulty__in=difficulty_range).distinct()
         else:
             sounds = Sound.objects.filter(category=form.cleaned_data["category"], tags__in=tags,
-                                          created_by__in=created_by, private_new=False, difficulty__in=difficulty_range).distinct()
+                                          created_by__in=created_by, private_new=False,
+                                          difficulty__in=difficulty_range).distinct()
         if form.cleaned_data["explicit"]:
             sounds.filter(explicit=False)
         if form.cleaned_data["min_upload_date"]:
@@ -398,7 +514,8 @@ class SoundDownloadView(LoginRequiredMixin, FormView):
             for s in sounds:
                 sound_name_split = s.sound_file.name.split("/")
                 if len(sound_name_split[2]) > 4:
-                    zf.write(settings.MEDIA_ROOT+"/"+s.sound_file.name, "Audio/"+sound_name_split[1]+"/"+sound_name_split[2])
+                    zf.write(settings.MEDIA_ROOT + "/" + s.sound_file.name,
+                             "Audio/" + sound_name_split[1] + "/" + sound_name_split[2])
                 else:
                     continue
         zip_buffer.seek(0)
@@ -438,11 +555,12 @@ class QuestionDownloadView(LoginRequiredMixin, FormView):
         difficulty_range = [int(form.cleaned_data["max_difficulty"]) - i for i in range(
             int(form.cleaned_data["max_difficulty"]) - int(form.cleaned_data["min_difficulty"]) + 1)]
         if not tags:
-            questions = Question.objects.filter(category=form.cleaned_data["category"], created_by__in=created_by, private_new=False, difficulty__in=difficulty_range).distinct()
+            questions = Question.objects.filter(category=form.cleaned_data["category"], created_by__in=created_by,
+                                                private_new=False, difficulty__in=difficulty_range).distinct()
         else:
             questions = Question.objects.filter(category=form.cleaned_data["category"], tags__in=tags,
                                                 created_by__in=created_by,
-                                                private_new=False, difficulty__in=difficulty_range,).distinct()
+                                                private_new=False, difficulty__in=difficulty_range, ).distinct()
         if form.cleaned_data["explicit"]:
             questions.filter(explicit=False)
         if form.cleaned_data["min_upload_date"]:
@@ -457,7 +575,8 @@ class QuestionDownloadView(LoginRequiredMixin, FormView):
             random_ids = sample(questions_ids, form.cleaned_data["amount"])
             questions = questions.filter(id__in=random_ids)
         category_name = Category.objects.get(pk=form.cleaned_data["category"].pk).name_de
-        json_str = serializers.serialize('json', questions)#, fields=('quiz_question', 'solution', 'option1', 'option2', 'option3'))
+        json_str = serializers.serialize('json',
+                                         questions)  # , fields=('quiz_question', 'solution', 'option1', 'option2', 'option3'))
         tmp_file = tempfile.NamedTemporaryFile(mode="w+")
         json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
         tmp_file.seek(0)
@@ -502,11 +621,12 @@ class HintDownloadView(LoginRequiredMixin, FormView):
         difficulty_range = [int(form.cleaned_data["max_difficulty"]) - i for i in range(
             int(form.cleaned_data["max_difficulty"]) - int(form.cleaned_data["min_difficulty"]) + 1)]
         if not tags:
-            hints = Hints.objects.filter(category=form.cleaned_data["category"], created_by__in=created_by, private_new=False, difficulty__in=difficulty_range).distinct()
+            hints = Hints.objects.filter(category=form.cleaned_data["category"], created_by__in=created_by,
+                                         private_new=False, difficulty__in=difficulty_range).distinct()
         else:
             hints = Hints.objects.filter(category=form.cleaned_data["category"], tags__in=tags,
-                                                created_by__in=created_by,
-                                                private_new=False, difficulty__in=difficulty_range,).distinct()
+                                         created_by__in=created_by,
+                                         private_new=False, difficulty__in=difficulty_range, ).distinct()
         if form.cleaned_data["explicit"]:
             hints.filter(explicit=False)
         if form.cleaned_data["min_upload_date"]:
@@ -534,6 +654,7 @@ class HintDownloadView(LoginRequiredMixin, FormView):
         resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
         return resp
 
+
 def solution(request, game_type, category_element):
     game_type = GameType.objects.get(id=game_type)
     if game_type.name_de == "Audio":
@@ -544,7 +665,10 @@ def solution(request, game_type, category_element):
         solution = Question.objects.get(id=category_element)
     elif game_type.name_de == "10 Hinweise":
         solution = Hints.objects.get(id=category_element)
+    elif game_type.name_de == "Wer weiß mehr?":
+        solution = WhoKnowsMore.objects.get(id=category_element)  # .show_solution()
     return render(request, 'solution.html', {'solution': solution})
+
 
 class TagAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
