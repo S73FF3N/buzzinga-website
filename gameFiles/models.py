@@ -205,7 +205,7 @@ class Hints(CategoryElement):
 
 class WhoKnowsMore(CategoryElement):
     def show_solution(self):
-        return self.answers.objects.all().values_list('answer', flat=True)
+        return self.answers.all()
 
 
 class WhoKnowsMoreElement(models.Model):

@@ -660,7 +660,7 @@ class HintDownloadView(LoginRequiredMixin, FormView):
 class WhoKnowsMoreElementSerializer(srlz.ModelSerializer):
     class Meta:
         model = WhoKnowsMoreElement
-        fields = ('id', 'category_element', 'answer')
+        fields = ('id', 'answer')
 
 
 class WhoKnowsMoreSerializer(srlz.ModelSerializer):
@@ -668,7 +668,7 @@ class WhoKnowsMoreSerializer(srlz.ModelSerializer):
 
     class Meta:
         model = WhoKnowsMore
-        fields = ('id', 'solution', 'category', 'answers')
+        fields = ('id', 'solution', 'answers')
 
 
 class WhoKnowsMoreDownloadView(LoginRequiredMixin, FormView):
@@ -740,15 +740,15 @@ class WhoKnowsMoreDownloadView(LoginRequiredMixin, FormView):
 def solution(request, game_type, category_element):
     game_type = GameType.objects.get(id=game_type)
     if game_type.name_de == "Audio":
-        solution = Sound.objects.get(id=category_element)
+        solution = {"type": "Sound", "qs": Sound.objects.get(id=category_element)}
     elif game_type.name_de == "Bilder":
-        solution = Image.objects.get(id=category_element)
+        solution = {"type": "Image", "qs": Image.objects.get(id=category_element)}
     elif game_type.name_de == "Multiple Choice":
-        solution = Question.objects.get(id=category_element)
+        solution = {"type": "Multiple Choice", "qs": Question.objects.get(id=category_element)}
     elif game_type.name_de == "10 Hinweise":
-        solution = Hints.objects.get(id=category_element)
+        solution = {"type": "Hints", "qs": Hints.objects.get(id=category_element)}
     elif game_type.name_de == "Wer weiß mehr?":
-        solution = WhoKnowsMore.objects.get(id=category_element)  # .show_solution()
+        solution = {"type": "WhoKnowsMore", "qs": WhoKnowsMore.objects.get(id=category_element).show_solution()}
     return render(request, 'solution.html', {'solution': solution})
 
 

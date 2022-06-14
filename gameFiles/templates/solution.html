@@ -9,6 +9,46 @@
 
 {% block content %}
 <div class="container">
-    <h1>{{ solution }}</h1>
+    {% if solution.type == "WhoKnowsMore" %}
+        <h2 style="color: red;">Ungelöst</h2>
+        {% for s in solution.qs.all %}
+            <div class="row" id="unsolved-{{ s.id }}">
+                <div class="col-1">
+                    <h3>{{ forloop.counter }}</h3>
+                </div>
+                <div class="col-10">
+                    <h3>{{ s.answer }}</h3>
+                </div>
+                <div class="col-1">
+                    <input type="checkbox" name="checkbox-{{ s.id }}" id="checkbox-{{ s.id }}">
+                </div>
+            </div>
+        {% endfor %}
+        <h2 style="color: red;">Gelöst</h2>
+        {% for s in solution.qs.all %}
+            <div class="row d-none" id="solved-{{ s.id }}">
+                <div class="col-1">
+                    <h3>{{ forloop.counter }}</h3>
+                </div>
+                <div class="col-11">
+                    <h3>{{ s.answer }}</h3>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <h1>{{ solution.qs }}</h1>
+    {% endif %}
 </div>
+<script type="text/javascript">
+    var checkboxes = $('[id^="checkbox-"]');
+    for(field_name of checkboxes){
+            let checkbox_id = field_name.id.slice(9)
+            let solved = "solved-".concat(checkbox_id.toString());
+            let unsolved = "unsolved-".concat(checkbox_id.toString());
+            $(`#${field_name.id}`).change(function () {
+                $(`#${unsolved}`).addClass("d-none");
+                $(`#${solved}`).removeClass("d-none");
+            });
+        }
+</script>
 {% endblock %}
