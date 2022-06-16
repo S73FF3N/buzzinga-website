@@ -184,8 +184,8 @@ class WhoKnowsMoreEditView(LoginRequiredMixin, UpdateView):
         form = WhoKnowsMoreForm(data=self.request.POST, instance=self.object)
         formset = WhoKnowsMoreElementFormSetUpdate(data=self.request.POST,
                                                    instance=self.object)
+        print(formset.errors)
         if form.is_valid() and formset.is_valid():
-            print(formset.is_valid())
             return self.form_valid(form, formset)
         else:
             return self.form_invalid(form, formset)
@@ -195,6 +195,7 @@ class WhoKnowsMoreEditView(LoginRequiredMixin, UpdateView):
         instances = formset.save(commit=False)
         for instance in instances:
             instance.category_element = self.object
+            instance.count_id = len(WhoKnowsMoreElement.objects.filter(category_element=self.object)) + 1
             instance.save()
         return HttpResponseRedirect(self.get_success_url())
 
@@ -371,7 +372,7 @@ class WhoKnowsMoreCreateView(LoginRequiredMixin, ParentCreateView):
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         formset = WhoKnowsMoreElementFormSet(self.request.POST)
-        print(formset.data)
+        print(formset.errors)
         if form.is_valid() and formset.is_valid():
             return self.form_valid(form, formset)
         else:
@@ -384,6 +385,7 @@ class WhoKnowsMoreCreateView(LoginRequiredMixin, ParentCreateView):
             instances = formset.save(commit=False)
             for instance in instances:
                 instance.category_element = self.object
+                instance.count_id = len(WhoKnowsMoreElement.objects.filter(category_element=self.object)) + 1
                 instance.save()
             return redirect(self.get_success_url())
         else:
@@ -660,7 +662,7 @@ class HintDownloadView(LoginRequiredMixin, FormView):
 class WhoKnowsMoreElementSerializer(srlz.ModelSerializer):
     class Meta:
         model = WhoKnowsMoreElement
-        fields = ('id', 'answer')
+        fields = ('count_id', 'answer')
 
 
 class WhoKnowsMoreSerializer(srlz.ModelSerializer):

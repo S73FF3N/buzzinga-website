@@ -14,7 +14,7 @@
         {% for s in solution.qs.all %}
             <div class="row" id="unsolved-{{ s.id }}">
                 <div class="col-1">
-                    <h3>{{ forloop.counter }}</h3>
+                    <h3>{{ s.count_id }}</h3>
                 </div>
                 <div class="col-10">
                     <h3>{{ s.answer }}</h3>
@@ -28,7 +28,7 @@
         {% for s in solution.qs.all %}
             <div class="row d-none" id="solved-{{ s.id }}">
                 <div class="col-1">
-                    <h3>{{ forloop.counter }}</h3>
+                    <h3>{{ s.count_id }}</h3>
                 </div>
                 <div class="col-11">
                     <h3>{{ s.answer }}</h3>

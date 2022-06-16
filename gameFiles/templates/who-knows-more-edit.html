@@ -52,6 +52,7 @@
             {% for f in formset %}
                 <div class="col-12 col-lg-4 form-group">
                     {{ f.id }}
+                    {{ f.count_id }}
                     {{ f.answer.label_tag }}
                     {% render_field f.answer class="form-control" %}
                 </div>
@@ -65,7 +66,6 @@
     function cloneMore(selector, type) {
         var newElement = $(selector).clone(true);
         var total = $('#id_' + type + '-TOTAL_FORMS').val();
-        console.log(total);
         newElement.find(':input').each(function() {
             var name = $(this).attr('name').replace('-' + (total-1) + '-','-' + total + '-');
             var id = 'id_' + name;
@@ -81,7 +81,7 @@
     };
 
     $('#add_more').click(function() {
-        cloneMore('div.col-12:last', 'whoknowsmoreelement_set');
+        cloneMore('div.col-12:last', 'answers');
     });
 </script>
 {% endblock %}

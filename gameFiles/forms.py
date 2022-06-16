@@ -87,13 +87,15 @@ class WhoKnowsMoreElementForm(forms.ModelForm):
     class Meta:
         model = WhoKnowsMoreElement
         form_tag = False
-        fields = ('category_element', 'answer')
+        fields = ('id', 'count_id', 'category_element', 'answer')
+        widgets = {'count_id': forms.HiddenInput()}
 
 
 WhoKnowsMoreElementFormSet = inlineformset_factory(WhoKnowsMore, WhoKnowsMoreElement, fields=['answer'], extra=10,
                                                    can_delete=False, max_num=100, validate_max=True)
 WhoKnowsMoreElementFormSetUpdate = inlineformset_factory(WhoKnowsMore, WhoKnowsMoreElement, fields=['answer'], extra=0,
                                                          can_delete=True, max_num=100, validate_max=True)
+
 
 class ImageDownloadForm(forms.ModelForm):
     min_difficulty = forms.ChoiceField(choices=DIFFICULTY, label="Minimale Schwierigkeit")

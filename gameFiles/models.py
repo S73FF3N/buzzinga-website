@@ -129,9 +129,12 @@ class Category(models.Model):
             elif self.game_type.id == 3:
                 latest_create_date = Question.objects.filter(category=self).order_by('-created_on')[0].created_on.date()
                 amount_elements = Question.objects.filter(category=self, created_on__date=latest_create_date).count()
-            else:
+            elif self.game_type.id == 4:
                 latest_create_date = Hints.objects.filter(category=self).order_by('-created_on')[0].created_on.date()
                 amount_elements = Hints.objects.filter(category=self, created_on__date=latest_create_date).count()
+            else:
+                latest_create_date = WhoKnowsMore.objects.filter(category=self).order_by('-created_on')[0].created_on.date()
+                amount_elements = WhoKnowsMore.objects.filter(category=self, created_on__date=latest_create_date).count()
         else:
             latest_create_date = date(1900, 1, 1)
             amount_elements = 0
@@ -205,12 +208,13 @@ class Hints(CategoryElement):
 
 class WhoKnowsMore(CategoryElement):
     def show_solution(self):
-        return self.answers.all()
+        return self.answers.all().order_by('answer')
 
 
 class WhoKnowsMoreElement(models.Model):
     category_element = models.ForeignKey(WhoKnowsMore, related_name="answers", on_delete=models.CASCADE)
     answer = models.CharField(max_length=80, verbose_name="Antwort")
+    count_id = models.IntegerField(blank=True, null=True)
 
 
 def _delete_file(path):
