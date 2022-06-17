@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Tag, GameType, Category, Sound, Image, Question, Hints
+from .models import Tag, GameType, Category, Sound, Image, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement
 
 class TagAdmin(admin.ModelAdmin):
     list_display = ['name_de']
@@ -29,4 +29,18 @@ admin.site.register(Question, QuestionAdmin)
 class HintAdmin(admin.ModelAdmin):
     list_display = ['solution']
 admin.site.register(Hints, HintAdmin)
+
+class WhoKnowsMoreElementInline(admin.TabularInline):
+    model = WhoKnowsMoreElement
+
+class WhoKnowsMoreAdmin(admin.ModelAdmin):
+    list_display = ['solution']
+    inlines = [
+        WhoKnowsMoreElementInline,
+    ]
+admin.site.register(WhoKnowsMore, WhoKnowsMoreAdmin)
+
+class WhoKnowsMoreElementAdmin(admin.ModelAdmin):
+    list_display = ['answer']
+admin.site.register(WhoKnowsMoreElement, WhoKnowsMoreElementAdmin)
 

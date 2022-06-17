@@ -10,8 +10,10 @@
         {% url 'gamefiles:image-delete' record.pk %}
     {% elif record.category.game_type.pk == 3 %}
         {% url 'gamefiles:question-delete' record.pk %}
-    {% else %}
+    {% elif record.category.game_type.pk == 4 %}
         {% url 'gamefiles:hint-delete' record.pk %}
+    {% else %}
+        {% url 'gamefiles:whoknowsmore-delete' record.pk %}
     {% endif %}
 {% endif %}
 "><i class="fa fa-trash"></i></a>

@@ -1,7 +1,7 @@
 import django_filters
 from dal import autocomplete
 
-from .models import Tag, Image, Sound, Question, Category, Hints
+from .models import Tag, Image, Sound, Question, Category, Hints, WhoKnowsMore
 
 
 class ProfileFilter(django_filters.FilterSet):
@@ -39,6 +39,13 @@ class QuestionFilter(ProfileFilter):
 class HintFilter(ProfileFilter):
     class Meta:
         model = Hints
+        fields = ['solution', 'category', 'private_new', 'tags']
+        order_by = ['pk']
+
+
+class WhoKnowsMoreFilter(ProfileFilter):
+    class Meta:
+        model = WhoKnowsMore
         fields = ['solution', 'category', 'private_new', 'tags']
         order_by = ['pk']
 

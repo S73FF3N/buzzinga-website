@@ -11,39 +11,62 @@ import zipfile
 import json
 import tempfile
 
-from gameFiles.tables import SoundTable, ImageTable, QuestionTable, HintTable, CategoryTable
-from gameFiles.filters import ProfileFilter, ImageFilter, SoundFilter, QuestionFilter, CategoryFilter, HintFilter
-from gameFiles.models import Category, Image, Sound, Question, Hints
+from gameFiles.tables import SoundTable, ImageTable, QuestionTable, HintTable, CategoryTable, WhoKnowsMoreTable
+from gameFiles.filters import ProfileFilter, ImageFilter, SoundFilter, QuestionFilter, CategoryFilter, HintFilter, \
+    WhoKnowsMoreFilter
+from gameFiles.models import Category, Image, Sound, Question, Hints, WhoKnowsMore
+
 
 @login_required
 def profile_view(request, per_page=10):
-    context = {}
-    context['profile_filter'] = ImageFilter(prefix="profile")
-    context['images_table'] = create_profile_table(request, "images_", per_page)
-    context['sounds_table'] = create_profile_table(request, "sounds_", per_page)
-    context['questions_table'] = create_profile_table(request, "questions_", per_page)
-    context['hints_table'] = create_profile_table(request, "hints_", per_page)
-    context['categories_table'] = create_profile_table(request, "categories_", per_page)
+    context = {'profile_filter': ImageFilter(prefix="profile"),
+               'images_table': create_profile_table(request, "images_", per_page),
+               'sounds_table': create_profile_table(request, "sounds_", per_page),
+               'questions_table': create_profile_table(request, "questions_", per_page),
+               'hints_table': create_profile_table(request, "hints_", per_page),
+               'whoknowsmore_table': create_profile_table(request, "whoknowsmore_", per_page),
+               'categories_table': create_profile_table(request, "categories_", per_page)}
     return render(request, 'profile.html', context)
 
-def get_profile_table(request, per_page):
 
+def get_profile_table(request, per_page):
     active_table = request.GET.get("active_table")
-    if active_table in ["images_", "sounds_", "questions_", "categories_", "hints_"]:
+    if active_table in ["images_", "sounds_", "questions_", "categories_", "hints_", "whoknowsmore_"]:
         data = {
-            "active_table":active_table,
-            "html":render_to_string('profile_table_view.html', {'request':request, 'table':create_profile_table(request, active_table, per_page)})
+            "active_table": active_table,
+            "html": render_to_string('profile_table_view.html', {'request': request,
+                                                                 'table': create_profile_table(request, active_table,
+                                                                                               per_page)})
         }
         return JsonResponse(data)
-    return JsonResponse({"active_table":"error","msg":_("Invalid table name")})
+    return JsonResponse({"active_table": "error", "msg": "Invalid table name"})
+
 
 def set_profile_filter(request, per_page):
-    context = {}
-    context['images_table'] = render_to_string('profile_table_view.html', {'request':request, 'table':create_profile_table(request, "images_", per_page)})
-    context['sounds_table'] = render_to_string('profile_table_view.html', {'request': request, 'table': create_profile_table(request, "sounds_", per_page)})
-    context['questions_table'] = render_to_string('profile_table_view.html', {'request': request, 'table': create_profile_table(request, "questions_", per_page)})
-    context['hints_table'] = render_to_string('profile_table_view.html', {'request': request, 'table': create_profile_table(request, "hints_", per_page)})
-    context['categories_table'] = render_to_string('profile_table_view.html', {'request': request, 'table': create_profile_table(request, "categories_", per_page)})
+    context = {'images_table': render_to_string('profile_table_view.html', {'request': request,
+                                                                            'table': create_profile_table(request,
+                                                                                                          "images_",
+                                                                                                          per_page)}),
+               'sounds_table': render_to_string('profile_table_view.html', {'request': request,
+                                                                            'table': create_profile_table(request,
+                                                                                                          "sounds_",
+                                                                                                          per_page)}),
+               'questions_table': render_to_string('profile_table_view.html', {'request': request,
+                                                                               'table': create_profile_table(request,
+                                                                                                             "questions_",
+                                                                                                             per_page)}),
+               'hints_table': render_to_string('profile_table_view.html', {'request': request,
+                                                                           'table': create_profile_table(request,
+                                                                                                         "hints_",
+                                                                                                         per_page)}),
+               'whoknowsmore_table': render_to_string('profile_table_view.html', {'request': request,
+                                                                                  'table': create_profile_table(request,
+                                                                                                                "whoknowsmore_",
+                                                                                                                per_page)}),
+               'categories_table': render_to_string('profile_table_view.html', {'request': request,
+                                                                                'table': create_profile_table(request,
+                                                                                                              "categories_",
+                                                                                                              per_page)})}
     return JsonResponse(context)
 
 
@@ -73,6 +96,12 @@ def create_profile_table(request, table_name, per_page):
         elements = qs_created_by_current_user | qs_private
         filter_obj = HintFilter(request.GET, elements, prefix="profile")
         table = HintTable(filter_obj.qs, prefix="hints_")
+    elif table_name == "whoknowsmore_":
+        qs_created_by_current_user = WhoKnowsMore.objects.filter(created_by=user)
+        qs_private = WhoKnowsMore.objects.filter(category__private=False, private_new=False)
+        elements = qs_created_by_current_user | qs_private
+        filter_obj = WhoKnowsMoreFilter(request.GET, elements, prefix="profile")
+        table = WhoKnowsMoreTable(filter_obj.qs, prefix="whoknowsmore_")
     elif table_name == "categories_":
         qs_created_by_current_user = Category.objects.filter(created_by=user)
         qs_private = Category.objects.filter(private=False)
@@ -80,10 +109,10 @@ def create_profile_table(request, table_name, per_page):
         filter_obj = CategoryFilter(request.GET, elements, prefix="profile")
         table = CategoryTable(filter_obj.qs, prefix="category_")
 
-    #table.user_id = user.id
     table.per_page = int(per_page)
-    RequestConfig(request, paginate={"per_page":int(per_page)}).configure(table)
+    RequestConfig(request, paginate={"per_page": int(per_page)}).configure(table)
     return table
+
 
 def download_elements(self, active_table, element_string):
     zip_filename = "BuzzingaDownloads.zip"
@@ -115,7 +144,8 @@ def download_elements(self, active_table, element_string):
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
             for c in categories:
                 category_elements = elements.filter(category=c)
-                json_str = serializers.serialize('json', category_elements, fields=('quiz_question','solution', 'option1', 'option2', 'option3'))
+                json_str = serializers.serialize('json', category_elements,
+                                                 fields=('quiz_question', 'solution', 'option1', 'option2', 'option3'))
                 tmp_file = tempfile.NamedTemporaryFile(mode="w+")
                 json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
                 category_name = Category.objects.get(id=c).name_de
@@ -127,7 +157,8 @@ def download_elements(self, active_table, element_string):
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
             for c in categories:
                 category_elements = elements.filter(category=c)
-                json_str = serializers.serialize('json', category_elements, fields=('solution', 'hint1', 'hint2', 'hint3', 'hint4', 'hint5', 'hint6', 'hint7', 'hint8', 'hint9', 'hint10'))
+                json_str = serializers.serialize('json', category_elements, fields=(
+                'solution', 'hint1', 'hint2', 'hint3', 'hint4', 'hint5', 'hint6', 'hint7', 'hint8', 'hint9', 'hint10'))
                 tmp_file = tempfile.NamedTemporaryFile(mode="w+")
                 json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
                 category_name = Category.objects.get(id=c).name_de
@@ -137,6 +168,7 @@ def download_elements(self, active_table, element_string):
     resp = HttpResponse(zip_buffer, content_type="application/zip")
     resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
     return resp
+
 
 def download_all_elements(self, active_table):
     zip_filename = "BuzzingaDownloads.zip"
@@ -174,7 +206,8 @@ def download_all_elements(self, active_table):
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
             for c in categories:
                 category_elements = elements.filter(category=c)
-                json_str = serializers.serialize('json', category_elements, fields=('quiz_question','solution', 'option1', 'option2', 'option3'))
+                json_str = serializers.serialize('json', category_elements,
+                                                 fields=('quiz_question', 'solution', 'option1', 'option2', 'option3'))
                 tmp_file = tempfile.NamedTemporaryFile(mode="w+")
                 json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
                 category_name = Category.objects.get(id=c).name_de
@@ -188,7 +221,8 @@ def download_all_elements(self, active_table):
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
             for c in categories:
                 category_elements = elements.filter(category=c)
-                json_str = serializers.serialize('json', category_elements, fields=('solution', 'hint1', 'hint2', 'hint3', 'hint4', 'hint5', 'hint6', 'hint7', 'hint8', 'hint9', 'hint10'))
+                json_str = serializers.serialize('json', category_elements, fields=(
+                'solution', 'hint1', 'hint2', 'hint3', 'hint4', 'hint5', 'hint6', 'hint7', 'hint8', 'hint9', 'hint10'))
                 tmp_file = tempfile.NamedTemporaryFile(mode="w+")
                 json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
                 category_name = Category.objects.get(id=c).name_de
@@ -198,4 +232,3 @@ def download_all_elements(self, active_table):
     resp = HttpResponse(zip_buffer, content_type="application/zip")
     resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
     return resp
-

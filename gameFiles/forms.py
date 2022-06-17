@@ -2,50 +2,37 @@ from dal import autocomplete, forward
 
 from django import forms
 from django.core.exceptions import NON_FIELD_ERRORS
+from django.forms import inlineformset_factory
 
-from .models import Tag, Category, Image, Sound, Question, Hints, DIFFICULTY
+from .models import Category, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, DIFFICULTY
+
 
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
         form_tag = False
         fields = ('name_de', 'game_type', 'description_de', 'logo', 'private')
-        labels = {
-            "name_de": "Name",
-            "description_de": "Beschreibung",
-            "game_type": "Spieltyp",
-            "private": "Privat"
-        }
+
 
 class ImageForm(forms.ModelForm):
     class Meta:
         model = Image
         form_tag = False
-        fields = ('solution', 'image_file', 'difficulty', 'explicit', 'tags', 'category', 'private_new', 'author', 'license', 'file_changed')
+        fields = (
+            'solution', 'image_file', 'difficulty', 'explicit', 'tags', 'category', 'private_new', 'author', 'license',
+            'file_changed')
         widgets = {'tags': autocomplete.ModelSelect2Multiple(url='gamefiles:tag-autocomplete'),
-                   'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete', forward=(forward.Const(2, 'game_type'),))}
-        labels = {
-            "name_de": "Name",
-            "description_de": "Beschreibung",
-            "game_type": "Spieltyp",
-            "private_new": "Privat",
-            "category": "Kategorie",
-            "solution": "Lösung",
-            "difficulty": "Schwierigkeit",
-            "explicit": "explizit",
-            "image_file": "Bilddatei",
-            "author": "Urheber",
-            "license": "Lizenz",
-            "file_changed": "Datei bearbeitet?"
-        }
+                   'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete',
+                                                         forward=(forward.Const(2, 'game_type'),))}
+
 
 class ImageEditForm(ImageForm):
-
     image_file = forms.ImageField(disabled=True)
     solution = forms.CharField(disabled=True)
     author = forms.CharField(disabled=True)
     license = forms.CharField(disabled=True)
     file_changed = forms.BooleanField(disabled=True)
+
 
 class SoundForm(forms.ModelForm):
     class Meta:
@@ -53,80 +40,70 @@ class SoundForm(forms.ModelForm):
         form_tag = False
         fields = ('solution', 'sound_file', 'difficulty', 'explicit', 'tags', 'category', 'private_new')
         widgets = {'tags': autocomplete.ModelSelect2Multiple(url='gamefiles:tag-autocomplete'),
-                   'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete', forward=(forward.Const(1, 'game_type'),))}
-        labels = {
-            "name_de": "Name",
-            "description_de": "Beschreibung",
-            "game_type": "Spieltyp",
-            "private_new": "Privat",
-            "category": "Kategorie",
-            "solution": "Lösung",
-            "difficulty": "Schwierigkeit",
-            "explicit": "explizit",
-            "sound_file": "Sounddatei"
-        }
+                   'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete',
+                                                         forward=(forward.Const(1, 'game_type'),))}
 
 
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
         form_tag = False
-        fields = ('solution', 'quiz_question', 'option1', 'option2', 'option3', 'difficulty', 'tags', 'explicit', 'category', 'private_new')
+        fields = (
+            'solution', 'quiz_question', 'option1', 'option2', 'option3', 'difficulty', 'tags', 'explicit', 'category',
+            'private_new')
         widgets = {'tags': autocomplete.ModelSelect2Multiple(url='gamefiles:tag-autocomplete'),
-                   'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete', forward=(forward.Const(3, 'game_type'),))}
-        labels = {
-            "name_de": "Name",
-            "description_de": "Beschreibung",
-            "game_type": "Spieltyp",
-            "private_new": "Privat",
-            "category": "Kategorie",
-            "solution": "Lösung",
-            "difficulty": "Schwierigkeit",
-            "explicit": "explizit",
-            "quiz_question": "Quizfrage",
-            "option1": "Option 1",
-            "option2": "Option 2",
-            "option3": "Option 3",
-        }
+                   'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete',
+                                                         forward=(forward.Const(3, 'game_type'),))}
         error_messages = {
             NON_FIELD_ERRORS: {
                 'unique_together': "%(model_name)s's %(field_labels)s are not unique.",
             }
         }
 
+
 class HintForm(forms.ModelForm):
     class Meta:
         model = Hints
         form_tag = False
-        fields = ('solution', 'hint1', 'hint2', 'hint3', 'hint4', 'hint5', 'hint6', 'hint7', 'hint8', 'hint9', 'hint10', 'difficulty', 'tags', 'explicit', 'category', 'private_new')
+        fields = ('solution', 'hint1', 'hint2', 'hint3', 'hint4', 'hint5', 'hint6', 'hint7', 'hint8', 'hint9', 'hint10',
+                  'difficulty', 'tags', 'explicit', 'category', 'private_new')
         widgets = {'tags': autocomplete.ModelSelect2Multiple(url='gamefiles:tag-autocomplete'),
-                   'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete', forward=(forward.Const(4, 'game_type'),))}
-        labels = {
-            "name_de": "Name",
-            "description_de": "Beschreibung",
-            "game_type": "Spieltyp",
-            "private_new": "Privat",
-            "category": "Kategorie",
-            "solution": "Lösung",
-            "difficulty": "Schwierigkeit",
-            "explicit": "explizit",
-            "hint1": "Hinweis 1",
-            "hint2": "Hinweis 2",
-            "hint3": "Hinweis 3",
-            "hint4": "Hinweis 4",
-            "hint5": "Hinweis 5",
-            "hint6": "Hinweis 6",
-            "hint7": "Hinweis 7",
-            "hint8": "Hinweis 8",
-            "hint9": "Hinweis 9",
-            "hint10": "Hinweis 10",
-        }
+                   'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete',
+                                                         forward=(forward.Const(4, 'game_type'),))}
+
+
+class WhoKnowsMoreForm(forms.ModelForm):
+    class Meta:
+        model = WhoKnowsMore
+        form_tag = False
+        fields = ('solution', 'difficulty', 'tags', 'explicit', 'category', 'private_new')
+        labels = {'solution': "Frage"}
+        widgets = {'tags': autocomplete.ModelSelect2Multiple(url='gamefiles:tag-autocomplete'),
+                   'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete',
+                                                         forward=(forward.Const(5, 'game_type'),))}
+
+
+class WhoKnowsMoreElementForm(forms.ModelForm):
+    class Meta:
+        model = WhoKnowsMoreElement
+        form_tag = False
+        fields = ('id', 'count_id', 'category_element', 'answer')
+        widgets = {'count_id': forms.HiddenInput()}
+
+
+WhoKnowsMoreElementFormSet = inlineformset_factory(WhoKnowsMore, WhoKnowsMoreElement, fields=['answer'], extra=10,
+                                                   can_delete=False, max_num=100, validate_max=True)
+WhoKnowsMoreElementFormSetUpdate = inlineformset_factory(WhoKnowsMore, WhoKnowsMoreElement, fields=['answer'], extra=0,
+                                                         can_delete=True, max_num=100, validate_max=True)
+
 
 class ImageDownloadForm(forms.ModelForm):
     min_difficulty = forms.ChoiceField(choices=DIFFICULTY, label="Minimale Schwierigkeit")
     max_difficulty = forms.ChoiceField(choices=DIFFICULTY, label="Maximale Schwierigkeit")
-    min_upload_date = forms.DateField(widget=forms.widgets.DateInput(attrs={'type': 'date'}), label="Neuestes Erstelldatum", required=False)
-    max_upload_date = forms.DateField(widget=forms.widgets.DateInput(attrs={'type': 'date'}), label="Ältestes Erstelldatum", required=False)
+    min_upload_date = forms.DateField(widget=forms.widgets.DateInput(attrs={'type': 'date'}),
+                                      label="Neuestes Erstelldatum", required=False)
+    max_upload_date = forms.DateField(widget=forms.widgets.DateInput(attrs={'type': 'date'}),
+                                      label="Ältestes Erstelldatum", required=False)
     amount = forms.IntegerField(label="Anzahl")
 
     def __init__(self, *args, **kwargs):
@@ -146,15 +123,18 @@ class ImageDownloadForm(forms.ModelForm):
                   'category': "Kategorie",
                   'created_by': "Ersteller"}
 
+
 class SoundDownloadForm(forms.ModelForm):
     min_difficulty = forms.ChoiceField(choices=DIFFICULTY, label="Minimale Schwierigkeit")
     max_difficulty = forms.ChoiceField(choices=DIFFICULTY, label="Maximale Schwierigkeit")
-    min_upload_date = forms.DateField(widget=forms.widgets.DateInput(attrs={'type': 'date'}), label="Neuestes Erstelldatum", required=False)
-    max_upload_date = forms.DateField(widget=forms.widgets.DateInput(attrs={'type': 'date'}), label="Ältestes Erstelldatum", required=False)
+    min_upload_date = forms.DateField(widget=forms.widgets.DateInput(attrs={'type': 'date'}),
+                                      label="Neuestes Erstelldatum", required=False)
+    max_upload_date = forms.DateField(widget=forms.widgets.DateInput(attrs={'type': 'date'}),
+                                      label="Ältestes Erstelldatum", required=False)
     amount = forms.IntegerField(label="Anzahl")
 
     def __init__(self, *args, **kwargs):
-        super(ImageDownloadForm, self).__init__(*args, **kwargs)
+        super(SoundDownloadForm, self).__init__(*args, **kwargs)
         self.fields['created_by'].initial = None
         self.fields['created_by'].required = False
         self.fields['max_difficulty'].initial = 10
@@ -166,15 +146,18 @@ class SoundDownloadForm(forms.ModelForm):
         widgets = {'tags': autocomplete.ModelSelect2Multiple(url='gamefiles:tag-autocomplete'),
                    'created_by': autocomplete.ModelSelect2Multiple(url='gamefiles:user-autocomplete')}
         labels = {'private_new': "Privates ausschließen",
-                 'explicit': "Anstößiges ausschließen",
+                  'explicit': "Anstößiges ausschließen",
                   'category': "Kategorie",
                   'created_by': "Ersteller"}
+
 
 class QuestionDownloadForm(forms.ModelForm):
     min_difficulty = forms.ChoiceField(choices=DIFFICULTY, label="Minimale Schwierigkeit")
     max_difficulty = forms.ChoiceField(choices=DIFFICULTY, label="Maximale Schwierigkeit")
-    min_upload_date = forms.DateField(widget=forms.widgets.DateInput(attrs={'type': 'date'}), label="Neuestes Erstelldatum", required=False)
-    max_upload_date = forms.DateField(widget=forms.widgets.DateInput(attrs={'type': 'date'}), label="Ältestes Erstelldatum", required=False)
+    min_upload_date = forms.DateField(widget=forms.widgets.DateInput(attrs={'type': 'date'}),
+                                      label="Neuestes Erstelldatum", required=False)
+    max_upload_date = forms.DateField(widget=forms.widgets.DateInput(attrs={'type': 'date'}),
+                                      label="Ältestes Erstelldatum", required=False)
     amount = forms.IntegerField(label="Anzahl")
 
     def __init__(self, *args, **kwargs):
@@ -190,15 +173,18 @@ class QuestionDownloadForm(forms.ModelForm):
         widgets = {'tags': autocomplete.ModelSelect2Multiple(url='gamefiles:tag-autocomplete'),
                    'created_by': autocomplete.ModelSelect2Multiple(url='gamefiles:user-autocomplete')}
         labels = {'private_new': "Privates ausschließen",
-                 'explicit': "Anstößiges ausschließen",
+                  'explicit': "Anstößiges ausschließen",
                   'category': "Kategorie",
                   'created_by': "Ersteller"}
+
 
 class HintDownloadForm(forms.ModelForm):
     min_difficulty = forms.ChoiceField(choices=DIFFICULTY, label="Minimale Schwierigkeit")
     max_difficulty = forms.ChoiceField(choices=DIFFICULTY, label="Maximale Schwierigkeit")
-    min_upload_date = forms.DateField(widget=forms.widgets.DateInput(attrs={'type': 'date'}), label="Neuestes Erstelldatum", required=False)
-    max_upload_date = forms.DateField(widget=forms.widgets.DateInput(attrs={'type': 'date'}), label="Ältestes Erstelldatum", required=False)
+    min_upload_date = forms.DateField(widget=forms.widgets.DateInput(attrs={'type': 'date'}),
+                                      label="Neuestes Erstelldatum", required=False)
+    max_upload_date = forms.DateField(widget=forms.widgets.DateInput(attrs={'type': 'date'}),
+                                      label="Ältestes Erstelldatum", required=False)
     amount = forms.IntegerField(label="Anzahl")
 
     def __init__(self, *args, **kwargs):
@@ -214,6 +200,33 @@ class HintDownloadForm(forms.ModelForm):
         widgets = {'tags': autocomplete.ModelSelect2Multiple(url='gamefiles:tag-autocomplete'),
                    'created_by': autocomplete.ModelSelect2Multiple(url='gamefiles:user-autocomplete')}
         labels = {'private_new': "Privates ausschließen",
-                 'explicit': "Anstößiges ausschließen",
+                  'explicit': "Anstößiges ausschließen",
+                  'category': "Kategorie",
+                  'created_by': "Ersteller"}
+
+
+class WhoKnowsMoreDownloadForm(forms.ModelForm):
+    min_difficulty = forms.ChoiceField(choices=DIFFICULTY, label="Minimale Schwierigkeit")
+    max_difficulty = forms.ChoiceField(choices=DIFFICULTY, label="Maximale Schwierigkeit")
+    min_upload_date = forms.DateField(widget=forms.widgets.DateInput(attrs={'type': 'date'}),
+                                      label="Neuestes Erstelldatum", required=False)
+    max_upload_date = forms.DateField(widget=forms.widgets.DateInput(attrs={'type': 'date'}),
+                                      label="Ältestes Erstelldatum", required=False)
+    amount = forms.IntegerField(label="Anzahl")
+
+    def __init__(self, *args, **kwargs):
+        super(WhoKnowsMoreDownloadForm, self).__init__(*args, **kwargs)
+        self.fields['created_by'].initial = None
+        self.fields['created_by'].required = False
+        self.fields['max_difficulty'].initial = 10
+
+    class Meta:
+        model = WhoKnowsMore
+        form_tag = False
+        fields = ('tags', 'explicit', 'category', 'private_new', 'created_by')
+        widgets = {'tags': autocomplete.ModelSelect2Multiple(url='gamefiles:tag-autocomplete'),
+                   'created_by': autocomplete.ModelSelect2Multiple(url='gamefiles:user-autocomplete')}
+        labels = {'private_new': "Privates ausschließen",
+                  'explicit': "Anstößiges ausschließen",
                   'category': "Kategorie",
                   'created_by': "Ersteller"}
