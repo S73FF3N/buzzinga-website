@@ -10,7 +10,7 @@
         {% url 'gamefiles:image-edit' record.pk %}
     {% elif record.category.game_type.pk == 3 %}
         {% url 'gamefiles:question-edit' record.pk %}
-    {% elif record.category.game_type.pk == 3 %}
+    {% elif record.category.game_type.pk == 4 %}
         {% url 'gamefiles:hint-edit' record.pk %}
     {% else %}
         {% url 'gamefiles:whoknowsmore-edit' record.pk %}
