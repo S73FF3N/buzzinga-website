@@ -1,0 +1,52 @@
+{% extends "admin/change_list.html" %}
+{% load static %}
+
+{% block content %}
+<div class="module">
+    <h2>Upload JSON File</h2>
+    <form method="post" enctype="multipart/form-data" action="{% url 'admin:upload_json_whoknowsmore' %}">
+        {% csrf_token %}
+        <input type="file" name="json_file" accept=".json" required>
+        <button type="submit" class="button">Upload</button>
+    </form>
+</div>
+
+{% if request.session.json_data %}
+<div class="module">
+    <h2>Preview Data</h2>
+    <p><strong>File Name:</strong> {{ request.session.json_file_name }}</p>
+
+    <table border="1" cellpadding="5">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Solution</th>
+                <th>Answers</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in request.session.json_data %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ entry.solution }}</td>
+                <td>
+                    <ul>
+                        {% for answer in entry.answers %}
+                        <li>{{ answer.answer }}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <form method="post" action="{% url 'admin:confirm_insert_whoknowsmore' %}">
+        {% csrf_token %}
+        <button type="submit" class="button button-primary">Confirm and Insert</button>
+    </form>
+</div>
+{% endif %}
+
+{{ block.super }}
+{% endblock %}
