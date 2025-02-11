@@ -134,52 +134,6 @@ class HintAdmin(admin.ModelAdmin):
 
 admin.site.register(Hints, HintAdmin)
 
-
-def confirm_insert_whoknowsmore(self, request):
-    """Confirm data insertion for WhoKnowsMore and related answers."""
-    data = request.session.get("json_data", [])
-    file_name = request.session.get("json_file_name", "uploaded_json")  # Default name if missing
-
-    if not data:
-        messages.error(request, "No data available to insert.")
-        return redirect("..")
-
-    User = get_user_model()
-    default_user = User.objects.filter(pk=1).first()
-
-    # Create a new category for this upload
-    new_category = Category.objects.create(
-        name_de=file_name,
-        game_type=GameType.objects.get(pk=3),
-        description_de="Uploaded via JSON",
-        created_on=now(),
-        created_by=default_user
-    )
-
-    for entry in data:
-        solution = entry["solution"]
-
-        # Create WhoKnowsMore object
-        wkm_instance = WhoKnowsMore.objects.create(
-            category=new_category,
-            solution=solution,
-            created_by=default_user
-        )
-
-        # Create WhoKnowsMoreElement objects (answers)
-        for answer_data in entry["answers"]:
-            WhoKnowsMoreElement.objects.create(
-                category_element=wkm_instance,
-                answer=answer_data["answer"],
-                count_id=answer_data["count_id"]
-            )
-
-    # Clear session after inserting
-    del request.session["json_data"]
-    del request.session["json_file_name"]
-    messages.success(request, "WhoKnowsMore data successfully inserted into the database.")
-    return redirect("..")
-
 class WhoKnowsMoreElementInline(admin.TabularInline):
     model = WhoKnowsMoreElement
 
@@ -216,6 +170,51 @@ class WhoKnowsMoreAdmin(admin.ModelAdmin):
 
             return redirect("..")
 
+        return redirect("..")
+    
+    def confirm_insert_whoknowsmore(self, request):
+        """Confirm data insertion for WhoKnowsMore and related answers."""
+        data = request.session.get("json_data", [])
+        file_name = request.session.get("json_file_name", "uploaded_json")  # Default name if missing
+
+        if not data:
+            messages.error(request, "No data available to insert.")
+            return redirect("..")
+
+        User = get_user_model()
+        default_user = User.objects.filter(pk=1).first()
+
+        # Create a new category for this upload
+        new_category = Category.objects.create(
+            name_de=file_name,
+            game_type=GameType.objects.get(pk=3),
+            description_de="Uploaded via JSON",
+            created_on=now(),
+            created_by=default_user
+        )
+
+        for entry in data:
+            solution = entry["solution"]
+
+            # Create WhoKnowsMore object
+            wkm_instance = WhoKnowsMore.objects.create(
+                category=new_category,
+                solution=solution,
+                created_by=default_user
+            )
+
+            # Create WhoKnowsMoreElement objects (answers)
+            for answer_data in entry["answers"]:
+                WhoKnowsMoreElement.objects.create(
+                    category_element=wkm_instance,
+                    answer=answer_data["answer"],
+                    count_id=answer_data["count_id"]
+                )
+
+        # Clear session after inserting
+        del request.session["json_data"]
+        del request.session["json_file_name"]
+        messages.success(request, "WhoKnowsMore data successfully inserted into the database.")
         return redirect("..")
 
 admin.site.register(WhoKnowsMore, WhoKnowsMoreAdmin)
