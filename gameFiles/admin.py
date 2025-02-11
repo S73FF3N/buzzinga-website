@@ -199,6 +199,7 @@ class WhoKnowsMoreAdmin(admin.ModelAdmin):
             # Create WhoKnowsMore object
             wkm_instance = WhoKnowsMore.objects.create(
                 category=new_category,
+                difficulty=5,
                 solution=solution,
                 created_by=default_user
             )
