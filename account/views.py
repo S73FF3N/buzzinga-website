@@ -15,6 +15,7 @@ from gameFiles.tables import SoundTable, ImageTable, QuestionTable, HintTable, C
 from gameFiles.filters import ProfileFilter, ImageFilter, SoundFilter, QuestionFilter, CategoryFilter, HintFilter, \
     WhoKnowsMoreFilter
 from gameFiles.models import Category, Image, Sound, Question, Hints, WhoKnowsMore
+from gameFiles.views import WhoKnowsMoreSerializer
 
 
 @login_required
@@ -125,7 +126,7 @@ def download_elements(self, active_table, element_string):
                 image_name_split = i.image_file.name.split("/")
                 if len(image_name_split[2]) > 4:
                     zf.write(settings.UPLOAD_ROOT + "/" + i.image_file.name,
-                             "Bilder/" + image_name_split[1] + "/" + image_name_split[2])
+                             "images/" + image_name_split[1] + "/" + image_name_split[2])
                 else:
                     continue
     elif active_table == "sounds_":
@@ -135,7 +136,7 @@ def download_elements(self, active_table, element_string):
                 sound_name_split = i.sound_file.name.split("/")
                 if len(sound_name_split[2]) > 4:
                     zf.write(settings.UPLOAD_ROOT + "/" + i.sound_file.name,
-                             "Audio/" + sound_name_split[1] + "/" + sound_name_split[2])
+                             "sounds/" + sound_name_split[1] + "/" + sound_name_split[2])
                 else:
                     continue
     elif active_table == "questions_":
@@ -150,7 +151,7 @@ def download_elements(self, active_table, element_string):
                 json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
                 category_name = Category.objects.get(id=c).name_de
                 tmp_file.seek(0)
-                zf.write(tmp_file.name, "Questions/" + category_name + ".json")
+                zf.write(tmp_file.name, "questions/" + category_name + ".json")
     elif active_table == "hints_":
         elements = Hints.objects.filter(id__in=element_ids)
         categories = elements.values_list('category', flat=True).distinct()
@@ -163,7 +164,19 @@ def download_elements(self, active_table, element_string):
                 json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
                 category_name = Category.objects.get(id=c).name_de
                 tmp_file.seek(0)
-                zf.write(tmp_file.name, "Hints/" + category_name + ".json")
+                zf.write(tmp_file.name, "hints/" + category_name + ".json")
+    elif active_table == "whoknowsmore_":
+        elements = WhoKnowsMore.objects.filter(id__in=element_ids)
+        categories = elements.values_list('category', flat=True).distinct()
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
+            for c in categories:
+                category_elements = elements.filter(category=c)
+                json_str = WhoKnowsMoreSerializer(category_elements, many=True).data
+                tmp_file = tempfile.NamedTemporaryFile(mode="w+")
+                json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
+                category_name = Category.objects.get(id=c).name_de
+                tmp_file.seek(0)
+                zf.write(tmp_file.name, "who-knows-more/" + category_name + ".json")
     zip_buffer.seek(0)
     resp = HttpResponse(zip_buffer, content_type="application/zip")
     resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename

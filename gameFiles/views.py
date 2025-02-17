@@ -79,13 +79,13 @@ def category_detail(request, game_type, id=id):
     sorted_tags = sorted(tags, key=lambda x: x[1])
     sorted_tags = sorted_tags[::-1]
 
-    if game_type == 1:
+    if game_type == 2:
         category_elements = Sound.objects.filter(category=category, private_new=False)
-    elif game_type == 2:
+    elif game_type == 1:
         category_elements = Image.objects.filter(category=category, private_new=False)
-    elif game_type == 3:
-        category_elements = Question.objects.filter(category=category, private_new=False)
     elif game_type == 4:
+        category_elements = Question.objects.filter(category=category, private_new=False)
+    elif game_type == 3:
         category_elements = Hints.objects.filter(category=category, private_new=False)
     else:
         category_elements = WhoKnowsMore.objects.filter(category=category, private_new=False)

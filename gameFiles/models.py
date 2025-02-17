@@ -26,13 +26,13 @@ class Tag(models.Model):
         ordering = ['name_de']
 
     def amount_elements_with_tag(self, category):
-        if category.game_type.id == 1:
+        if category.game_type.id == 2:
             elements = Sound.objects.filter(category=category, tags__in=[self])
-        elif category.game_type.id == 2:
+        elif category.game_type.id == 1:
             elements = Image.objects.filter(category=category, tags__in=[self])
-        elif category.game_type.id == 3:
-            elements = Question.objects.filter(category=category, tags__in=[self])
         elif category.game_type.id == 4:
+            elements = Question.objects.filter(category=category, tags__in=[self])
+        elif category.game_type.id == 3:
             elements = Hints.objects.filter(category=category, tags__in=[self])
         else:
             elements = WhoKnowsMore.objects.filter(category=category, tags__in=[self])
@@ -66,27 +66,29 @@ class Category(models.Model):
     created_by = models.ForeignKey('auth.User', default=1, on_delete=models.SET_DEFAULT)
 
     def amount_files(self):
-        if self.game_type.id == 1:
+        if self.game_type.id == 2:
             files = Sound.objects.filter(category=self, private_new=False)
-        elif self.game_type.id == 2:
+        elif self.game_type.id == 1:
             files = Image.objects.filter(category=self, private_new=False)
-        elif self.game_type.id == 3:
-            files = Question.objects.filter(category=self, private_new=False)
         elif self.game_type.id == 4:
+            files = Question.objects.filter(category=self, private_new=False)
+        elif self.game_type.id == 3:
             files = Hints.objects.filter(category=self, private_new=False)
         else:
             files = WhoKnowsMore.objects.filter(category=self, private_new=False)
         return len(files)
 
     def tags_used(self):
-        if self.game_type.id == 1:
+        if self.game_type.id == 2:
             elements = Sound.objects.filter(category=self, private_new=False)
-        elif self.game_type.id == 2:
+        elif self.game_type.id == 1:
             elements = Image.objects.filter(category=self, private_new=False)
-        elif self.game_type.id == 3:
+        elif self.game_type.id == 4:
             elements = Question.objects.filter(category=self, private_new=False)
-        else:
+        elif self.game_type.id == 3:
             elements = Hints.objects.filter(category=self, private_new=False)
+        else:
+            elements = WhoKnowsMore.objects.filter(category=self, private_new=False)
         used_tags = []
         for e in elements:
             for tag in e.tags.all():
@@ -95,41 +97,46 @@ class Category(models.Model):
         return used_tags
 
     def examples(self):
-        if self.game_type.id == 1:
+        if self.game_type.id == 2:
             category_element_id_list = list(
                 Sound.objects.filter(category=self, private_new=False).values_list('id', flat=True))
-        elif self.game_type.id == 2:
+        elif self.game_type.id == 1:
             category_element_id_list = list(
                 Image.objects.filter(category=self, private_new=False).values_list('id', flat=True))
-        elif self.game_type.id == 3:
+        elif self.game_type.id == 4:
             category_element_id_list = list(
                 Question.objects.filter(category=self, private_new=False).values_list('id', flat=True))
-        else:
+        elif self.game_type.id == 3:
             category_element_id_list = list(
                 Hints.objects.filter(category=self, private_new=False).values_list('id', flat=True))
-        random_category_element_id_list = random.sample(category_element_id_list, min(len(category_element_id_list), 5))
-        if self.game_type.id == 1:
-            elements = Sound.objects.filter(id__in=random_category_element_id_list)
-        elif self.game_type.id == 2:
-            elements = Image.objects.filter(id__in=random_category_element_id_list)
-        elif self.game_type.id == 3:
-            elements = Question.objects.filter(id__in=random_category_element_id_list)
         else:
+            category_element_id_list = list(
+                WhoKnowsMore.objects.filter(category=self, private_new=False).values_list('id', flat=True))
+        random_category_element_id_list = random.sample(category_element_id_list, min(len(category_element_id_list), 5))
+        if self.game_type.id == 2:
+            elements = Sound.objects.filter(id__in=random_category_element_id_list)
+        elif self.game_type.id == 1:
+            elements = Image.objects.filter(id__in=random_category_element_id_list)
+        elif self.game_type.id == 4:
+            elements = Question.objects.filter(id__in=random_category_element_id_list)
+        elif self.game_type.id == 3:
             elements = Hints.objects.filter(id__in=random_category_element_id_list)
+        else:
+            elements = WhoKnowsMore.objects.filter(id__in=random_category_element_id_list)
         return elements
 
     def latest_elements(self):
         if self.amount_files() > 0:
-            if self.game_type.id == 1:
+            if self.game_type.id == 2:
                 latest_create_date = Sound.objects.filter(category=self).order_by('-created_on')[0].created_on.date()
                 amount_elements = Sound.objects.filter(category=self, created_on__date=latest_create_date).count()
-            elif self.game_type.id == 2:
+            elif self.game_type.id == 1:
                 latest_create_date = Image.objects.filter(category=self).order_by('-created_on')[0].created_on.date()
                 amount_elements = Image.objects.filter(category=self, created_on__date=latest_create_date).count()
-            elif self.game_type.id == 3:
+            elif self.game_type.id == 4:
                 latest_create_date = Question.objects.filter(category=self).order_by('-created_on')[0].created_on.date()
                 amount_elements = Question.objects.filter(category=self, created_on__date=latest_create_date).count()
-            elif self.game_type.id == 4:
+            elif self.game_type.id == 3:
                 latest_create_date = Hints.objects.filter(category=self).order_by('-created_on')[0].created_on.date()
                 amount_elements = Hints.objects.filter(category=self, created_on__date=latest_create_date).count()
             else:
