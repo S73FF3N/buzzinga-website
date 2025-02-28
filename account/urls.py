@@ -8,6 +8,5 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
     path('profile/<str:per_page>/', views.profile_view, name='profile'),
-    path('download/<str:active_table>/', views.download_all_elements, name='download'),
-    path('download/<str:active_table>/<str:element_string>', views.download_elements, name='download'),
+    path('download/<str:active_table>/<str:element_string>/', views.DownloadView.as_view(), name='download'),
 ]

@@ -4,6 +4,7 @@ from django.http import JsonResponse, HttpResponse
 from django.conf import settings
 from django.core import serializers
 from django.contrib.auth.decorators import login_required
+from django.views import View
 
 from django_tables2.config import RequestConfig
 from io import BytesIO
@@ -114,134 +115,63 @@ def create_profile_table(request, table_name, per_page):
     RequestConfig(request, paginate={"per_page": int(per_page)}).configure(table)
     return table
 
+class DownloadView(View):
+    def get(self, request, active_table, element_string=None, download_all=False):
+        return self.download_elements(active_table, element_string, download_all)
 
-def download_elements(self, active_table, element_string):
-    zip_filename = "BuzzingaDownloads.zip"
-    zip_buffer = BytesIO()
-    element_ids = element_string.split("+")
-    if active_table == "images_":
-        elements = Image.objects.filter(id__in=element_ids)
-        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
-            for i in elements:
-                image_name_split = i.image_file.name.split("/")
-                if len(image_name_split[2]) > 4:
-                    zf.write(settings.UPLOAD_ROOT + "/" + i.image_file.name,
-                             "images/" + image_name_split[1] + "/" + image_name_split[2])
-                else:
-                    continue
-    elif active_table == "sounds_":
-        elements = Sound.objects.filter(id__in=element_ids)
-        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
-            for i in elements:
-                sound_name_split = i.sound_file.name.split("/")
-                if len(sound_name_split[2]) > 4:
-                    zf.write(settings.UPLOAD_ROOT + "/" + i.sound_file.name,
-                             "sounds/" + sound_name_split[1] + "/" + sound_name_split[2])
-                else:
-                    continue
-    elif active_table == "questions_":
-        elements = Question.objects.filter(id__in=element_ids)
-        categories = elements.values_list('category', flat=True).distinct()
-        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
-            for c in categories:
-                category_elements = elements.filter(category=c)
-                json_str = serializers.serialize('json', category_elements,
-                                                 fields=('quiz_question', 'solution', 'option1', 'option2', 'option3'))
-                tmp_file = tempfile.NamedTemporaryFile(mode="w+")
-                json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
-                category_name = Category.objects.get(id=c).name_de
-                tmp_file.seek(0)
-                zf.write(tmp_file.name, "questions/" + category_name + ".json")
-    elif active_table == "hints_":
-        elements = Hints.objects.filter(id__in=element_ids)
-        categories = elements.values_list('category', flat=True).distinct()
-        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
-            for c in categories:
-                category_elements = elements.filter(category=c)
-                json_str = serializers.serialize('json', category_elements, fields=(
-                'solution', 'hint1', 'hint2', 'hint3', 'hint4', 'hint5', 'hint6', 'hint7', 'hint8', 'hint9', 'hint10'))
-                tmp_file = tempfile.NamedTemporaryFile(mode="w+")
-                json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
-                category_name = Category.objects.get(id=c).name_de
-                tmp_file.seek(0)
-                zf.write(tmp_file.name, "hints/" + category_name + ".json")
-    elif active_table == "whoknowsmore_":
-        elements = WhoKnowsMore.objects.filter(id__in=element_ids)
-        categories = elements.values_list('category', flat=True).distinct()
-        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
-            for c in categories:
-                category_elements = elements.filter(category=c)
-                json_str = WhoKnowsMoreSerializer(category_elements, many=True).data
-                tmp_file = tempfile.NamedTemporaryFile(mode="w+")
-                json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
-                category_name = Category.objects.get(id=c).name_de
-                tmp_file.seek(0)
-                zf.write(tmp_file.name, "who-knows-more/" + category_name + ".json")
-    zip_buffer.seek(0)
-    resp = HttpResponse(zip_buffer, content_type="application/zip")
-    resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
-    return resp
+    def download_elements(self, active_table, element_string=None, download_all=False):
+        zip_filename = "BuzzingaDownloads.zip"
+        zip_buffer = BytesIO()
+        user = request.user  # Get the current user from the request
 
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+            if active_table in ["images_", "sounds_"]:
+                ModelClass = Image if active_table == "images_" else Sound
+                base_path = "Bilder" if active_table == "images_" else "Audio"
 
-def download_all_elements(self, active_table):
-    zip_filename = "BuzzingaDownloads.zip"
-    zip_buffer = BytesIO()
-    user = self.user
-    if active_table == "images_":
-        qs_created_by_current_user = Image.objects.filter(created_by=user)
-        qs_private = Image.objects.filter(category__private=False, private_new=False)
-        elements = qs_created_by_current_user | qs_private
-        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
-            for i in elements:
-                image_name_split = i.image_file.name.split("/")
-                if len(image_name_split[2]) > 4:
-                    zf.write(settings.UPLOAD_ROOT + "/" + i.image_file.name,
-                             "Bilder/" + image_name_split[1] + "/" + image_name_split[2])
+                if download_all:
+                    qs_created_by_user = ModelClass.objects.filter(created_by=user)
+                    qs_public = ModelClass.objects.filter(category__private=False, private_new=False)
+                    elements = qs_created_by_user | qs_public
                 else:
-                    continue
-    elif active_table == "sounds_":
-        qs_created_by_current_user = Sound.objects.filter(created_by=user)
-        qs_private = Sound.objects.filter(category__private=False, private_new=False)
-        elements = qs_created_by_current_user | qs_private
-        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
-            for i in elements:
-                sound_name_split = i.sound_file.name.split("/")
-                if len(sound_name_split[2]) > 4:
-                    zf.write(settings.UPLOAD_ROOT + "/" + i.sound_file.name,
-                             "Audio/" + sound_name_split[1] + "/" + sound_name_split[2])
+                    element_ids = element_string.split("+")
+                    elements = ModelClass.objects.filter(id__in=element_ids)
+
+                for i in elements:
+                    file_name_split = i.image_file.name.split("/") if active_table == "images_" else i.sound_file.name.split("/")
+                    if len(file_name_split) > 2 and len(file_name_split[2]) > 4:
+                        zf.write(settings.UPLOAD_ROOT + "/" + i.image_file.name if active_table == "images_" else settings.UPLOAD_ROOT + "/" + i.sound_file.name,
+                                 f"{base_path}/{file_name_split[1]}/{file_name_split[2]}")
+
+            elif active_table in ["questions_", "hints_", "whoknowsmore_"]:
+                ModelClass = {"questions_": Question, "hints_": Hints, "whoknowsmore_": WhoKnowsMore}[active_table]
+
+                if download_all:
+                    qs_created_by_user = ModelClass.objects.filter(created_by=user)
+                    qs_public = ModelClass.objects.filter(category__private=False, private_new=False)
+                    elements = qs_created_by_user | qs_public
                 else:
-                    continue
-    elif active_table == "questions_":
-        qs_created_by_current_user = Question.objects.filter(created_by=user)
-        qs_private = Question.objects.filter(category__private=False, private_new=False)
-        elements = qs_created_by_current_user | qs_private
-        categories = elements.values_list('category', flat=True).distinct()
-        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
-            for c in categories:
-                category_elements = elements.filter(category=c)
-                json_str = serializers.serialize('json', category_elements,
-                                                 fields=('quiz_question', 'solution', 'option1', 'option2', 'option3'))
-                tmp_file = tempfile.NamedTemporaryFile(mode="w+")
-                json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
-                category_name = Category.objects.get(id=c).name_de
-                tmp_file.seek(0)
-                zf.write(tmp_file.name, "Questions/" + category_name + ".json")
-    elif active_table == "hints_":
-        qs_created_by_current_user = Hints.objects.filter(created_by=user)
-        qs_private = Hints.objects.filter(category__private=False, private_new=False)
-        elements = qs_created_by_current_user | qs_private
-        categories = elements.values_list('category', flat=True).distinct()
-        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
-            for c in categories:
-                category_elements = elements.filter(category=c)
-                json_str = serializers.serialize('json', category_elements, fields=(
-                'solution', 'hint1', 'hint2', 'hint3', 'hint4', 'hint5', 'hint6', 'hint7', 'hint8', 'hint9', 'hint10'))
-                tmp_file = tempfile.NamedTemporaryFile(mode="w+")
-                json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
-                category_name = Category.objects.get(id=c).name_de
-                tmp_file.seek(0)
-                zf.write(tmp_file.name, "Hints/" + category_name + ".json")
-    zip_buffer.seek(0)
-    resp = HttpResponse(zip_buffer, content_type="application/zip")
-    resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
-    return resp
+                    element_ids = element_string.split("+")
+                    elements = ModelClass.objects.filter(id__in=element_ids)
+
+                categories = elements.values_list('category', flat=True).distinct()
+                for c in categories:
+                    category_elements = elements.filter(category=c)
+                    category_name = Category.objects.get(id=c).name_de
+                    
+                    json_str = (
+                        serializers.serialize('json', category_elements) 
+                        if active_table != "whoknowsmore_" 
+                        else WhoKnowsMoreSerializer(category_elements, many=True).data
+                    )
+                    
+                    with tempfile.NamedTemporaryFile(mode="w+", delete=False) as tmp_file:
+                        json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
+                        tmp_file.flush()
+                        tmp_file.seek(0)
+                        zf.write(tmp_file.name, f"{active_table}/{category_name}.json")
+
+        zip_buffer.seek(0)
+        response = HttpResponse(zip_buffer.getvalue(), content_type="application/zip")
+        response['Content-Disposition'] = f'attachment; filename={zip_filename}'
+        return response

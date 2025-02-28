@@ -240,26 +240,30 @@
     return confirm('Are you sure you want to delete this?');
   })
 
-  $("#download_elements").click(function( ev ) {
+  $("#download_elements").click(function (ev) {
+      ev.preventDefault(); // Prevent default navigation until we modify the URL
+
       var active_table_id = document.getElementsByClassName('profile-table-container active')[0].id;
       var active_table = active_table_id.split('_')[0] + "_";
-      var segments = $(this).attr('href').split( '/' );
-      var url_base = "/"+segments[1]+"/"+segments[2]+"/";
-      $(this).attr("href", "");
-      $(this).attr("href", url_base + active_table + "/");
-      var checkboxes = $(".select_checkbox");
-      for (checkbox of checkboxes) {
-          var href = $(this).attr("href");
-          if($(checkbox).is(":checked")){
-              let checkbox_id = $(checkbox).attr("id");
-              let element_id = checkbox_id.split("_")[1];
-              if (href[href.length-1] == "/"){
-                  $(this).attr("href", href + element_id);
-              }else{
-                  $(this).attr("href", href + "+" + element_id);
-              }
-          }
+      
+      var base_url = $(this).attr("href").split("/download/")[0] + "/download/"; // Get base URL
+      var new_href = base_url + active_table + "/"; // Start constructing the URL
+
+      var checkboxes = $(".select_checkbox:checked"); // Only checked checkboxes
+      var selected_ids = [];
+
+      checkboxes.each(function () {
+          let checkbox_id = $(this).attr("id");
+          let element_id = checkbox_id.split("_")[1];
+          selected_ids.push(element_id);
+      });
+
+      if (selected_ids.length > 0) {
+          new_href += selected_ids.join("+"); // Concatenate selected IDs with "+"
       }
+
+      // Redirect user to the generated URL
+      window.location.href = new_href;
   });
 
   $("#images_table-label").click(function() {
