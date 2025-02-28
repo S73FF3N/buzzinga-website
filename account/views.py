@@ -120,6 +120,8 @@ class DownloadView(View):
         return self.download_elements(active_table, element_string, download_all)
 
     def download_elements(self, active_table, element_string=None, download_all=False):
+        print(element_string)
+        print(active_table)
         zip_filename = "BuzzingaDownloads.zip"
         zip_buffer = BytesIO()
         user = request.user  # Get the current user from the request
