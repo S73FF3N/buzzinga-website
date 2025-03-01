@@ -168,7 +168,7 @@ class DownloadView(View):
                     json_str = (
                         serializers.serialize('json', category_elements) 
                         if active_table != "whoknowsmore_" 
-                        else WhoKnowsMoreSerializer(category_elements, many=True).data
+                        else json.dumps(WhoKnowsMoreSerializer(category_elements, many=True).data, ensure_ascii=False)
                     )
                     
                     with tempfile.NamedTemporaryFile(mode="w+", delete=False) as tmp_file:
