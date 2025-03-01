@@ -175,7 +175,7 @@ class DownloadView(View):
                         json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
                         tmp_file.flush()
                         tmp_file.seek(0)
-                        active_table = "who-knows-more" if active_table == "whoknowsmore_"
+                        active_table = "who-knows-more" if active_table == "whoknowsmore_" else active_table
                         zf.write(tmp_file.name, f"{active_table}/{category_name}.json")
 
         zip_buffer.seek(0)
