@@ -118,9 +118,9 @@ def create_profile_table(request, table_name, per_page):
 class DownloadView(View):
     def get(self, request, active_table, element_string=None):
         download_all = element_string == "all"
-        return self.download_elements(active_table, element_string if not download_all else None, download_all)
+        return self.download_elements(request, active_table, element_string if not download_all else None, download_all)
 
-    def download_elements(self, active_table, element_string=None, download_all=False):
+    def download_elements(self, request, active_table, element_string=None, download_all=False):
         print(element_string)
         print(active_table)
         zip_filename = "BuzzingaDownloads.zip"
