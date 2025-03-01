@@ -116,8 +116,9 @@ def create_profile_table(request, table_name, per_page):
     return table
 
 class DownloadView(View):
-    def get(self, request, active_table, element_string=None, download_all=False):
-        return self.download_elements(active_table, element_string, download_all)
+    def get(self, request, active_table, element_string=None):
+        download_all = element_string == "all"
+        return self.download_elements(active_table, element_string if not download_all else None, download_all)
 
     def download_elements(self, active_table, element_string=None, download_all=False):
         print(element_string)
@@ -153,7 +154,10 @@ class DownloadView(View):
                     qs_public = ModelClass.objects.filter(category__private=False, private_new=False)
                     elements = qs_created_by_user | qs_public
                 else:
-                    element_ids = element_string.split("+")
+                    element_ids = element_string.split("+") if element_string else []
+                    if not element_ids:
+                        print("No elements selected")
+                        return HttpResponse("No elements selected", status=400)
                     elements = ModelClass.objects.filter(id__in=element_ids)
 
                 categories = elements.values_list('category', flat=True).distinct()

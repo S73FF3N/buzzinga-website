@@ -260,6 +260,8 @@
 
       if (selected_ids.length > 0) {
           new_href += selected_ids.join("+"); // Concatenate selected IDs with "+"
+      } else {
+        new_href += "all/"; // Fallback to download all items
       }
 
       // Redirect user to the generated URL

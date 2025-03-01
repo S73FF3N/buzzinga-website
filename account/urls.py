@@ -9,4 +9,5 @@ urlpatterns = [
     path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
     path('profile/<str:per_page>/', views.profile_view, name='profile'),
     path('download/<str:active_table>/<str:element_string>/', views.DownloadView.as_view(), name='download'),
+    path('download/<str:active_table>/all/', views.DownloadView.as_view(), name='download_all'),
 ]
