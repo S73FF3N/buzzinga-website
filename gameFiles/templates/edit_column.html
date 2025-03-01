@@ -13,7 +13,7 @@
     {% elif record.category.game_type.pk == 4 %}
         {% url 'gamefiles:hint-edit' record.pk %}
     {% else %}
-        {% url 'gamefiles:who-knows-more-edit' record.pk %}
+        {% url 'gamefiles:whoknowsmore-edit' record.pk %}
     {% endif %}
 {% endif %}
 "><i class="fa fa-edit"></i></a>
