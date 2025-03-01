@@ -21,7 +21,7 @@
                    {% elif category.game_type.id == 1 %}href="{% url 'gamefiles:sound-download' category.pk %}"
                    {% elif category.game_type.id == 3 %}href="{% url 'gamefiles:question-download' category.pk %}"
                    {% elif category.game_type.id == 4 %}href="{% url 'gamefiles:hint-download' category.pk %}"
-                   {% else %}href="{% url 'gamefiles:whoknowsmore-download' category.pk %}"{% endif %}>
+                   {% else %}href="{% url 'gamefiles:who-knows-more-download' category.pk %}"{% endif %}>
                     <h4 style="color:white;">Download</h4>
                 </a>
             </div>
