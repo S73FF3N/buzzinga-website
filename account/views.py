@@ -26,14 +26,14 @@ def profile_view(request, per_page=10):
                'sounds_table': create_profile_table(request, "sounds_", per_page),
                'questions_table': create_profile_table(request, "questions_", per_page),
                'hints_table': create_profile_table(request, "hints_", per_page),
-               'whoknowsmore_table': create_profile_table(request, "whoknowsmore_", per_page),
+               'who-knows-more_table': create_profile_table(request, "who-knows-more_", per_page),
                'categories_table': create_profile_table(request, "categories_", per_page)}
     return render(request, 'profile.html', context)
 
 
 def get_profile_table(request, per_page):
     active_table = request.GET.get("active_table")
-    if active_table in ["images_", "sounds_", "questions_", "categories_", "hints_", "whoknowsmore_"]:
+    if active_table in ["images_", "sounds_", "questions_", "categories_", "hints_", "who-knows-more_"]:
         data = {
             "active_table": active_table,
             "html": render_to_string('profile_table_view.html', {'request': request,
@@ -61,9 +61,9 @@ def set_profile_filter(request, per_page):
                                                                            'table': create_profile_table(request,
                                                                                                          "hints_",
                                                                                                          per_page)}),
-               'whoknowsmore_table': render_to_string('profile_table_view.html', {'request': request,
+               'who-knows-more_table': render_to_string('profile_table_view.html', {'request': request,
                                                                                   'table': create_profile_table(request,
-                                                                                                                "whoknowsmore_",
+                                                                                                                "who-knows-more_",
                                                                                                                 per_page)}),
                'categories_table': render_to_string('profile_table_view.html', {'request': request,
                                                                                 'table': create_profile_table(request,
@@ -98,12 +98,12 @@ def create_profile_table(request, table_name, per_page):
         elements = qs_created_by_current_user | qs_private
         filter_obj = HintFilter(request.GET, elements, prefix="profile")
         table = HintTable(filter_obj.qs, prefix="hints_")
-    elif table_name == "whoknowsmore_":
+    elif table_name == "who-knows-more_":
         qs_created_by_current_user = WhoKnowsMore.objects.filter(created_by=user)
         qs_private = WhoKnowsMore.objects.filter(category__private=False, private_new=False)
         elements = qs_created_by_current_user | qs_private
         filter_obj = WhoKnowsMoreFilter(request.GET, elements, prefix="profile")
-        table = WhoKnowsMoreTable(filter_obj.qs, prefix="whoknowsmore_")
+        table = WhoKnowsMoreTable(filter_obj.qs, prefix="who-knows-more_")
     elif table_name == "categories_":
         qs_created_by_current_user = Category.objects.filter(created_by=user)
         qs_private = Category.objects.filter(private=False)
@@ -146,8 +146,8 @@ class DownloadView(View):
                         zf.write(settings.UPLOAD_ROOT + "/" + i.image_file.name if active_table == "images_" else settings.UPLOAD_ROOT + "/" + i.sound_file.name,
                                  f"{base_path}/{file_name_split[1]}/{file_name_split[2]}")
 
-            elif active_table in ["questions_", "hints_", "whoknowsmore_"]:
-                ModelClass = {"questions_": Question, "hints_": Hints, "whoknowsmore_": WhoKnowsMore}[active_table]
+            elif active_table in ["questions_", "hints_", "who-knows-more_"]:
+                ModelClass = {"questions_": Question, "hints_": Hints, "who-knows-more_": WhoKnowsMore}[active_table]
 
                 if download_all:
                     qs_created_by_user = ModelClass.objects.filter(created_by=user)
@@ -167,7 +167,7 @@ class DownloadView(View):
                     
                     json_str = (
                         serializers.serialize('json', category_elements) 
-                        if active_table != "whoknowsmore_" 
+                        if active_table != "who-knows-more_" 
                         else json.dumps(WhoKnowsMoreSerializer(category_elements, many=True).data, ensure_ascii=False)
                     )
                     
@@ -175,7 +175,7 @@ class DownloadView(View):
                         json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
                         tmp_file.flush()
                         tmp_file.seek(0)
-                        zf.write(tmp_file.name, f"{active_table}/{category_name}.json")
+                        zf.write(tmp_file.name, f"{active_table[:-1]}/{category_name}.json")
 
         zip_buffer.seek(0)
         response = HttpResponse(zip_buffer.getvalue(), content_type="application/zip")

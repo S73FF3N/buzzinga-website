@@ -49,12 +49,12 @@
                 <a href="{% url 'gamefiles:hint-create' %}" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i></a>
               </li>
               <li>
-                <a class="nav-link" id="whoknowsmore_table-label" data-toggle="tab" href="#whoknowsmore_table-tab" role="tab" aria-controls="whoknowsmore_table-tab" aria-selected="false">
+                <a class="nav-link" id="who-knows-more_table-label" data-toggle="tab" href="#who-knows-more_table-tab" role="tab" aria-controls="who-knows-more_table-tab" aria-selected="false">
                   Wer weiß mehr?
                 </a>
               </li>
               <li>
-                <a href="{% url 'gamefiles:whoknowsmore-create' %}" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i></a>
+                <a href="{% url 'gamefiles:who-knows-more-create' %}" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i></a>
               </li>
             </ul>
           </div>
@@ -132,8 +132,8 @@
         <div class="tab-pane fade profile-table-container" role="tabpanel" aria-labelledby="hints_table-label" id="hints_table-tab">
           {% render_table hints_table %}
         </div>
-        <div class="tab-pane fade profile-table-container" role="tabpanel" aria-labelledby="whoknowsmore_table-label" id="whoknowsmore_table-tab">
-          {% render_table whoknowsmore_table %}
+        <div class="tab-pane fade profile-table-container" role="tabpanel" aria-labelledby="who-knows-more_table-label" id="who-knows-more_table-tab">
+          {% render_table who-knows-more_table %}
         </div>
       </div>
     </div>
@@ -292,7 +292,7 @@
         });
   });
 
-  $("#whoknowsmore_table-label").click(function() {
+  $("#who-knows-more_table-label").click(function() {
     $(':checkbox').each(function() {
             this.checked = false;
         });
