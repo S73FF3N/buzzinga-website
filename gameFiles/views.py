@@ -4,22 +4,21 @@ from django.views.generic import ListView, FormView, CreateView, UpdateView, Del
 from django.conf import settings
 from django.urls import reverse
 from django.contrib.auth.models import User
-from django.core import serializers
+from django.core.serializers import serialize
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.base import ContentFile
+from django.contrib.messages import constants as messages
+from django.db.models import Count
 
 from .models import GameType, Category, Image, Sound, Question, Tag, Hints, WhoKnowsMore, WhoKnowsMoreElement
-from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, WhoKnowsMoreForm, \
-    WhoKnowsMoreElementFormSet, WhoKnowsMoreElementFormSetUpdate, ImageDownloadForm, SoundDownloadForm, \
-    QuestionDownloadForm, HintForm, HintDownloadForm, WhoKnowsMoreDownloadForm
+from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, WhoKnowsMoreForm, WhoKnowsMoreElementFormSet, WhoKnowsMoreElementFormSetUpdate, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm, WhoKnowsMoreDownloadForm,
 
 from dal import autocomplete
 from io import BytesIO
 import zipfile
-from random import sample
-import datetime
 import tempfile
 import json
+from pathlib import Path
 from PIL import ImageFont, ImageDraw
 from PIL import Image as PILImage
 from rest_framework import serializers as srlz
@@ -27,10 +26,9 @@ from rest_framework.renderers import JSONRenderer
 
 
 def home(request):
-    categories = Category.objects.filter(private=False).order_by('-created_on')
-    newest_categories = [c for c in categories if c.amount_files() > 0][:4]
+    newest_categories = Category.objects.filter(private=False).annotate(file_count=Count('files')).filter(file_count__gt=0).order_by('-created_on')[:4]
     latest_create_dates = sorted(
-        [c.latest_elements() for c in categories],
+        [c.latest_elements() for c in newest_categories],
         key=lambda x: x['latest_create_date'], reverse=True
     )[:4]
     
@@ -59,8 +57,7 @@ class CategoryView(ListView):
     template_name = "category_list.html"
 
     def get_queryset(self):
-        self.qs = super().get_queryset().filter(game_type=self.kwargs['game_type'], private=False)
-        return self.qs
+        return Category.objects.public_for_game_type(self.kwargs['game_type'])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -71,10 +68,7 @@ class CategoryView(ListView):
 
 def category_detail(request, game_type, id):
     category = get_object_or_404(Category, id=id)
-    tags = sorted(
-        [(t.name_de, t.amount_elements_with_tag(category=category)) for t in category.tags_used()],
-        key=lambda x: x[1], reverse=True
-    )[:5]
+    tags = category.tags_used().annotate(tag_count=Count('elements')).order_by('-tag_count')[:5]
 
     category_elements = category.get_related_objects()
     category_elements = category_elements.filter(private_new=False) if category_elements else []
@@ -156,12 +150,9 @@ class WhoKnowsMoreEditView(LoginRequiredMixin, UpdateView, SuccessUrlMixin):
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         form = WhoKnowsMoreForm(data=self.request.POST, instance=self.object)
-        formset = WhoKnowsMoreElementFormSetUpdate(data=self.request.POST,
-                                                   instance=self.object)
-        if form.is_valid() and formset.is_valid():
+        if (form := self.get_form()).is_valid() and (formset := WhoKnowsMoreElementFormSetUpdate(self.request.POST, instance=self.object)).is_valid():
             return self.form_valid(form, formset)
-        else:
-            return self.form_invalid(form, formset)
+        return self.form_invalid(form, formset)
 
     def form_valid(self, form, formset):
         self.object = form.save()
@@ -177,54 +168,42 @@ class WhoKnowsMoreEditView(LoginRequiredMixin, UpdateView, SuccessUrlMixin):
                                                              formset=formset))
 
 
-class CategoryDeleteView(LoginRequiredMixin, DeleteView, SuccessUrlMixin):
+class BaseDeleteView(LoginRequiredMixin, DeleteView, SuccessUrlMixin):
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, f"{self.model.__name__} successfully deleted.")
+        return super().delete(request, *args, **kwargs)
+
+
+class CategoryDeleteView(BaseDeleteView, LoginRequiredMixin, DeleteView, SuccessUrlMixin):
     model = Category
 
-    def get(self, request, *args, **kwargs):
-        return self.post(request, *args, **kwargs)
 
-
-class ImageDeleteView(LoginRequiredMixin, DeleteView, SuccessUrlMixin):
+class ImageDeleteView(BaseDeleteView, LoginRequiredMixin, DeleteView, SuccessUrlMixin):
     model = Image
 
-    def get(self, request, *args, **kwargs):
-        return self.post(request, *args, **kwargs)
 
-
-class SoundDeleteView(LoginRequiredMixin, DeleteView, SuccessUrlMixin):
+class SoundDeleteView(BaseDeleteView, LoginRequiredMixin, DeleteView, SuccessUrlMixin):
     model = Sound
 
-    def get(self, request, *args, **kwargs):
-        return self.post(request, *args, **kwargs)
 
-
-class QuestionDeleteView(LoginRequiredMixin, DeleteView, SuccessUrlMixin):
+class QuestionDeleteView(BaseDeleteView, LoginRequiredMixin, DeleteView, SuccessUrlMixin):
     model = Question
 
-    def get(self, request, *args, **kwargs):
-        return self.post(request, *args, **kwargs)
 
-
-class HintDeleteView(LoginRequiredMixin, DeleteView, SuccessUrlMixin):
+class HintDeleteView(BaseDeleteView, LoginRequiredMixin, DeleteView, SuccessUrlMixin):
     model = Hints
 
-    def get(self, request, *args, **kwargs):
-        return self.post(request, *args, **kwargs)
 
-
-class WhoKnowsMoreDeleteView(LoginRequiredMixin, DeleteView, SuccessUrlMixin):
+class WhoKnowsMoreDeleteView(BaseDeleteView, LoginRequiredMixin, DeleteView, SuccessUrlMixin):
     model = WhoKnowsMore
-
-    def get(self, request, *args, **kwargs):
-        return self.post(request, *args, **kwargs)
 
 
 class ParentCreateView(CreateView, SuccessUrlMixin):
     def form_valid(self, form):
         form.instance.created_by = self.request.user
-        tags = form.cleaned_data["tags"]
         self.object = form.save()
-        self.object.tags.add(*tags)
+        if "tags" in form.cleaned_data:
+            self.object.tags.add(*form.cleaned_data["tags"])
         return super().form_valid(form)
 
 
@@ -235,39 +214,38 @@ class ImageCreateView(LoginRequiredMixin, ParentCreateView):
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
-        tags = form.cleaned_data["tags"]
-        img = form.instance.image_file
+        tags = form.cleaned_data.get("tags", [])
+
+        img = PILImage.open(form.instance.image_file)
         file_name = form.instance.solution
-        img = PILImage.open(img)
         width, height = img.size
-        font_size = int(min(width, height) / 50)
-        font = ImageFont.truetype("Montserrat-Regular.ttf", font_size)
-        if form.instance.file_changed:
-            text = "by " + form.instance.author + " (modified from original) licensed under " + form.instance.license
-        else:
-            text = "by " + form.instance.author + " licensed under " + form.instance.license
-        if form.instance.license == "CC0":
-            text_license = "https://creativecommons.org/publicdomain/zero/1.0/deed.de"
-        elif form.instance.license == "CC BY":
-            text_license = "https://creativecommons.org/licenses/by/4.0/deed.de"
-        else:
-            text_license = "https://creativecommons.org/licenses/by-sa/3.0/de/"
-        text_width = font.getsize(text)[0]
-        text_height = font.getsize(text)[1]
-        text_license_width = font.getsize(text_license)[0]
-        text_license_height = font.getsize(text_license)[1]
+
+        font_size = max(int(min(width, height) / 50), 10)
+        font_path = Path(settings.BASE_DIR) / "static/fonts/Montserrat-Regular.ttf"
+        font = ImageFont.truetype(str(font_path), font_size)
+
+        license_urls = {
+            "CC0": "https://creativecommons.org/publicdomain/zero/1.0/deed.de",
+            "CC BY": "https://creativecommons.org/licenses/by/4.0/deed.de",
+            "CC BY-SA": "https://creativecommons.org/licenses/by-sa/3.0/de/",
+        }
+        text_license = license_urls.get(form.instance.license, "Unknown License")
+
+        text = f"by {form.instance.author} "
+        text += "(modified from original) " if form.instance.file_changed else ""
+        text += f"licensed under {form.instance.license}"
+
         img_edit = ImageDraw.Draw(img)
-        img_edit.text((width - text_width - 5, height - text_height - text_license_height - 10), text, (222, 222, 222),
-                      font=font)
-        img_edit.text((width - text_license_width - 5, height - text_license_height - 5), text_license, (222, 222, 222),
-                      font=font)
-        image_io = BytesIO()
-        img.save(image_io, format=img.format)
-        image_name = '{}.{}'.format(file_name, img.format)
-        img = ContentFile(image_io.getvalue(), image_name)
-        form.instance.image_file = img
-        self.object = form.save()
-        self.object.tags.add(*tags)
+        text_position = (width - font.getsize(text)[0] - 5, height - font.getsize(text)[1] - 20)
+        license_position = (width - font.getsize(text_license)[0] - 5, height - font.getsize(text_license)[1] - 5)
+
+        img_edit.text(text_position, text, (222, 222, 222), font=font)
+        img_edit.text(license_position, text_license, (222, 222, 222), font=font)
+
+        with BytesIO() as image_io:
+            img.save(image_io, format=img.format)
+            form.instance.image_file = ContentFile(image_io.getvalue(), f"{file_name}.{img.format.lower()}")
+
         return super().form_valid(form)
 
 
@@ -295,304 +273,32 @@ class WhoKnowsMoreCreateView(LoginRequiredMixin, ParentCreateView):
     template_name = 'who-knows-more-edit.html'
 
     def get(self, request, *args, **kwargs):
-        self.object = None
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
+        form = self.get_form(self.get_form_class())
         formset = WhoKnowsMoreElementFormSet()
-        return self.render_to_response(
-            self.get_context_data(form=form,
-                                  formset=formset,
-                                  )
-        )
+        return self.render_to_response(self.get_context_data(form=form, formset=formset))
 
     def post(self, request, *args, **kwargs):
-        self.object = None
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
+        form = self.get_form(self.get_form_class())
         formset = WhoKnowsMoreElementFormSet(self.request.POST)
-        print(formset.errors)
+
         if form.is_valid() and formset.is_valid():
             return self.form_valid(form, formset)
         else:
             return self.form_invalid(form, formset)
 
     def form_valid(self, form, formset):
-        formset = formset
-        if formset.is_valid and form.is_valid():
-            self.object = form.save()
-            instances = formset.save(commit=False)
-            for instance in instances:
-                instance.category_element = self.object
-                instance.count_id = len(WhoKnowsMoreElement.objects.filter(category_element=self.object)) + 1
-                instance.save()
-            return redirect(self.get_success_url())
-        else:
-            return self.form_invalid(form, formset)
+        self.object = form.save()
+        instances = formset.save(commit=False)
+
+        for instance in instances:
+            instance.category_element = self.object
+            instance.count_id = WhoKnowsMoreElement.objects.filter(category_element=self.object).count() + 1
+            instance.save()
+
+        return redirect(self.get_success_url())
 
     def form_invalid(self, form, formset):
         return self.render_to_response(self.get_context_data(form=form, formset=formset))
-
-
-class ImageDownloadView(LoginRequiredMixin, FormView):
-    template_name = 'sound-download.html'
-    form_class = ImageDownloadForm
-
-    def get_success_url(self, **kwargs):
-        category = Category.objects.get(pk=self.kwargs['category_id'])
-        game_type = category.game_type.id
-        return reverse('gamefiles:category_detail', kwargs={'id': category.id, 'game_type': game_type})
-
-    def get_context_data(self, **kwargs):
-        ctx = super(ImageDownloadView, self).get_context_data(**kwargs)
-        ctx['category_id'] = self.kwargs['category_id']
-        category = Category.objects.get(pk=self.kwargs['category_id'])
-        game_type_id = category.game_type.id
-        ctx['game_type_id'] = game_type_id
-        return ctx
-
-    def get_initial(self):
-        return {
-            'category': self.kwargs['category_id'],
-        }
-
-    def form_valid(self, form):
-        current_user = self.request.user
-        tags = form.cleaned_data["tags"]
-        created_by = form.cleaned_data["created_by"]
-        if not created_by:
-            created_by = User.objects.all()
-        difficulty_range = [int(form.cleaned_data["max_difficulty"]) - i for i in range(
-            int(form.cleaned_data["max_difficulty"]) - int(form.cleaned_data["min_difficulty"]) + 1)]
-        if not tags:
-            images = Image.objects.filter(category=form.cleaned_data["category"], created_by__in=created_by,
-                                          private_new=False, difficulty__in=difficulty_range).distinct()
-        else:
-            images = Image.objects.filter(category=form.cleaned_data["category"], tags__in=tags,
-                                          created_by__in=created_by,
-                                          private_new=False, difficulty__in=difficulty_range).distinct()
-        if form.cleaned_data["explicit"]:
-            images.filter(explicit=False)
-        if form.cleaned_data["min_upload_date"]:
-            images.filter(created_on__gte=form.cleaned_data["min_upload_date"])
-        if form.cleaned_data["max_upload_date"]:
-            images.filter(created_on__lte=form.cleaned_data["max_upload_date"])
-        if not form.cleaned_data["private_new"]:
-            private_images = Image.objects.filter(created_by=current_user, private_new=True).distinct()
-            images = images | private_images
-        images_ids = set(list(images.values_list('id', flat=True)))
-        if form.cleaned_data["amount"] < len(images_ids):
-            random_ids = sample(images_ids, form.cleaned_data["amount"])
-            images = images.filter(id__in=random_ids)
-        category_name = Category.objects.get(pk=form.cleaned_data["category"].pk).name_de
-        zip_filename = "%s.zip" % category_name
-        zip_buffer = BytesIO()
-        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
-            for i in images:
-                image_name_split = i.image_file.name.split("/")
-                if len(image_name_split[2]) > 4:
-                    zf.write(settings.MEDIA_ROOT + "/" + i.image_file.name,
-                             "Bilder/" + image_name_split[1] + "/" + image_name_split[2])
-                else:
-                    continue
-        zip_buffer.seek(0)
-        resp = HttpResponse(zip_buffer, content_type="application/zip")
-        resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
-        return resp
-
-
-class SoundDownloadView(LoginRequiredMixin, FormView):
-    template_name = 'sound-download.html'
-    form_class = SoundDownloadForm
-
-    def get_success_url(self, **kwargs):
-        return reverse('gamefiles:category_detail',
-                       kwargs={'id': self.kwargs['category_id'], 'game_type': self.kwargs['game_type']})
-
-    def get_context_data(self, **kwargs):
-        ctx = super(SoundDownloadView, self).get_context_data(**kwargs)
-        ctx['category_id'] = self.kwargs['category_id']
-        return ctx
-
-    def get_initial(self):
-        return {
-            'category': self.kwargs['category_id'],
-        }
-
-    def form_valid(self, form):
-        current_user = self.request.user
-        tags = form.cleaned_data["tags"]
-        created_by = form.cleaned_data["created_by"]
-        if not created_by:
-            created_by = User.objects.all()
-        difficulty_range = [int(form.cleaned_data["max_difficulty"]) - i for i in range(
-            int(form.cleaned_data["max_difficulty"]) - int(form.cleaned_data["min_difficulty"]) + 1)]
-        if not tags:
-            sounds = Sound.objects.filter(category=form.cleaned_data["category"], created_by__in=created_by,
-                                          private_new=False, difficulty__in=difficulty_range).distinct()
-        else:
-            sounds = Sound.objects.filter(category=form.cleaned_data["category"], tags__in=tags,
-                                          created_by__in=created_by, private_new=False,
-                                          difficulty__in=difficulty_range).distinct()
-        if form.cleaned_data["explicit"]:
-            sounds.filter(explicit=False)
-        if form.cleaned_data["min_upload_date"]:
-            sounds.filter(created_on__gte=form.cleaned_data["min_upload_date"])
-        if form.cleaned_data["max_upload_date"]:
-            sounds.filter(created_on__lte=form.cleaned_data["max_upload_date"])
-        if not form.cleaned_data["private_new"]:
-            private_sounds = Sound.objects.filter(created_by=current_user, private_new=True).distinct()
-            sounds = sounds | private_sounds
-        sounds_ids = set(list(sounds.values_list('id', flat=True)))
-        if form.cleaned_data["amount"] < len(sounds_ids):
-            random_ids = sample(sounds_ids, form.cleaned_data["amount"])
-            sounds = sounds.filter(id__in=random_ids)
-        category_name = Category.objects.get(pk=form.cleaned_data["category"].pk).name_de
-        zip_filename = "%s.zip" % category_name
-        zip_buffer = BytesIO()
-        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
-            for s in sounds:
-                sound_name_split = s.sound_file.name.split("/")
-                if len(sound_name_split[2]) > 4:
-                    zf.write(settings.MEDIA_ROOT + "/" + s.sound_file.name,
-                             "Audio/" + sound_name_split[1] + "/" + sound_name_split[2])
-                else:
-                    continue
-        zip_buffer.seek(0)
-        resp = HttpResponse(zip_buffer, content_type="application/zip")
-        resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
-        return resp
-
-
-class QuestionDownloadView(LoginRequiredMixin, FormView):
-    template_name = 'sound-download.html'
-    form_class = QuestionDownloadForm
-
-    def get_success_url(self, **kwargs):
-        category = Category.objects.get(pk=self.kwargs['category_id'])
-        game_type = category.game_type.id
-        return reverse('gamefiles:category_detail', kwargs={'id': category.id, 'game_type': game_type})
-
-    def get_context_data(self, **kwargs):
-        ctx = super(QuestionDownloadView, self).get_context_data(**kwargs)
-        ctx['category_id'] = self.kwargs['category_id']
-        category = Category.objects.get(pk=self.kwargs['category_id'])
-        game_type_id = category.game_type.id
-        ctx['game_type_id'] = game_type_id
-        return ctx
-
-    def get_initial(self):
-        return {
-            'category': self.kwargs['category_id'],
-        }
-
-    def form_valid(self, form):
-        current_user = self.request.user
-        tags = form.cleaned_data["tags"]
-        created_by = form.cleaned_data["created_by"]
-        if not created_by:
-            created_by = User.objects.all()
-        difficulty_range = [int(form.cleaned_data["max_difficulty"]) - i for i in range(
-            int(form.cleaned_data["max_difficulty"]) - int(form.cleaned_data["min_difficulty"]) + 1)]
-        if not tags:
-            questions = Question.objects.filter(category=form.cleaned_data["category"], created_by__in=created_by,
-                                                private_new=False, difficulty__in=difficulty_range).distinct()
-        else:
-            questions = Question.objects.filter(category=form.cleaned_data["category"], tags__in=tags,
-                                                created_by__in=created_by,
-                                                private_new=False, difficulty__in=difficulty_range, ).distinct()
-        if form.cleaned_data["explicit"]:
-            questions.filter(explicit=False)
-        if form.cleaned_data["min_upload_date"]:
-            questions.filter(created_on__gte=form.cleaned_data["min_upload_date"])
-        if form.cleaned_data["max_upload_date"]:
-            questions.filter(created_on__lte=form.cleaned_data["max_upload_date"])
-        if not form.cleaned_data["private_new"]:
-            private_questions = Question.objects.filter(created_by=current_user, private_new=True).distinct()
-            questions = questions | private_questions
-        questions_ids = set(list(questions.values_list('id', flat=True)))
-        if form.cleaned_data["amount"] < len(questions_ids):
-            random_ids = sample(questions_ids, form.cleaned_data["amount"])
-            questions = questions.filter(id__in=random_ids)
-        category_name = Category.objects.get(pk=form.cleaned_data["category"].pk).name_de
-        json_str = serializers.serialize('json',
-                                         questions)  # , fields=('quiz_question', 'solution', 'option1', 'option2', 'option3'))
-        tmp_file = tempfile.NamedTemporaryFile(mode="w+")
-        json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
-        tmp_file.seek(0)
-        zip_filename = "%s.zip" % category_name
-        zip_buffer = BytesIO()
-        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
-            zf.write(tmp_file.name, "Questions/" + category_name + ".json")
-        zip_buffer.seek(0)
-        resp = HttpResponse(zip_buffer, content_type="application/zip")
-        resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
-        return resp
-
-
-class HintDownloadView(LoginRequiredMixin, FormView):
-    template_name = 'sound-download.html'
-    form_class = HintDownloadForm
-
-    def get_success_url(self, **kwargs):
-        category = Category.objects.get(pk=self.kwargs['category_id'])
-        game_type = category.game_type.id
-        return reverse('gamefiles:category_detail', kwargs={'id': category.id, 'game_type': game_type})
-
-    def get_context_data(self, **kwargs):
-        ctx = super(HintDownloadView, self).get_context_data(**kwargs)
-        ctx['category_id'] = self.kwargs['category_id']
-        category = Category.objects.get(pk=self.kwargs['category_id'])
-        game_type_id = category.game_type.id
-        ctx['game_type_id'] = game_type_id
-        return ctx
-
-    def get_initial(self):
-        return {
-            'category': self.kwargs['category_id'],
-        }
-
-    def form_valid(self, form):
-        current_user = self.request.user
-        tags = form.cleaned_data["tags"]
-        created_by = form.cleaned_data["created_by"]
-        if not created_by:
-            created_by = User.objects.all()
-        difficulty_range = [int(form.cleaned_data["max_difficulty"]) - i for i in range(
-            int(form.cleaned_data["max_difficulty"]) - int(form.cleaned_data["min_difficulty"]) + 1)]
-        if not tags:
-            hints = Hints.objects.filter(category=form.cleaned_data["category"], created_by__in=created_by,
-                                         private_new=False, difficulty__in=difficulty_range).distinct()
-        else:
-            hints = Hints.objects.filter(category=form.cleaned_data["category"], tags__in=tags,
-                                         created_by__in=created_by,
-                                         private_new=False, difficulty__in=difficulty_range, ).distinct()
-        if form.cleaned_data["explicit"]:
-            hints.filter(explicit=False)
-        if form.cleaned_data["min_upload_date"]:
-            hints.filter(created_on__gte=form.cleaned_data["min_upload_date"])
-        if form.cleaned_data["max_upload_date"]:
-            hints.filter(created_on__lte=form.cleaned_data["max_upload_date"])
-        if not form.cleaned_data["private_new"]:
-            private_hints = Hints.objects.filter(created_by=current_user, private_new=True).distinct()
-            hints = hints | private_hints
-        hints_ids = set(list(hints.values_list('id', flat=True)))
-        if form.cleaned_data["amount"] < len(hints_ids):
-            random_ids = sample(hints_ids, form.cleaned_data["amount"])
-            hints = hints.filter(id__in=random_ids)
-        category_name = Category.objects.get(pk=form.cleaned_data["category"].pk).name_de
-        json_str = serializers.serialize('json', hints)
-        tmp_file = tempfile.NamedTemporaryFile(mode="w+")
-        json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
-        tmp_file.seek(0)
-        zip_filename = "%s.zip" % category_name
-        zip_buffer = BytesIO()
-        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
-            zf.write(tmp_file.name, "Hints/" + category_name + ".json")
-        zip_buffer.seek(0)
-        resp = HttpResponse(zip_buffer, content_type="application/zip")
-        resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
-        return resp
-
 
 class WhoKnowsMoreElementSerializer(srlz.ModelSerializer):
     class Meta:
@@ -608,107 +314,194 @@ class WhoKnowsMoreSerializer(srlz.ModelSerializer):
         fields = ('id', 'solution', 'answers')
 
 
-class WhoKnowsMoreDownloadView(LoginRequiredMixin, FormView):
+class BaseDownloadView(LoginRequiredMixin, FormView):
+    """Base class for all download views to reduce redundancy."""
+    
     template_name = 'sound-download.html'
-    form_class = WhoKnowsMoreDownloadForm
 
-    def get_success_url(self, **kwargs):
+    def get_success_url(self):
         category = Category.objects.get(pk=self.kwargs['category_id'])
-        game_type = category.game_type.id
-        return reverse('gamefiles:category_detail', kwargs={'id': category.id, 'game_type': game_type})
+        return reverse('gamefiles:category_detail', kwargs={'id': category.id, 'game_type': category.game_type.id})
 
     def get_context_data(self, **kwargs):
-        ctx = super(WhoKnowsMoreDownloadView, self).get_context_data(**kwargs)
-        ctx['category_id'] = self.kwargs['category_id']
+        ctx = super().get_context_data(**kwargs)
         category = Category.objects.get(pk=self.kwargs['category_id'])
-        game_type_id = category.game_type.id
-        ctx['game_type_id'] = game_type_id
+        ctx.update({
+            'category_id': self.kwargs['category_id'],
+            'game_type_id': category.game_type.id
+        })
         return ctx
 
     def get_initial(self):
-        return {
-            'category': self.kwargs['category_id'],
+        return {'category': self.kwargs['category_id']}
+
+    def filter_queryset(self, model, form):
+        """Filters objects based on form criteria."""
+        user = self.request.user
+        created_by = form.cleaned_data["created_by"] or User.objects.all()
+        difficulty_range = range(
+            int(form.cleaned_data["min_difficulty"]),
+            int(form.cleaned_data["max_difficulty"]) + 1
+        )
+
+        filters = {
+            "category": form.cleaned_data["category"],
+            "created_by__in": created_by,
+            "private_new": False,
+            "difficulty__in": difficulty_range,
         }
 
-    def form_valid(self, form):
-        current_user = self.request.user
-        tags = form.cleaned_data["tags"]
-        created_by = form.cleaned_data["created_by"]
-        if not created_by:
-            created_by = User.objects.all()
-        difficulty_range = [int(form.cleaned_data["max_difficulty"]) - i for i in range(
-            int(form.cleaned_data["max_difficulty"]) - int(form.cleaned_data["min_difficulty"]) + 1)]
-        if not tags:
-            whoknowsmore = WhoKnowsMore.objects.filter(category=form.cleaned_data["category"], created_by__in=created_by,
-                                         private_new=False, difficulty__in=difficulty_range).distinct()
-        else:
-            whoknowsmore = WhoKnowsMore.objects.filter(category=form.cleaned_data["category"], tags__in=tags,
-                                         created_by__in=created_by,
-                                         private_new=False, difficulty__in=difficulty_range, ).distinct()
+        if form.cleaned_data["tags"]:
+            filters["tags__in"] = form.cleaned_data["tags"]
+        
+        queryset = model.objects.filter(**filters).distinct()
+
         if form.cleaned_data["explicit"]:
-            whoknowsmore.filter(explicit=False)
+            queryset = queryset.filter(explicit=False)
+        
         if form.cleaned_data["min_upload_date"]:
-            whoknowsmore.filter(created_on__gte=form.cleaned_data["min_upload_date"])
+            queryset = queryset.filter(created_on__gte=form.cleaned_data["min_upload_date"])
+        
         if form.cleaned_data["max_upload_date"]:
-            whoknowsmore.filter(created_on__lte=form.cleaned_data["max_upload_date"])
+            queryset = queryset.filter(created_on__lte=form.cleaned_data["max_upload_date"])
+        
         if not form.cleaned_data["private_new"]:
-            private_whoknowsmore = WhoKnowsMore.objects.filter(created_by=current_user, private_new=True).distinct()
-            whoknowsmore = whoknowsmore | private_whoknowsmore
-        whoknowsmore_ids = set(list(whoknowsmore.values_list('id', flat=True)))
-        if form.cleaned_data["amount"] < len(whoknowsmore_ids):
-            random_ids = sample(whoknowsmore_ids, form.cleaned_data["amount"])
-            whoknowsmore = whoknowsmore.filter(id__in=random_ids)
-        category_name = Category.objects.get(pk=form.cleaned_data["category"].pk).name_de
-        serialized_whoknowsmore = WhoKnowsMoreSerializer(whoknowsmore, many=True).data
-        json_str = JSONRenderer().render(serialized_whoknowsmore)
-        tmp_file = tempfile.NamedTemporaryFile(mode="w+")
+            private_queryset = model.objects.filter(created_by=user, private_new=True)
+            queryset = queryset | private_queryset
+        
+        return queryset
+
+    def generate_zip_response(self, files, category_name, folder_name):
+        """Creates and returns a zip file response."""
+        zip_buffer = BytesIO()
+        zip_filename = f"{category_name}.zip"
+        
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
+            for file_name, file_path in files:
+                zf.write(file_path, f"{folder_name}/{file_name}")
+
+        zip_buffer.seek(0)
+        response = HttpResponse(zip_buffer, content_type="application/zip")
+        response['Content-Disposition'] = f'attachment; filename={zip_filename}'
+        return response
+
+
+class ImageDownloadView(BaseDownloadView):
+    form_class = ImageDownloadForm
+
+    def form_valid(self, form):
+        images = self.filter_queryset(Image, form)
+        category_name = form.cleaned_data["category"].name_de
+
+        files = [
+            (img.image_file.name.split("/")[-1], f"{settings.MEDIA_ROOT}/{img.image_file.name}")
+            for img in images
+            if len(img.image_file.name.split("/")) > 2
+        ]
+
+        return self.generate_zip_response(files, category_name, "Bilder")
+
+
+class SoundDownloadView(BaseDownloadView):
+    form_class = SoundDownloadForm
+
+    def form_valid(self, form):
+        sounds = self.filter_queryset(Sound, form)
+        category_name = form.cleaned_data["category"].name_de
+
+        files = [
+            (snd.sound_file.name.split("/")[-1], f"{settings.MEDIA_ROOT}/{snd.sound_file.name}")
+            for snd in sounds
+            if len(snd.sound_file.name.split("/")) > 2
+        ]
+
+        return self.generate_zip_response(files, category_name, "Audio")
+
+
+class QuestionDownloadView(BaseDownloadView):
+    form_class = QuestionDownloadForm
+
+    def form_valid(self, form):
+        questions = self.filter_queryset(Question, form)
+        category_name = form.cleaned_data["category"].name_de
+
+        json_str = serialize('json', questions)
+        tmp_file = tempfile.NamedTemporaryFile(mode="w+", delete=False)
         json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
         tmp_file.seek(0)
-        zip_filename = "%s.zip" % category_name
-        zip_buffer = BytesIO()
-        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
-            zf.write(tmp_file.name, "Wer weiß mehr?/" + category_name + ".json")
-        zip_buffer.seek(0)
-        resp = HttpResponse(zip_buffer, content_type="application/zip")
-        resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
-        return resp
+
+        return self.generate_zip_response([(f"{category_name}.json", tmp_file.name)], category_name, "Questions")
+
+
+class HintDownloadView(BaseDownloadView):
+    form_class = HintDownloadForm
+
+    def form_valid(self, form):
+        hints = self.filter_queryset(Hints, form)
+        category_name = form.cleaned_data["category"].name_de
+
+        json_str = serialize('json', hints)
+        tmp_file = tempfile.NamedTemporaryFile(mode="w+", delete=False)
+        json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
+        tmp_file.seek(0)
+
+        return self.generate_zip_response([(f"{category_name}.json", tmp_file.name)], category_name, "Hints")
+
+
+class WhoKnowsMoreDownloadView(BaseDownloadView):
+    form_class = WhoKnowsMoreDownloadForm
+
+    def form_valid(self, form):
+        whoknowsmore = self.filter_queryset(WhoKnowsMore, form)
+        category_name = form.cleaned_data["category"].name_de
+
+        serialized_data = WhoKnowsMoreSerializer(whoknowsmore, many=True).data
+        json_str = JSONRenderer().render(serialized_data)
+        tmp_file = tempfile.NamedTemporaryFile(mode="w+", delete=False)
+        json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
+        tmp_file.seek(0)
+
+        return self.generate_zip_response([(f"{category_name}.json", tmp_file.name)], category_name, "Wer weiß mehr?")
 
 
 def solution(request, game_type, category_element):
-    game_type = GameType.objects.get(id=game_type)
-    if game_type.name_de == "Audio":
-        solution = {"type": "Sound", "qs": Sound.objects.get(id=category_element)}
-    elif game_type.name_de == "Bilder":
-        solution = {"type": "Image", "qs": Image.objects.get(id=category_element)}
-    elif game_type.name_de == "Multiple Choice":
-        solution = {"type": "Multiple Choice", "qs": Question.objects.get(id=category_element)}
-    elif game_type.name_de == "10 Hinweise":
-        solution = {"type": "Hints", "qs": Hints.objects.get(id=category_element)}
-    elif game_type.name_de == "Wer weiß mehr?":
-        solution = {"type": "WhoKnowsMore", "qs": WhoKnowsMore.objects.get(id=category_element).show_solution()}
-    return render(request, 'solution.html', {'solution': solution})
+    """Fetches and returns the solution based on game type."""
+    game_types = {
+        "Audio": (Sound, "Sound"),
+        "Bilder": (Image, "Image"),
+        "Multiple Choice": (Question, "Multiple Choice"),
+        "10 Hinweise": (Hints, "Hints"),
+        "Wer weiß mehr?": (WhoKnowsMore, "WhoKnowsMore"),
+    }
+
+    game = GameType.objects.get(id=game_type)
+    model, solution_type = game_types.get(game.name_de, (None, None))
+
+    if not model:
+        return render(request, 'solution.html', {'solution': None})
+
+    solution = model.objects.get(id=category_element)
+    if solution_type == "WhoKnowsMore":
+        solution = solution.show_solution()
+
+    return render(request, 'solution.html', {'solution': {"type": solution_type, "qs": solution}})
 
 
 class TagAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         qs = Tag.objects.all()
-
         if self.q:
             qs = qs.filter(name_de__icontains=self.q)
-
         return qs
 
 
 class CategoryAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        qs_created_by_current_user = Category.objects.filter(created_by=self.request.user)
-        qs_private = Category.objects.filter(private=False)
+        user_categories = Category.objects.filter(created_by=self.request.user)
+        public_categories = Category.objects.filter(private=False)
+        qs = user_categories | public_categories
 
-        qs = qs_created_by_current_user | qs_private
-
-        game_type = self.forwarded.get('game_type', None)
-
-        if game_type:
+        if game_type := self.forwarded.get('game_type'):
             qs = qs.filter(game_type=game_type)
 
         if self.q:
@@ -720,8 +513,6 @@ class CategoryAutocomplete(autocomplete.Select2QuerySetView):
 class UserAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         qs = User.objects.all()
-
         if self.q:
             qs = qs.filter(name_de__icontains=self.q)
-
         return qs

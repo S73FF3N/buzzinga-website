@@ -48,7 +48,14 @@ class GameType(models.Model):
         return self.name_de
 
 
+class CategoryManager(models.Manager):
+    def public_for_game_type(self, game_type):
+        return self.filter(game_type=game_type, private=False)
+    
+
 class Category(models.Model):
+    objects = CategoryManager()
+    
     name_de = models.CharField(max_length=50, verbose_name="Name")
     game_type = models.ForeignKey(GameType, default=1, on_delete=models.CASCADE, verbose_name="Spielart", related_name="categories")
     description_de = models.TextField(verbose_name="Beschreibung")
