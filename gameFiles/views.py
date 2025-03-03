@@ -267,7 +267,7 @@ class HintCreateView(LoginRequiredMixin, ParentCreateView):
     template_name = 'hint-edit.html'
 
 
-class WhoKnowsMoreCreateView(LoginRequiredMixin, ParentCreateView):
+class WhoknowsmoreCreateView(LoginRequiredMixin, ParentCreateView):
     model = WhoKnowsMore
     form_class = WhoKnowsMoreForm
     template_name = 'who-knows-more-edit.html'
