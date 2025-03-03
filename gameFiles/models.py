@@ -20,6 +20,10 @@ LICENSE = (
     ('CC BY-SA', 'Creative Commons Attribution-ShareAlike')
 )
 
+GAME_TYPE_FOLDER_MAP = {
+    2: "sounds",
+    1: "images",
+}
 
 class Tag(models.Model):
     name_de = models.CharField(max_length=50)
@@ -128,6 +132,22 @@ class CategoryElement(models.Model):
         ext = filename.split('.')[-1]
         filename_solution = f"{CategoryElement.clean_filename(instance.solution)}.{ext}"
         return f"{instance.category.game_type.name_de}/{instance.category.name_de}/{filename_solution}"
+
+
+def get_upload_path(instance, filename): 
+    """Generate the upload path dynamically based on the game type and category name."""
+    
+    # Ensure category exists
+    if not instance.category:
+        return os.path.join("uncategorized", filename)
+
+    # Get game type folder, defaulting to 'other' if not mapped
+    game_type = GAME_TYPE_FOLDER_MAP.get(instance.category.game_type.id, "other")
+
+    # Format category name safely
+    category_name = instance.category.name_de.replace(" ", "_")
+
+    return os.path.join(game_type, category_name, filename)
 
 
 class Image(CategoryElement):
