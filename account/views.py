@@ -13,7 +13,7 @@ import json
 import tempfile
 
 from gameFiles.tables import SoundTable, ImageTable, QuestionTable, HintTable, CategoryTable, WhoKnowsMoreTable
-from gameFiles.filters import ProfileFilter, ImageFilter, SoundFilter, QuestionFilter, CategoryFilter, HintFilter, \
+from gameFiles.filters import ImageFilter, SoundFilter, QuestionFilter, CategoryFilter, HintFilter, \
     WhoKnowsMoreFilter
 from gameFiles.models import Category, Image, Sound, Question, Hints, WhoKnowsMore
 from gameFiles.views import WhoKnowsMoreSerializer
