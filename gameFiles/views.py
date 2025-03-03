@@ -132,7 +132,7 @@ class HintEditView(LoginRequiredMixin, UpdateView, SuccessUrlMixin):
     template_name = 'hint-edit.html'
 
 
-class WhoKnowsMoreEditView(LoginRequiredMixin, UpdateView, SuccessUrlMixin):
+class WhoknowsmoreEditView(LoginRequiredMixin, UpdateView, SuccessUrlMixin):
     model = WhoKnowsMore
     form_class = WhoKnowsMoreForm
     template_name = 'who-knows-more-edit.html'
@@ -194,7 +194,7 @@ class HintDeleteView(BaseDeleteView, LoginRequiredMixin, DeleteView, SuccessUrlM
     model = Hints
 
 
-class WhoKnowsMoreDeleteView(BaseDeleteView, LoginRequiredMixin, DeleteView, SuccessUrlMixin):
+class WhoknowsmoreDeleteView(BaseDeleteView, LoginRequiredMixin, DeleteView, SuccessUrlMixin):
     model = WhoKnowsMore
 
 
@@ -448,7 +448,7 @@ class HintDownloadView(BaseDownloadView):
         return self.generate_zip_response([(f"{category_name}.json", tmp_file.name)], category_name, "Hints")
 
 
-class WhoKnowsMoreDownloadView(BaseDownloadView):
+class WhoknowsmoreDownloadView(BaseDownloadView):
     form_class = WhoKnowsMoreDownloadForm
 
     def form_valid(self, form):
