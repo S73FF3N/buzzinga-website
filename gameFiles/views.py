@@ -26,20 +26,18 @@ from rest_framework import serializers as srlz
 from rest_framework.renderers import JSONRenderer
 
 
-def myFunc(e):
-    return e['latest_create_date']
-
-
 def home(request):
     categories = Category.objects.filter(private=False).order_by('-created_on')
-    newest_categories = [c for c in categories if c.amount_files() > 0]
-    newest_categories = newest_categories[0:4]
-    latest_create_dates = []
-    for c in categories:
-        latest_create_dates.append(c.latest_elements())
-    latest_create_dates.sort(key=lambda x: x['latest_create_date'], reverse=True)
-    return render(request, 'home.html',
-                  {'newest_categories': newest_categories, 'latest_create_dates': latest_create_dates[0:4]})
+    newest_categories = [c for c in categories if c.amount_files() > 0][:4]
+    latest_create_dates = sorted(
+        [c.latest_elements() for c in categories],
+        key=lambda x: x['latest_create_date'], reverse=True
+    )[:4]
+    
+    return render(request, 'home.html', {
+        'newest_categories': newest_categories,
+        'latest_create_dates': latest_create_dates
+    })
 
 
 class GameTypeView(ListView):
@@ -47,11 +45,11 @@ class GameTypeView(ListView):
     template_name = "game_type_list.html"
 
     def get_queryset(self):
-        self.qs = super(GameTypeView, self).get_queryset().all()
+        self.qs = super().get_queryset().all()
         return self.qs
 
     def get_context_data(self):
-        context = super(GameTypeView, self).get_context_data()
+        context = super().get_context_data()
         context['game_types'] = self.qs
         return context
 
@@ -61,114 +59,90 @@ class CategoryView(ListView):
     template_name = "category_list.html"
 
     def get_queryset(self):
-        self.qs = super(CategoryView, self).get_queryset().filter(game_type=self.kwargs['game_type'], private=False)
+        self.qs = super().get_queryset().filter(game_type=self.kwargs['game_type'], private=False)
         return self.qs
 
-    def get_context_data(self):
-        context = super(CategoryView, self).get_context_data()
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         context['categories'] = self.qs
-        context['game_type'] = get_object_or_404(GameType, pk=str(self.kwargs['game_type']))
+        context['game_type'] = get_object_or_404(GameType, pk=self.kwargs['game_type'])
         return context
 
 
-def category_detail(request, game_type, id=id):
+def category_detail(request, game_type, id):
     category = get_object_or_404(Category, id=id)
-    tags = []
-    for t in category.tags_used():
-        tags.append((t.name_de, t.amount_elements_with_tag(category=category)))
-    sorted_tags = sorted(tags, key=lambda x: x[1])
-    sorted_tags = sorted_tags[::-1]
+    tags = sorted(
+        [(t.name_de, t.amount_elements_with_tag(category=category)) for t in category.tags_used()],
+        key=lambda x: x[1], reverse=True
+    )[:5]
 
-    if game_type == 2:
-        category_elements = Sound.objects.filter(category=category, private_new=False)
-    elif game_type == 1:
-        category_elements = Image.objects.filter(category=category, private_new=False)
-    elif game_type == 4:
-        category_elements = Question.objects.filter(category=category, private_new=False)
-    elif game_type == 3:
-        category_elements = Hints.objects.filter(category=category, private_new=False)
-    else:
-        category_elements = WhoKnowsMore.objects.filter(category=category, private_new=False)
+    category_elements = category.get_related_objects()
+    category_elements = category_elements.filter(private_new=False) if category_elements else []
+    
     difficulty_count = {}
-    for e in category_elements.all():
-        if e.difficulty not in difficulty_count.keys():
-            difficulty_count[e.difficulty] = 1
-        else:
-            difficulty_count[e.difficulty] += 1
-    return render(request, 'category_detail.html',
-                  {'game_type': game_type, 'category': category, 'tags': sorted_tags[:5],
-                   'labels': list(difficulty_count.keys()), 'data': list(difficulty_count.values())})
+    for e in category_elements:
+        difficulty_count[e.difficulty] = difficulty_count.get(e.difficulty, 0) + 1
+
+    return render(request, 'category_detail.html', {
+        'game_type': game_type,
+        'category': category,
+        'tags': tags,
+        'labels': list(difficulty_count.keys()),
+        'data': list(difficulty_count.values())
+    })
 
 
-class CategoryCreateView(LoginRequiredMixin, CreateView):
+class SuccessUrlMixin:
+    def get_success_url(self):
+        return reverse('account:profile', kwargs={'per_page': 10})
+    
+
+class CategoryCreateView(LoginRequiredMixin, CreateView, SuccessUrlMixin):
     model = Category
     form_class = CategoryForm
     template_name = 'category-edit.html'
 
     def form_valid(self, form):
-        form.instance.created_on = datetime.datetime.now()
         form.instance.created_by = self.request.user
         self.object = form.save()
         return super().form_valid(form)
 
-    def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page': 10})
 
-
-class CategoryEditView(LoginRequiredMixin, UpdateView):
+class CategoryEditView(LoginRequiredMixin, UpdateView, SuccessUrlMixin):
     model = Category
     form_class = CategoryForm
     template_name = 'category-edit.html'
 
-    def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page': 10})
 
-
-class ImageEditView(LoginRequiredMixin, UpdateView):
+class ImageEditView(LoginRequiredMixin, UpdateView, SuccessUrlMixin):
     model = Image
     form_class = ImageEditForm
     template_name = 'image-edit.html'
 
-    def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page': 10})
 
-
-class SoundEditView(LoginRequiredMixin, UpdateView):
+class SoundEditView(LoginRequiredMixin, UpdateView, SuccessUrlMixin):
     model = Sound
     form_class = SoundForm
     template_name = 'sound-edit.html'
 
-    def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page': 10})
 
-
-class QuestionEditView(LoginRequiredMixin, UpdateView):
+class QuestionEditView(LoginRequiredMixin, UpdateView, SuccessUrlMixin):
     model = Question
     form_class = QuestionForm
     template_name = 'question-edit.html'
 
-    def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page': 10})
 
-
-class HintEditView(LoginRequiredMixin, UpdateView):
+class HintEditView(LoginRequiredMixin, UpdateView, SuccessUrlMixin):
     model = Hints
     form_class = HintForm
     template_name = 'hint-edit.html'
 
-    def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page': 10})
 
-
-class WhoKnowsMoreEditView(LoginRequiredMixin, UpdateView):
+class WhoKnowsMoreEditView(LoginRequiredMixin, UpdateView, SuccessUrlMixin):
     model = WhoKnowsMore
     form_class = WhoKnowsMoreForm
     template_name = 'who-knows-more-edit.html'
     object = None
-
-    def get_object(self, queryset=None):
-        self.object = super(WhoKnowsMoreEditView, self).get_object()
-        return self.object
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -184,7 +158,6 @@ class WhoKnowsMoreEditView(LoginRequiredMixin, UpdateView):
         form = WhoKnowsMoreForm(data=self.request.POST, instance=self.object)
         formset = WhoKnowsMoreElementFormSetUpdate(data=self.request.POST,
                                                    instance=self.object)
-        print(formset.errors)
         if form.is_valid() and formset.is_valid():
             return self.form_valid(form, formset)
         else:
@@ -195,7 +168,7 @@ class WhoKnowsMoreEditView(LoginRequiredMixin, UpdateView):
         instances = formset.save(commit=False)
         for instance in instances:
             instance.category_element = self.object
-            instance.count_id = len(WhoKnowsMoreElement.objects.filter(category_element=self.object)) + 1
+            instance.count_id = WhoKnowsMoreElement.objects.filter(category_element=self.object).count() + 1
             instance.save()
         return HttpResponseRedirect(self.get_success_url())
 
@@ -203,73 +176,51 @@ class WhoKnowsMoreEditView(LoginRequiredMixin, UpdateView):
         return self.render_to_response(self.get_context_data(form=form,
                                                              formset=formset))
 
-    def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page': 10})
 
-
-class CategoryDeleteView(LoginRequiredMixin, DeleteView):
+class CategoryDeleteView(LoginRequiredMixin, DeleteView, SuccessUrlMixin):
     model = Category
 
-    def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page': 10})
-
     def get(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
 
 
-class ImageDeleteView(LoginRequiredMixin, DeleteView):
+class ImageDeleteView(LoginRequiredMixin, DeleteView, SuccessUrlMixin):
     model = Image
 
-    def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page': 10})
-
     def get(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
 
 
-class SoundDeleteView(LoginRequiredMixin, DeleteView):
+class SoundDeleteView(LoginRequiredMixin, DeleteView, SuccessUrlMixin):
     model = Sound
 
-    def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page': 10})
-
     def get(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
 
 
-class QuestionDeleteView(LoginRequiredMixin, DeleteView):
+class QuestionDeleteView(LoginRequiredMixin, DeleteView, SuccessUrlMixin):
     model = Question
 
-    def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page': 10})
-
     def get(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
 
 
-class HintDeleteView(LoginRequiredMixin, DeleteView):
+class HintDeleteView(LoginRequiredMixin, DeleteView, SuccessUrlMixin):
     model = Hints
 
-    def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page': 10})
-
     def get(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
 
 
-class WhoKnowsMoreDeleteView(LoginRequiredMixin, DeleteView):
+class WhoKnowsMoreDeleteView(LoginRequiredMixin, DeleteView, SuccessUrlMixin):
     model = WhoKnowsMore
 
-    def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page': 10})
-
     def get(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
 
 
-class ParentCreateView(CreateView):
+class ParentCreateView(CreateView, SuccessUrlMixin):
     def form_valid(self, form):
-        form.instance.created_on = datetime.datetime.now()
         form.instance.created_by = self.request.user
         tags = form.cleaned_data["tags"]
         self.object = form.save()
@@ -283,7 +234,6 @@ class ImageCreateView(LoginRequiredMixin, ParentCreateView):
     template_name = 'image-edit.html'
 
     def form_valid(self, form):
-        form.instance.created_on = datetime.datetime.now()
         form.instance.created_by = self.request.user
         tags = form.cleaned_data["tags"]
         img = form.instance.image_file
@@ -320,17 +270,11 @@ class ImageCreateView(LoginRequiredMixin, ParentCreateView):
         self.object.tags.add(*tags)
         return super().form_valid(form)
 
-    def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page': 10})
-
 
 class SoundCreateView(LoginRequiredMixin, ParentCreateView):
     model = Sound
     form_class = SoundForm
     template_name = 'sound-edit.html'
-
-    def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page': 10})
 
 
 class QuestionCreateView(LoginRequiredMixin, ParentCreateView):
@@ -338,17 +282,11 @@ class QuestionCreateView(LoginRequiredMixin, ParentCreateView):
     form_class = QuestionForm
     template_name = 'question-edit.html'
 
-    def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page': 10})
-
 
 class HintCreateView(LoginRequiredMixin, ParentCreateView):
     model = Hints
     form_class = HintForm
     template_name = 'hint-edit.html'
-
-    def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page': 10})
 
 
 class WhoKnowsMoreCreateView(LoginRequiredMixin, ParentCreateView):
@@ -393,9 +331,6 @@ class WhoKnowsMoreCreateView(LoginRequiredMixin, ParentCreateView):
 
     def form_invalid(self, form, formset):
         return self.render_to_response(self.get_context_data(form=form, formset=formset))
-
-    def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page': 10})
 
 
 class ImageDownloadView(LoginRequiredMixin, FormView):
