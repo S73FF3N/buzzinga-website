@@ -98,7 +98,7 @@ class CategoryView(ListView):
 
 def category_detail(request, game_type, id):
     category = get_object_or_404(Category, id=id)
-    tags = category.tags_used().annotate(tag_count=Count('name_de')).order_by('-tag_count')[:5]
+    tags = category.tags_used().annotate(tag_count=Count('id')).order_by('-tag_count')[:5]
 
     category_elements = category.get_related_objects()
     category_elements = category_elements.filter(private_new=False) if category_elements else []
