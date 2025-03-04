@@ -79,8 +79,7 @@ class Category(models.Model):
             3: self.hints,
             5: self.whoknowsmoreelements,
         }
-        logging.info("game_type_id: " + str(self.game_type.id) + " elements: "+str(model_map.get(self.game_type.id)))
-        return model_map.get(self.game_type.id)
+        return model_map.get(self.game_type.id, CategoryElement.objects.none())
 
     def amount_files(self):
         related_objects = self.get_related_objects()
