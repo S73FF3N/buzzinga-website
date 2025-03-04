@@ -7,6 +7,8 @@ import os
 from datetime import date
 import unicodedata
 from pathlib import Path
+import logging
+logger = logging.getLogger(__name__)
 
 upload_storage = FileSystemStorage(location=settings.UPLOAD_ROOT, base_url='/uploads')
 
@@ -96,7 +98,7 @@ class Category(models.Model):
 
     def latest_elements(self):
         related_objects = self.get_related_objects()
-        print(related_objects)
+        logger.info(related_objects)
         if related_objects:
             latest_create_date = related_objects.order_by('-created_on').first().created_on.date()
             amount_elements = related_objects.filter(created_on__date=latest_create_date).count()
