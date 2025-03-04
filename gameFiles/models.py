@@ -96,6 +96,7 @@ class Category(models.Model):
 
     def latest_elements(self):
         related_objects = self.get_related_objects()
+        print(related_objects)
         if related_objects:
             latest_create_date = related_objects.order_by('-created_on').first().created_on.date()
             amount_elements = related_objects.filter(created_on__date=latest_create_date).count()
@@ -198,6 +199,7 @@ class WhoKnowsMore(CategoryElement):
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name="whoknowsmoreelements"
     )
+
     def show_solution(self):
         return self.answers.all().order_by('answer')
 
