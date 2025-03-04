@@ -6,6 +6,7 @@ from django.core.files.storage import default_storage
 from django.utils.dateparse import parse_datetime
 from django.contrib.auth import get_user_model
 from django.utils.timezone import now
+from django.contrib.auth.models import User
 from .models import (
     Tag, GameType, Category, Sound, Image, Question, Hints,
     WhoKnowsMore, WhoKnowsMoreElement
@@ -111,7 +112,7 @@ class WhoKnowsMoreElementInline(admin.TabularInline):
 
 @admin.register(WhoKnowsMore)
 class WhoKnowsMoreAdmin(admin.ModelAdmin, JsonUploadMixin):
-    list_display = ['category_element', 'answer']
+    list_display = ['category', 'solution']
     inlines = [WhoKnowsMoreElementInline]
     change_list_template = "admin/whoknowsmore_changelist.html"
 
