@@ -108,7 +108,7 @@ class Category(models.Model):
 
 
 class CategoryElement(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name="Kategorie", related_name="categoryelements")
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name="Kategorie")
     private_new = models.BooleanField(default=False, verbose_name="Privat")
     explicit = models.BooleanField(default=False, verbose_name="Explizit")
     solution = models.CharField(max_length=80, verbose_name="Lösung")

@@ -111,7 +111,7 @@ class WhoKnowsMoreElementInline(admin.TabularInline):
 
 @admin.register(WhoKnowsMore)
 class WhoKnowsMoreAdmin(admin.ModelAdmin, JsonUploadMixin):
-    list_display = ['solution']
+    list_display = ['category_element', 'answer']
     inlines = [WhoKnowsMoreElementInline]
     change_list_template = "admin/whoknowsmore_changelist.html"
 
