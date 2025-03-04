@@ -79,7 +79,11 @@ class Category(models.Model):
             3: self.hints,
             5: self.whoknowsmoreelements,
         }
-        return model_map.get(self.game_type.id, CategoryElement.objects.none())
+        related_manager = model_map.get(self.game_type.id)
+
+        if related_manager:
+            return related_manager.all()
+        return []
 
     def amount_files(self):
         related_objects = self.get_related_objects()
