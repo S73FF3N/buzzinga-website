@@ -100,7 +100,6 @@ class CategoryView(ListView):
 
 def category_detail(request, game_type, id):
     category = get_object_or_404(Category, id=id)
-    tags = category.tags_used().annotate(tag_count=Count('id')).order_by('-tag_count')[:5]
 
     category_elements = category.get_related_objects()
     logger.info(f"Related objects for game_type {game_type}: {category_elements}")
@@ -113,7 +112,6 @@ def category_detail(request, game_type, id):
     return render(request, 'category_detail.html', {
         'game_type': game_type,
         'category': category,
-        'tags': tags,
         'labels': list(difficulty_count.keys()),
         'data': list(difficulty_count.values())
     })

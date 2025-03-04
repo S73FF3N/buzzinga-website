@@ -81,8 +81,6 @@ class Category(models.Model):
         }
         related_manager = model_map.get(self.game_type.id)
 
-        logger.info(f"Game Type ID: {self.game_type.id}, Related Objects: {related_manager}")  # Debugging output
-
         if related_manager:
             return related_manager.all()
         return []
@@ -90,36 +88,6 @@ class Category(models.Model):
     def amount_files(self):
         related_objects = self.get_related_objects()
         return related_objects.filter(private_new=False).count() if related_objects else 0
-    
-    def tags_used(self):
-        related_objects = self.get_related_objects()
-
-        if not related_objects.exists():
-            return Tag.objects.none()
-
-        # Identify the specific model class (e.g., Hints, WhoKnowsMore)
-        model_class = related_objects.model  # This gets the correct subclass
-
-        # Find the correct related_name dynamically for the specific model
-        tag_related_name = None
-        for relation in Tag._meta.related_objects:
-            if relation.related_model == model_class:
-                tag_related_name = relation.name
-                break
-
-        if not tag_related_name:
-            raise ValueError(f"Could not determine related_name for model {model_class}")
-
-        logger.info(f"Using related_name '{tag_related_name}' for model {model_class}") 
-
-        # Ensure we use the correct related_name dynamically
-        return Tag.objects.filter(
-            **{
-                f"{tag_related_name}__in": related_objects,
-                f"{tag_related_name}__private_new": False
-            }
-        ).distinct()
-
 
     def examples(self):
         related_objects = self.get_related_objects().filter(private_new=False)
