@@ -73,16 +73,15 @@ class Category(models.Model):
 
     def get_related_objects(self):
         model_map = {
-            2: self.sounds if hasattr(self, "sounds") else None,
-            1: self.images if hasattr(self, "images") else None,
-            4: self.questions if hasattr(self, "questions") else None,
-            3: self.hints if hasattr(self, "hints") else None,
-            5: self.whoknowsmoreelements if hasattr(self, "whoknowsmoreelements") else None,
+            2: self.sounds,
+            1: self.images,
+            4: self.questions,
+            3: self.hints,
+            5: self.whoknowsmoreelements,
         }
         logging.info("game_type_id: " + str(self.game_type.id) + " elements: "+str(model_map.get(self.game_type.id)))
         return model_map.get(self.game_type.id)
 
-    @property
     def amount_files(self):
         related_objects = self.get_related_objects()
         return related_objects.filter(private_new=False).count() if related_objects else 0
