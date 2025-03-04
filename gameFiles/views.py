@@ -91,7 +91,7 @@ class CategoryView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categories'] = self.qs
+        context['categories'] = self.get_queryset()
         context['game_type'] = get_object_or_404(GameType, pk=self.kwargs['game_type'])
         return context
 
