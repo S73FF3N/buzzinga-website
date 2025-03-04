@@ -120,7 +120,7 @@ class CategoryElement(models.Model):
     explicit = models.BooleanField(default=False, verbose_name="Explizit")
     solution = models.CharField(max_length=80, verbose_name="Lösung")
     difficulty = models.PositiveIntegerField(choices=DIFFICULTY, verbose_name="Schwierigkeit")
-    tags = models.ManyToManyField(Tag, blank=True)
+    tags = models.ManyToManyField(Tag, blank=True, related_name="categoryelement")
 
     created_on = models.DateTimeField(auto_now_add=True, db_index=True)
     created_by = models.ForeignKey('auth.User', default=1, on_delete=models.SET_DEFAULT)
