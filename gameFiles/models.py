@@ -96,7 +96,7 @@ class Category(models.Model):
 
     def latest_elements(self):
         related_objects = self.get_related_objects()
-        if related_objects.exists():
+        if related_objects:
             latest_create_date = related_objects.order_by('-created_on').first().created_on.date()
             amount_elements = related_objects.filter(created_on__date=latest_create_date).count()
         else:
