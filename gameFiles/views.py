@@ -103,7 +103,7 @@ def category_detail(request, game_type, id):
     tags = category.tags_used().annotate(tag_count=Count('id')).order_by('-tag_count')[:5]
 
     category_elements = category.get_related_objects()
-    logger.info(f"Related objects for game_type {game_type}: {category_element}")
+    logger.info(f"Related objects for game_type {game_type}: {category_elements}")
     category_elements = category_elements.filter(private_new=False) if category_elements else []
     
     difficulty_count = {}

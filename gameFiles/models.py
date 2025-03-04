@@ -91,7 +91,13 @@ class Category(models.Model):
     
     def tags_used(self):
         related_objects = self.get_related_objects()
-        return Tag.objects.filter(categoryelement__in=related_objects, categoryelement__private_new=False).distinct()
+
+        if not related_objects.exists():  # Ensure related_objects is valid
+            return Tag.objects.none()
+        
+        return Tag.objects.filter(
+            **{"{}__in".format(related_objects.model._meta.model_name): related_objects, "{}__private_new".format(related_objects.model._meta.model_name): False}
+        ).distinct()
 
     def examples(self):
         related_objects = self.get_related_objects().filter(private_new=False)
