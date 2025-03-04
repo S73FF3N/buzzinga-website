@@ -74,7 +74,7 @@ class JsonUploadMixin:
 
 
 # Registering simple models
-for model in [Tag, GameType, Category, Sound, Image, Question, WhoKnowsMoreElement]:
+for model in [Tag, GameType, Category, Sound, Image, Question]:
     @admin.register(model)
     class DefaultAdmin(admin.ModelAdmin):
         list_display = ['name_de'] if hasattr(model, 'name_de') else ['solution']
@@ -108,6 +108,7 @@ class HintAdmin(admin.ModelAdmin, JsonUploadMixin):
 # WhoKnowsMore Admin
 class WhoKnowsMoreElementInline(admin.TabularInline):
     model = WhoKnowsMoreElement
+    extra = 2
 
 
 @admin.register(WhoKnowsMore)
