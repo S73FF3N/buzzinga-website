@@ -75,7 +75,7 @@ class Category(models.Model):
             1: self.images if hasattr(self, "images") else None,
             4: self.questions if hasattr(self, "questions") else None,
             3: self.hints if hasattr(self, "hints") else None,
-            5: self.whoknowsmore if hasattr(self, "whoknowsmore") else None,
+            5: self.whoknowsmore if hasattr(self, "whoknowsmoreelements") else None,
         }
         return model_map.get(self.game_type.id, [])
 
@@ -152,6 +152,9 @@ def get_upload_path(instance, filename):
 
 
 class Image(CategoryElement):
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, related_name="images"
+    )
     image_file = models.ImageField(upload_to=get_upload_path, storage=upload_storage, verbose_name="Bilddatei")
     author = models.CharField(max_length=50, verbose_name="Urheber")
     license = models.CharField(choices=LICENSE, max_length=100, verbose_name="Lizenz")
@@ -159,10 +162,16 @@ class Image(CategoryElement):
 
 
 class Sound(CategoryElement):
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, related_name="sounds"
+    )
     sound_file = models.FileField(upload_to=get_upload_path, storage=upload_storage, verbose_name="Sounddatei")
 
 
 class Question(CategoryElement):
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, related_name="questions"
+    )
     quiz_question = models.CharField(max_length=150, verbose_name="Frage")
     option1 = models.CharField(max_length=80, verbose_name="Option 1")
     option2 = models.CharField(max_length=80, verbose_name="Option 2")
@@ -170,6 +179,9 @@ class Question(CategoryElement):
 
 
 class Hints(CategoryElement):
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, related_name="hints"
+    )
     hint1 = models.CharField(max_length=80, verbose_name="Hinweis 1")
     hint2 = models.CharField(max_length=80, verbose_name="Hinweis 2")
     hint3 = models.CharField(max_length=80, verbose_name="Hinweis 3")
@@ -183,6 +195,9 @@ class Hints(CategoryElement):
 
 
 class WhoKnowsMore(CategoryElement):
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, related_name="whoknowsmoreelements"
+    )
     def show_solution(self):
         return self.answers.all().order_by('answer')
 
