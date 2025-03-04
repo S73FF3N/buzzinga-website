@@ -75,7 +75,7 @@ class Category(models.Model):
             1: self.images if hasattr(self, "images") else None,
             4: self.questions if hasattr(self, "questions") else None,
             3: self.hints if hasattr(self, "hints") else None,
-            5: self.whoknowsmore if hasattr(self, "whoknowsmoreelements") else None,
+            5: self.whoknowsmoreelements if hasattr(self, "whoknowsmoreelements") else None,
         }
         return model_map.get(self.game_type.id, [])
 
