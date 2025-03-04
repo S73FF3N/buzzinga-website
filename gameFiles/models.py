@@ -79,7 +79,7 @@ class Category(models.Model):
             3: self.hints if hasattr(self, "hints") else None,
             5: self.whoknowsmoreelements if hasattr(self, "whoknowsmoreelements") else None,
         }
-        logging.info("game_type_id: " + str(self.game_type.id) + " elements: "+model_map.get(self.game_type.id))
+        logging.info("game_type_id: " + str(self.game_type.id) + " elements: "+str(model_map.get(self.game_type.id)))
         return model_map.get(self.game_type.id)
 
     @property
