@@ -25,6 +25,8 @@ from PIL import ImageFont, ImageDraw
 from PIL import Image as PILImage
 from rest_framework import serializers as srlz
 from rest_framework.renderers import JSONRenderer
+import logging
+logger = logging.getLogger(__name__)
 
 
 def home(request):
@@ -101,6 +103,7 @@ def category_detail(request, game_type, id):
     tags = category.tags_used().annotate(tag_count=Count('id')).order_by('-tag_count')[:5]
 
     category_elements = category.get_related_objects()
+    logger.info(f"Related objects for game_type {game_type}: {category_element}")
     category_elements = category_elements.filter(private_new=False) if category_elements else []
     
     difficulty_count = {}

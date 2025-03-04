@@ -80,7 +80,6 @@ class Category(models.Model):
             5: self.whoknowsmoreelements,
         }
         related_manager = model_map.get(self.game_type.id)
-        logger.info(f"Related objects for game_type {game_type}: {category_elements}")
 
         if related_manager:
             return related_manager.all()
