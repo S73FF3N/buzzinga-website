@@ -92,25 +92,30 @@ class Category(models.Model):
     def tags_used(self):
         related_objects = self.get_related_objects()
 
-        if not related_objects.exists():  # Ensure related_objects is valid
+        if not related_objects.exists():
             return Tag.objects.none()
-        
-        # Find the correct reverse relation name dynamically
+
+        # Identify the specific model class (e.g., Hints, WhoKnowsMore)
+        model_class = related_objects.model  # This gets the correct subclass
+
+        # Find the correct related_name dynamically for the specific model
         tag_related_name = None
         for relation in Tag._meta.related_objects:
-            if relation.related_model == related_objects.model:
+            if relation.related_model == model_class:
                 tag_related_name = relation.name
                 break
 
         if not tag_related_name:
             return Tag.objects.none()  # Safety check
 
+        # Ensure we use the correct related_name dynamically
         return Tag.objects.filter(
             **{
                 f"{tag_related_name}__in": related_objects,
                 f"{tag_related_name}__private_new": False
             }
         ).distinct()
+
 
     def examples(self):
         related_objects = self.get_related_objects().filter(private_new=False)
