@@ -79,6 +79,7 @@ class Category(models.Model):
         }
         return model_map.get(self.game_type.id, self.categoryelements.none())
 
+    @property
     def amount_files(self):
         related_objects = self.get_related_objects()
         return related_objects.filter(private_new=False).count() if related_objects else 0

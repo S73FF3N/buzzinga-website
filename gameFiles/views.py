@@ -26,7 +26,7 @@ from rest_framework.renderers import JSONRenderer
 
 
 def home(request):
-    newest_categories = Category.objects.filter(private=False).annotate(file_count=Count('files')).filter(file_count__gt=0).order_by('-created_on')[:4]
+    newest_categories = Category.objects.filter(private=False).annotate(file_count=Count('amount_files')).filter(file_count__gt=0).order_by('-created_on')[:4]
     latest_create_dates = sorted(
         [c.latest_elements() for c in newest_categories],
         key=lambda x: x['latest_create_date'], reverse=True
