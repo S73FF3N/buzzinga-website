@@ -80,6 +80,7 @@ class Category(models.Model):
             5: self.whoknowsmoreelements,
         }
         related_manager = model_map.get(self.game_type.id)
+        logger.info(f"Related objects for game_type {game_type}: {category_elements}")
 
         if related_manager:
             return related_manager.all()
@@ -101,7 +102,6 @@ class Category(models.Model):
 
     def latest_elements(self):
         related_objects = self.get_related_objects()
-        logger.info(related_objects)
         if related_objects:
             latest_create_date = related_objects.order_by('-created_on').first().created_on.date()
             amount_elements = related_objects.filter(created_on__date=latest_create_date).count()
