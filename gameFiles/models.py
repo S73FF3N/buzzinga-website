@@ -95,8 +95,21 @@ class Category(models.Model):
         if not related_objects.exists():  # Ensure related_objects is valid
             return Tag.objects.none()
         
+        # Find the correct reverse relation name dynamically
+        tag_related_name = None
+        for relation in Tag._meta.related_objects:
+            if relation.related_model == related_objects.model:
+                tag_related_name = relation.name
+                break
+
+        if not tag_related_name:
+            return Tag.objects.none()  # Safety check
+
         return Tag.objects.filter(
-            **{"{}__in".format(related_objects.model._meta.model_name): related_objects, "{}__private_new".format(related_objects.model._meta.model_name): False}
+            **{
+                f"{tag_related_name}__in": related_objects,
+                f"{tag_related_name}__private_new": False
+            }
         ).distinct()
 
     def examples(self):
