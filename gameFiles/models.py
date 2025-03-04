@@ -81,6 +81,8 @@ class Category(models.Model):
         }
         related_manager = model_map.get(self.game_type.id)
 
+        logger.info(f"Game Type ID: {self.game_type.id}, Related Objects: {related_manager}")  # Debugging output
+
         if related_manager:
             return related_manager.all()
         return []
@@ -106,7 +108,9 @@ class Category(models.Model):
                 break
 
         if not tag_related_name:
-            return Tag.objects.none()  # Safety check
+            raise ValueError(f"Could not determine related_name for model {model_class}")
+
+        logger.info(f"Using related_name '{tag_related_name}' for model {model_class}") 
 
         # Ensure we use the correct related_name dynamically
         return Tag.objects.filter(
