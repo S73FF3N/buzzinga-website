@@ -8,8 +8,9 @@ from django.core.serializers import serialize
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.base import ContentFile
 from django.contrib.messages import constants as messages
-from django.db import models
-from django.db.models import Count, OuterRef, Subquery
+from django.db.models import Count, OuterRef, Subquery, Q, IntegerField
+from django.db.models.expressions import Value
+from django.db.models.functions import Coalesce
 
 from .models import GameType, Category, CategoryElement, Image, Sound, Question, Tag, Hints, WhoKnowsMore, WhoKnowsMoreElement
 from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, WhoKnowsMoreForm, WhoKnowsMoreElementFormSet, WhoKnowsMoreElementFormSetUpdate, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm, WhoKnowsMoreDownloadForm
@@ -27,11 +28,34 @@ from rest_framework.renderers import JSONRenderer
 
 
 def home(request):
-    related_objects = CategoryElement.objects.filter(
+    # Subqueries to count related objects for each child model
+    image_count = Image.objects.filter(
         category=OuterRef('pk'), private_new=False
     ).values('category').annotate(count=Count('id')).values('count')
+
+    sound_count = Sound.objects.filter(
+        category=OuterRef('pk'), private_new=False
+    ).values('category').annotate(count=Count('id')).values('count')
+
+    question_count = Question.objects.filter(
+        category=OuterRef('pk'), private_new=False
+    ).values('category').annotate(count=Count('id')).values('count')
+
+    hint_count = Hints.objects.filter(
+        category=OuterRef('pk'), private_new=False
+    ).values('category').annotate(count=Count('id')).values('count')
+
+    whoknowsmore_count = WhoKnowsMore.objects.filter(
+        category=OuterRef('pk'), private_new=False
+    ).values('category').annotate(count=Count('id')).values('count')
+
+    # Aggregate all subqueries
     newest_categories = Category.objects.filter(private=False).annotate(
-        file_count=Subquery(related_objects, output_field=models.IntegerField())
+        file_count=Coalesce(Subquery(image_count, output_field=IntegerField()), Value(0)) +
+                   Coalesce(Subquery(sound_count, output_field=IntegerField()), Value(0)) +
+                   Coalesce(Subquery(question_count, output_field=IntegerField()), Value(0)) +
+                   Coalesce(Subquery(hint_count, output_field=IntegerField()), Value(0)) +
+                   Coalesce(Subquery(whoknowsmore_count, output_field=IntegerField()), Value(0))
     ).filter(file_count__gt=0).order_by('-created_on')[:4]
     latest_create_dates = sorted(
         [c.latest_elements() for c in newest_categories],
