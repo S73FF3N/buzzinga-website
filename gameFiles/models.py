@@ -71,13 +71,13 @@ class Category(models.Model):
 
     def get_related_objects(self):
         model_map = {
-            2: self.sound_set,
-            1: self.image_set,
-            4: self.question_set,
-            3: self.hints_set,
-            5: self.whoknowsmore_set,
+            2: self.sounds if hasattr(self, "sounds") else None,
+            1: self.images if hasattr(self, "images") else None,
+            4: self.questions if hasattr(self, "questions") else None,
+            3: self.hints if hasattr(self, "hints") else None,
+            5: self.whoknowsmore if hasattr(self, "whoknowsmore") else None,
         }
-        return model_map.get(self.game_type.id, CategoryElement.objects.none()) 
+        return model_map.get(self.game_type.id, [])
 
     @property
     def amount_files(self):
