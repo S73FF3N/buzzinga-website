@@ -77,7 +77,7 @@ class Category(models.Model):
             3: self.hints_set,
             5: self.whoknowsmore_set,
         }
-        return model_map.get(self.game_type.id, self.category_set.none())
+        return model_map.get(self.game_type.id, CategoryElement.objects.none()) 
 
     @property
     def amount_files(self):
