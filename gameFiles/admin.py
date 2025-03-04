@@ -1,5 +1,5 @@
 import json
-from django.shortcuts import redirect
+from django.shortcuts import redirect, reverse
 from django.urls import path
 from django.contrib import admin, messages
 from django.core.files.storage import default_storage
@@ -86,6 +86,11 @@ class HintAdmin(admin.ModelAdmin, JsonUploadMixin):
     change_list_template = "admin/populate_db.html"
     list_display = ['solution']
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["upload_url"] = reverse(f"admin:upload-json-{self.model._meta.model_name}")
+        return context
+
     def process_data(self, data, category, default_user):
         """Inserts Hints data from JSON."""
         for entry in data:
@@ -116,6 +121,11 @@ class WhoKnowsMoreAdmin(admin.ModelAdmin, JsonUploadMixin):
     list_display = ['category', 'solution']
     inlines = [WhoKnowsMoreElementInline]
     change_list_template = "admin/whoknowsmore_changelist.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["upload_url"] = reverse(f"admin:upload-json-{self.model._meta.model_name}")
+        return context
 
     def process_data(self, data, category, default_user):
         """Inserts WhoKnowsMore data from JSON."""
