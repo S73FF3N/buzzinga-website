@@ -8,9 +8,10 @@ from django.core.serializers import serialize
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.base import ContentFile
 from django.contrib.messages import constants as messages
-from django.db.models import Count
+from django.db import models
+from django.db.models import Count, OuterRef, Subquery
 
-from .models import GameType, Category, Image, Sound, Question, Tag, Hints, WhoKnowsMore, WhoKnowsMoreElement
+from .models import GameType, Category, CategoryElement, Image, Sound, Question, Tag, Hints, WhoKnowsMore, WhoKnowsMoreElement
 from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, WhoKnowsMoreForm, WhoKnowsMoreElementFormSet, WhoKnowsMoreElementFormSetUpdate, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm, WhoKnowsMoreDownloadForm
 
 from dal import autocomplete
@@ -26,7 +27,12 @@ from rest_framework.renderers import JSONRenderer
 
 
 def home(request):
-    newest_categories = Category.objects.filter(private=False).annotate(file_count=Count('amount_files')).filter(file_count__gt=0).order_by('-created_on')[:4]
+    related_objects = CategoryElement.objects.filter(
+        category=OuterRef('pk'), private_new=False
+    ).values('category').annotate(count=Count('id')).values('count')
+    newest_categories = Category.objects.filter(private=False).annotate(
+        file_count=Subquery(related_objects, output_field=models.IntegerField())
+    ).filter(file_count__gt=0).order_by('-created_on')[:4]
     latest_create_dates = sorted(
         [c.latest_elements() for c in newest_categories],
         key=lambda x: x['latest_create_date'], reverse=True
