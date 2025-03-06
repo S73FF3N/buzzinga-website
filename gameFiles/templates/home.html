@@ -1,40 +1,42 @@
 {% extends "index.html" %}
 {% load static %}
 
-{% block title %}
-    Buzzinga - Home
-{% endblock %}
+{% block title %}Buzzinga - Home{% endblock %}
 
 {% block content %}
-    <div class="container" style="margin-top:8vw">
-        <h1>Buzzinga</h1>
-        <h3>Neueste Spielkategorien</h3>
-        <div class="row">
-            {% for c in newest_categories %}
-                <div class="col-12 col-md-3">
-                    <a href="{% url 'gamefiles:category_detail' game_type=c.game_type.pk id=c.pk %}" style="text-decoration: none;">
-                        <div class="shape">
-                            <h2>{{ c.name_de }}</h2>
-                            {% if c.logo %}
-                                <i class="fa fa-{{ c.logo }} fa-3x" style="color:white;"></i>
-                            {% endif %}
-                            <h5>{{ c.game_type }}</h5>
-                            <p>{{ c.amount_files }} Dateien</p>
-                        </div>
-                    </a>
-                </div>
-            {% endfor %}
-        </div>
-        <h3>Letzte Änderungen</h3>
-        <div class="row">
-            {% for d in latest_create_dates %}
-                <div class="col-12 col-md-3">
-                    <div class="shape">
-                        <h2>{{ d.category_name }}</h2>
-                        <p>+ {{ d.amount_elements }} Elemente am {{ d.latest_create_date|date:'d.m.Y' }}</p>
+<div class="container mt-5">
+    <h1 class="mb-4">Buzzinga</h1>
+
+    <!-- Neueste Spielkategorien -->
+    <h2 class="mb-3">Neueste Spielkategorien</h2>
+    <div class="row g-4">
+        {% for c in newest_categories %}
+            <div class="col-12 col-md-3">
+                <a href="{% url 'gamefiles:category_detail' game_type=c.game_type.pk id=c.pk %}" class="text-decoration-none text-white">
+                    <div class="shape text-center p-3">
+                        <h2>{{ c.name_de }}</h2>
+                        {% if c.logo %}
+                            <i class="fa fa-{{ c.logo }} fa-3x fa-fw"></i>
+                        {% endif %}
+                        <h5>{{ c.game_type }}</h5>
+                        <p>{{ c.amount_files }} Dateien</p>
                     </div>
-                </div>
-            {% endfor %}
-        </div>
+                </a>
+            </div>
+        {% endfor %}
     </div>
+
+    <!-- Letzte Änderungen -->
+    <h2 class="mt-5 mb-3">Letzte Änderungen</h2>
+    <div class="row g-4">
+        {% for d in latest_create_dates %}
+            <div class="col-12 col-md-3">
+                <div class="shape text-center p-3">
+                    <h2>{{ d.category_name }}</h2>
+                    <p>+ {{ d.amount_elements }} Elemente am {{ d.latest_create_date|date:'d.m.Y' }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}
