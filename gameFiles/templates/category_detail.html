@@ -1,132 +1,99 @@
 {% extends "index.html" %}
 {% load static %}
 
-{% block title %}
-    {{ category.name_de}}
-{% endblock %}
+{% block title %}{{ category.name_de }}{% endblock %}
 
 {% block content %}
-    <div class="container" style="margin-top:8vw">
-        <div class="row">
-            <div class="col-10" style="padding-left:0;">
-                <h1>{{ category.name_de }}</h1>
-                <p style="color:#dc2019;">
-                    <a href="{% url 'gamefiles:game_type_list' %}" style="text-decoration: none;color:#dc2019;">Spielarten</a> >
-                    <a href="{% url 'gamefiles:category_list' category.game_type.pk %}" style="text-decoration: none;color:#dc2019;">{{ category.game_type }}</a> >
-                    {{ category.name_de }}
-                </p>
-            </div>
-            <div class="col-2 text-center align-self-center" style="background-color:#dc2019;padding-top:1%;padding-bottom:1%;">
-                <a {% if category.game_type.id == 2 %}href="{% url 'gamefiles:image-download' category.pk %}"
-                   {% elif category.game_type.id == 1 %}href="{% url 'gamefiles:sound-download' category.pk %}"
-                   {% elif category.game_type.id == 4 %}href="{% url 'gamefiles:question-download' category.pk %}"
-                   {% elif category.game_type.id == 3 %}href="{% url 'gamefiles:hint-download' category.pk %}"
-                   {% else %}href="{% url 'gamefiles:whoknowsmore-download' category.pk %}"{% endif %}>
-                    <h4 style="color:white;">Download</h4>
-                </a>
-            </div>
+<div class="container mt-5">
+    <div class="row mb-3">
+        <div class="col-10">
+            <h1>{{ category.name_de }}</h1>
+            <p class="text-danger">
+                <a href="{% url 'gamefiles:game_type_list' %}" class="text-danger text-decoration-none">Spielarten</a> >
+                <a href="{% url 'gamefiles:category_list' category.game_type.pk %}" class="text-danger text-decoration-none">{{ category.game_type }}</a> >
+                {{ category.name_de }}
+            </p>
         </div>
-        <div class="row">
-            <div class="col-12" style="padding-left:0;margin-bottom:2%">
-                <h3>{{ category.description_de }}</h3>
-            </div>
-            <div class="col-lg-2 col-9 text-center align-self-center" style="background-color:#dc2019;padding-top:5%;padding-bottom:5%;">
-                <h3 style="color:white;">{{ category.amount_files }}</h3>
-                <h3 style="color:white;">Elemente</h3>
-            </div>
-            <div class="col-lg-3 col-12">
-                <div class="row no-gutters">
-                    <div class="col-12" style="color:#dc2019;">
-                        <h3 style="padding-top:0;">Beispiele</h3>
-                    </div>
-                    {% for e in category.examples %}
-                        <div class="col-12" style="color:#dc2019;">
-                            {{ e.solution }}
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-            <div class="col-lg-3 col-12">
-                <div class="col-12" style="color:#dc2019;">
-                    <h3 style="padding-top:0">Schwierigkeit</h3>
-                    <canvas id="pie-chart" style="padding:0;"></canvas>
-                </div>
-            </div>
+        <div class="col-2 text-center align-self-center bg-danger py-2">
+            <a href="{% url 'gamefiles:'|add:category_download_url category.pk %}" class="text-white">
+                <h4>Download</h4>
+            </a>
         </div>
     </div>
 
-    <script src="{% static 'admin/js/vendor/select2/select2.full.js' %}"></script>
-    <script src="{% static 'autocomplete_light/autocomplete_light.js' %}"></script>
-    <script src="{% static 'autocomplete_light/select2.js' %}"></script>
+    <div class="row">
+        <div class="col-12 mb-4">
+            <h3>{{ category.description_de }}</h3>
+        </div>
+        
+        <div class="col-lg-2 col-9 text-center align-self-center bg-danger py-4">
+            <h3 class="text-white">{{ category.amount_files }}</h3>
+            <h3 class="text-white">Elemente</h3>
+        </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
-    <script type="text/javascript">
-    $(document).ready(function() {
-        $('.popover-dismiss').popover({
-            trigger: 'focus'
-        });
+        <div class="col-lg-3 col-12">
+            <h3 class="text-danger">Beispiele</h3>
+            {% for e in category.examples %}
+                <p class="text-danger">{{ e.solution }}</p>
+            {% endfor %}
+        </div>
+
+        <div class="col-lg-3 col-12">
+            <h3 class="text-danger">Schwierigkeit</h3>
+            <canvas id="pie-chart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- External Scripts -->
+<script src="{% static 'admin/js/vendor/select2/select2.full.js' %}"></script>
+<script src="{% static 'autocomplete_light/autocomplete_light.js' %}"></script>
+<script src="{% static 'autocomplete_light/select2.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    $('.popover-dismiss').popover({ trigger: 'focus' });
+
+    var ctx = document.getElementById('pie-chart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            datasets: [{
+                data: {{ data|safe }},
+                backgroundColor: ['#dc2019', '#ffffff', '#104b8f', '#208a3a', '#ebe72f', '#b825d9', '#edb809', '#1fbacf', '#1ced4d', '#e04882', '#000000'],
+                label: 'Schwierigkeit'
+            }],
+            labels: {{ labels|safe }}
+        },
+        options: {
+            responsive: true,
+            layout: { padding: { left: -80 } }
+        }
     });
 
-    var config = {
-      type: 'pie',
-      data: {
-        datasets: [{
-          data: {{ data|safe }},
-          backgroundColor: [
-            '#dc2019', '#ffffff', '#104b8f', '#208a3a', '#ebe72f', '#b825d9', '#edb809', '#1fbacf', '#1ced4d', '#e04882', '#000000'
-          ],
-          label: 'Population'
-        }],
-        labels: {{ labels|safe }}
-      },
-      options: {
-        responsive: true,
-        layout: {
-            padding: {
-                left: -80,
-                right: 0,
-                top: 0,
-                bottom: 0
-            }
-         }
-      }
-    };
-
-    window.onload = function() {
-      var ctx = document.getElementById('pie-chart').getContext('2d');
-      window.myPie = new Chart(ctx, config);
-    };
-
     function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
+        var cookieValue = null;
+        if (document.cookie) {
+            document.cookie.split(';').forEach(function(cookie) {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                }
+            });
         }
-    }
         return cookieValue;
     }
-    var csrftoken = getCookie('csrftoken');
-    console.log(csrftoken);
 
-    //Ajax call
-    function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-    }
+    var csrftoken = getCookie('csrftoken');
+
     $.ajaxSetup({
-        crossDomain: false, // obviates need for sameOrigin test
         beforeSend: function(xhr, settings) {
-            if (!csrfSafeMethod(settings.type)) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type)) {
                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
             }
         }
     });
-  </script>
+});
+</script>
 {% endblock %}
