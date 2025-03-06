@@ -15,7 +15,6 @@ urlpatterns = [
     path('category-delete/<int:pk>', views.CategoryDeleteView.as_view(), name='category-delete'),
 
     # Autocomplete Views
-    path('tag-autocomplete', views.TagAutocomplete.as_view(create_field='name_de'), name='tag-autocomplete'),
     path('category-autocomplete', views.CategoryAutocomplete.as_view(), name='category-autocomplete'),
     path('user-autocomplete', views.UserAutocomplete.as_view(), name='user-autocomplete'),
 
