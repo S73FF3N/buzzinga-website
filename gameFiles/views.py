@@ -12,7 +12,7 @@ from django.db.models import Count, OuterRef, Subquery, Q, IntegerField
 from django.db.models.expressions import Value
 from django.db.models.functions import Coalesce
 
-from .models import GameType, Category, CategoryElement, Image, Sound, Question, Tag, Hints, WhoKnowsMore, WhoKnowsMoreElement
+from .models import GameType, Category, CategoryElement, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement
 from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, WhoKnowsMoreForm, WhoKnowsMoreElementFormSet, WhoKnowsMoreElementFormSetUpdate, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm, WhoKnowsMoreDownloadForm
 
 from dal import autocomplete
@@ -233,8 +233,6 @@ class ParentCreateView(CreateView, SuccessUrlMixin):
     def form_valid(self, form):
         form.instance.created_by = self.request.user
         self.object = form.save()
-        if "tags" in form.cleaned_data:
-            self.object.tags.add(*form.cleaned_data["tags"])
         return super().form_valid(form)
 
 
@@ -245,7 +243,6 @@ class ImageCreateView(LoginRequiredMixin, ParentCreateView):
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
-        tags = form.cleaned_data.get("tags", [])
 
         img = PILImage.open(form.instance.image_file)
         file_name = form.instance.solution
@@ -381,9 +378,6 @@ class BaseDownloadView(LoginRequiredMixin, FormView):
             "private_new": False,
             "difficulty__in": difficulty_range,
         }
-
-        if form.cleaned_data["tags"]:
-            filters["tags__in"] = form.cleaned_data["tags"]
         
         queryset = model.objects.filter(**filters).distinct()
 
@@ -516,14 +510,6 @@ def solution(request, game_type, category_element):
         solution = solution.show_solution()
 
     return render(request, 'solution.html', {'solution': {"type": solution_type, "qs": solution}})
-
-
-class TagAutocomplete(autocomplete.Select2QuerySetView):
-    def get_queryset(self):
-        qs = Tag.objects.all()
-        if self.q:
-            qs = qs.filter(name_de__icontains=self.q)
-        return qs
 
 
 class CategoryAutocomplete(autocomplete.Select2QuerySetView):
