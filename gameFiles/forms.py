@@ -104,9 +104,8 @@ class BaseDownloadForm(forms.ModelForm):
     class Meta:
         abstract = True
         form_tag = False
-        fields = ('tags', 'explicit', 'category', 'private_new', 'created_by')
+        fields = ('explicit', 'category', 'private_new', 'created_by')
         widgets = {
-            'tags': autocomplete.ModelSelect2Multiple(url='gamefiles:tag-autocomplete'),
             'created_by': autocomplete.ModelSelect2Multiple(url='gamefiles:user-autocomplete'),
         }
         labels = {
