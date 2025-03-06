@@ -16,6 +16,7 @@ from .models import GameType, Category, CategoryElement, Image, Sound, Question,
 from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, WhoKnowsMoreForm, WhoKnowsMoreElementFormSet, WhoKnowsMoreElementFormSetUpdate, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm, WhoKnowsMoreDownloadForm
 
 from dal import autocomplete
+from itertools import chain
 from io import BytesIO
 import zipfile
 import tempfile
@@ -392,7 +393,7 @@ class BaseDownloadView(LoginRequiredMixin, FormView):
         
         if not form.cleaned_data["private_new"]:
             private_queryset = model.objects.filter(created_by=user, private_new=True)
-            queryset = queryset.union(private_queryset).distinct()
+            queryset = list(chain(queryset, private_queryset))
         
         return queryset
 
