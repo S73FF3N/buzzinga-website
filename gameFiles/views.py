@@ -102,6 +102,18 @@ class CategoryView(ListView):
 def category_detail(request, game_type, id):
     category = get_object_or_404(Category, id=id)
 
+    # Mapping game type IDs to download URLs
+    download_urls = {
+        1: "gamefiles:sound-download",
+        2: "gamefiles:image-download",
+        3: "gamefiles:hint-download",
+        4: "gamefiles:question-download",
+        5: "gamefiles:whoknowsmore-download",
+    }
+    
+    # Get the correct download URL based on category type
+    category_download_url = download_urls.get(category.game_type.id, "gamefiles:whoknowsmore-download")
+
     category_elements = category.get_related_objects()
     logger.info(f"Related objects for game_type {game_type}: {category_elements}")
     category_elements = category_elements.filter(private_new=False) if category_elements else []
@@ -114,7 +126,8 @@ def category_detail(request, game_type, id):
         'game_type': game_type,
         'category': category,
         'labels': list(difficulty_count.keys()),
-        'data': list(difficulty_count.values())
+        'data': list(difficulty_count.values()),
+        "category_download_url": category_download_url,
     })
 
 
