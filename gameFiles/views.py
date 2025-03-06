@@ -366,7 +366,7 @@ class BaseDownloadView(LoginRequiredMixin, FormView):
 
     def filter_queryset(self, model, form):
         """Filters objects based on form criteria."""
-        #user = self.request.user
+        user = self.request.user
         created_by = form.cleaned_data["created_by"] or User.objects.all()
         difficulty_range = range(
             int(form.cleaned_data["min_difficulty"]),
@@ -391,9 +391,9 @@ class BaseDownloadView(LoginRequiredMixin, FormView):
         if form.cleaned_data["max_upload_date"]:
             queryset = queryset.filter(created_on__lte=form.cleaned_data["max_upload_date"])
         
-        #if not form.cleaned_data["private_new"]:
-        #    private_queryset = model.objects.filter(created_by=user, private_new=True)
-        #    queryset = list(chain(queryset, private_queryset))
+        if not form.cleaned_data["private_new"]:
+            private_queryset = model.objects.filter(created_by=user, private_new=True)
+            queryset = list(chain(queryset, private_queryset))
         
         return queryset
 
