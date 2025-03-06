@@ -490,11 +490,18 @@ class WhoknowsmoreDownloadView(BaseDownloadView):
 
         serialized_data = WhoKnowsMoreSerializer(whoknowsmore, many=True).data
         json_str = JSONRenderer().render(serialized_data)
-        tmp_file = tempfile.NamedTemporaryFile(mode="w+", delete=False)
-        json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
-        tmp_file.seek(0)
-
-        return self.generate_zip_response([(f"{category_name}.json", tmp_file.name)], category_name, "Wer weiß mehr?")
+        zip_buffer = BytesIO()
+        zip_filename = f"{category_name}.zip"
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+            with tempfile.NamedTemporaryFile(mode="w+", delete=False) as tmp_file:
+                json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
+                tmp_file.flush
+                tmp_file.seek(0)
+                zf.write(tmp_file.name, f"{category_name}.json")
+        zip_buffer.seek(0)
+        response = HttpResponse(zip_buffer.getvalue(), content_type="application/zip")
+        response['Content-Disposition'] = f'attachment; filename={zip_filename}'
+        return response
 
 
 def solution(request, game_type, category_element):
