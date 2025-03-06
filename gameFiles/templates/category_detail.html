@@ -19,8 +19,8 @@
             <div class="col-2 text-center align-self-center" style="background-color:#dc2019;padding-top:1%;padding-bottom:1%;">
                 <a {% if category.game_type.id == 2 %}href="{% url 'gamefiles:image-download' category.pk %}"
                    {% elif category.game_type.id == 1 %}href="{% url 'gamefiles:sound-download' category.pk %}"
-                   {% elif category.game_type.id == 3 %}href="{% url 'gamefiles:question-download' category.pk %}"
-                   {% elif category.game_type.id == 4 %}href="{% url 'gamefiles:hint-download' category.pk %}"
+                   {% elif category.game_type.id == 4 %}href="{% url 'gamefiles:question-download' category.pk %}"
+                   {% elif category.game_type.id == 3 %}href="{% url 'gamefiles:hint-download' category.pk %}"
                    {% else %}href="{% url 'gamefiles:whoknowsmore-download' category.pk %}"{% endif %}>
                     <h4 style="color:white;">Download</h4>
                 </a>
