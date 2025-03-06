@@ -3,35 +3,78 @@
 {% load widget_tweaks %}
 {% load i18n %}
 
-{% block title %}
-    Kategorie ändern
-{% endblock %}
+{% block title %}Kategorie ändern{% endblock %}
 
 {% block content %}
-<div class="container">
-    <form action="" method="POST" class="post-form" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.media }}
-        <h1>Kategorie ändern</h1>
-        <div class="row">
-            <div class="col-12 col-lg-6 form-group">
-                {{ form.name_de.label_tag }}
-                {% render_field form.name_de class="form-control" %}
-            </div>
-            <div class="col-12 form-group">
-                {{ form.description_de.label_tag }}
-                {% render_field form.description_de class="form-control" %}
-            </div>
-            <div class="col-12 col-lg-6 form-group">
-                {{ form.game_type.label_tag }}
-                {% render_field form.game_type class="form-control" %}
-            </div>
-            <div class="col-12 col-lg-6 form-group">
-                {{ form.private.label_tag }}
-                {% render_field form.private class="form-control" %}
-            </div>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1>Kategorie ändern</h1>
+            
+            <form method="POST" class="category-form" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.media }}
+                
+                <div class="row g-3">
+                    <div class="col-12 col-lg-6 mb-3">
+                        <div class="form-group">
+                            {{ form.name_de.label_tag }}
+                            {% render_field form.name_de class="form-control" placeholder="Name der Kategorie" aria-label="Name der Kategorie" %}
+                            {% if form.name_de.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.name_de.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="col-12 mb-3">
+                        <div class="form-group">
+                            {{ form.description_de.label_tag }}
+                            {% render_field form.description_de class="form-control" placeholder="Beschreibung" aria-label="Beschreibung" %}
+                            {% if form.description_de.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.description_de.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="col-12 col-lg-6 mb-3">
+                        <div class="form-group">
+                            {{ form.game_type.label_tag }}
+                            {% render_field form.game_type class="form-control" aria-label="Spieltyp" %}
+                            {% if form.game_type.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.game_type.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="col-12 col-lg-6 mb-3">
+                        <div class="form-group">
+                            {{ form.private.label_tag }}
+                            {% render_field form.private class="form-check-input" aria-label="Privat" %}
+                            {% if form.private.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.private.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-actions mt-3">
+                    <button type="submit" id="submit" class="btn btn-primary">
+                        <i class="fa fa-save me-2" aria-hidden="true"></i>Speichern
+                    </button>
+                    <a href="javascript:history.back()" class="btn btn-secondary ms-2">
+                        Abbrechen
+                    </a>
+                </div>
+            </form>
         </div>
-        <button type="submit" id="submit" class="btn btn-primary btn-sm"><i class="fa fa-save"></i></button>
-    </form>
+    </div>
 </div>
 {% endblock %}
