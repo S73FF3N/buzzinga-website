@@ -392,7 +392,7 @@ class BaseDownloadView(LoginRequiredMixin, FormView):
         
         if not form.cleaned_data["private_new"]:
             private_queryset = model.objects.filter(created_by=user, private_new=True)
-            queryset = queryset | private_queryset
+            queryset = queryset.union(private_queryset).distinct()
         
         return queryset
 
