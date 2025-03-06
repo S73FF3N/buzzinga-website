@@ -366,7 +366,7 @@ class BaseDownloadView(LoginRequiredMixin, FormView):
 
     def filter_queryset(self, model, form):
         """Filters objects based on form criteria."""
-        user = self.request.user
+        #user = self.request.user
         created_by = form.cleaned_data["created_by"] or User.objects.all()
         difficulty_range = range(
             int(form.cleaned_data["min_difficulty"]),
@@ -402,7 +402,7 @@ class BaseDownloadView(LoginRequiredMixin, FormView):
         zip_buffer = BytesIO()
         zip_filename = f"{category_name}.zip"
         
-        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zf:
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
             for file_name, file_path in files:
                 zf.write(file_path, f"{folder_name}/{file_name}")
 
@@ -467,11 +467,18 @@ class HintDownloadView(BaseDownloadView):
         category_name = form.cleaned_data["category"].name_de
 
         json_str = serialize('json', hints)
-        tmp_file = tempfile.NamedTemporaryFile(mode="w+", delete=False)
-        json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
-        tmp_file.seek(0)
-
-        return self.generate_zip_response([(f"{category_name}.json", tmp_file.name)], category_name, "Hints")
+        zip_buffer = BytesIO()
+        zip_filename = f"{category_name}.zip"
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+            with tempfile.NamedTemporaryFile(mode="w+", delete=False) as tmp_file:
+                json.dump(json.loads(json_str), tmp_file, indent=6, ensure_ascii=False)
+                tmp_file.flush
+                tmp_file.seek(0)
+                zf.write(tmp_file.name, f"{category_name}.json")
+        zip_buffer.seek(0)
+        response = HttpResponse(zip_buffer.getvalue(), content_type="application/zip")
+        response['Content-Disposition'] = f'attachment; filename={zip_filename}'
+        return response
 
 
 class WhoknowsmoreDownloadView(BaseDownloadView):
