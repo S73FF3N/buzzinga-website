@@ -29,12 +29,21 @@ TABLE_MAPPING = {
 
 @login_required
 def profile_view(request, per_page=10):
+    tables = {
+            "categories": "Kategorien",
+            "images": "Bilder",
+            "sounds": "Sounds",
+            "questions": "Fragen",
+            "hints": "Hinweise",
+            "whoknowsmore": "Wer weiß mehr?"
+            }
     context = {
         "profile_filter": ImageFilter(prefix="profile"),
         **{
             f"{table_name}table": create_profile_table(request, table_name, per_page)
             for table_name in TABLE_MAPPING
-        }
+        },
+        "tables": tables,
     }
     return render(request, "profile.html", context)
 

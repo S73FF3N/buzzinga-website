@@ -2,312 +2,164 @@
 {% load render_table from django_tables2 %}
 {% load widget_tweaks %}
 {% block content %}
-<div id="profileTable" class="container"  style="margin-top:8vw">
+<div id="profileTable" class="container" style="margin-top:8vw">
     <div class="card">
       <div class="card-header">
         <div class="row">
           <div class="col-8">
             <ul class="nav nav-tabs card-header-tabs">
-              <li>
-                <a class="nav-link" id="categories_table-label" data-toggle="tab" href="#categories_table-tab" role="tab" aria-controls="categories_table-tab" aria-selected="false">
-                  Kategorien
-                </a>
-              </li>
-              <li>
-                <a href="{% url 'gamefiles:category-create' %}" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i></a>
-              </li>
-              <li>
-                <a class="nav-link active" id="images_table-label" data-toggle="tab" href="#images_table-tab" role="tab" aria-controls="images_table-tab" aria-selected="false">
-                  Bilder
-                </a>
-              </li>
-              <li>
-                <a href="{% url 'gamefiles:image-create' %}" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i></a>
-              </li>
-              <li>
-                <a class="nav-link" id="sounds_table-label" data-toggle="tab" href="#sounds_table-tab" role="tab" aria-controls="sounds_table-tab" aria-selected="false">
-                  Sounds
-                </a>
-              </li>
-              <li>
-                <a href="{% url 'gamefiles:sound-create' %}" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i></a>
-              </li>
-              <li>
-                <a class="nav-link" id="questions_table-label" data-toggle="tab" href="#questions_table-tab" role="tab" aria-controls="questions_table-tab" aria-selected="false">
-                  Questions
-                </a>
-              </li>
-              <li>
-                <a href="{% url 'gamefiles:question-create' %}" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i></a>
-              </li>
-              <li>
-                <a class="nav-link" id="hints_table-label" data-toggle="tab" href="#hints_table-tab" role="tab" aria-controls="hints_table-tab" aria-selected="false">
-                  Hinweise
-                </a>
-              </li>
-              <li>
-                <a href="{% url 'gamefiles:hint-create' %}" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i></a>
-              </li>
-              <li>
-                <a class="nav-link" id="whoknowsmore_table-label" data-toggle="tab" href="#whoknowsmore_table-tab" role="tab" aria-controls="whoknowsmore_table-tab" aria-selected="false">
-                  Wer weiß mehr?
-                </a>
-              </li>
-              <li>
-                <a href="{% url 'gamefiles:whoknowsmore-create' %}" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i></a>
-              </li>
+              {% for table_name, label in tables.items %}
+                <li>
+                  <a class="nav-link {% if forloop.first %}active{% endif %}" id="{{ table_name }}_table-label" 
+                     data-toggle="tab" href="#{{ table_name }}_table-tab" role="tab" aria-controls="{{ table_name }}_table-tab">
+                    {{ label }}
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'gamefiles:'|add:table_name|add:'-create' %}" class="btn btn-primary btn-sm">
+                    <i class="fa fa-plus"></i>
+                  </a>
+                </li>
+              {% endfor %}
             </ul>
           </div>
+
           <div class="col-2">
-            <ul class="nav nav-tabs card-header-tabs justify-content-end">
-              <li>
-                <form>
-                  <label class="nav-link" for="per_page_form" style="display:inline-block;">pro Seite:</label>
-                  <select id="per_page_form" name="per_page" style="display:inline-block;">
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                  </select>
-                </form>
-              </li>
-            </ul>
+            <form id="per_page_form">
+              <label class="nav-link" for="per_page" style="display:inline-block;">Pro Seite:</label>
+              <select id="per_page" name="per_page" class="form-control form-control-sm">
+                {% for value in per_page_options %}
+                  <option value="{{ value }}" {% if value == selected_per_page %}selected{% endif %}>{{ value }}</option>
+                {% endfor %}
+              </select>
+            </form>
           </div>
-          <div class="col-2">
-            <ul class="nav nav-tabs card-header-tabs justify-content-end">
-              <li>
-                <a id="profile-collapse-link" class="nav-link" data-toggle="collapse" href="#profile-filter" role="button" aria-expanded="false" aria-controls="profile-filter">
-                  Filter <i id="profile-filter-img" class="fa fa-chevron-right" aria-hidden="true"></i>
-                </a>
-              </li>
-              <li>
-                <button id="profile-filter-submit" class="btn btn-primary btn-sm" style="transform:translate(0,3px);margin-right:0.5rem;border-radius:2px;">
-                  <i class="fa fa-filter"></i>
-                </button>
-              </li>
-              <li>
-                <a href="{% url 'account:download_all' active_table='images_' %}" id="download_elements" class="btn btn-primary btn-sm" style="transform:translate(0,3px);margin-right:0.5rem;border-radius:2px;">
-                  <i class="fa fa-download"></i>
-                </a>
-              </li>
-            </ul>
+
+          <div class="col-2 text-right">
+            <a id="profile-collapse-link" class="nav-link" data-toggle="collapse" href="#profile-filter" role="button">
+              Filter <i id="profile-filter-img" class="fa fa-chevron-right"></i>
+            </a>
+            <button id="profile-filter-submit" class="btn btn-primary btn-sm"><i class="fa fa-filter"></i></button>
+            <a href="{% url 'account:download_all' active_table='images_' %}" id="download_elements" class="btn btn-primary btn-sm">
+              <i class="fa fa-download"></i>
+            </a>
           </div>
         </div>
       </div>
+
       <div class="card-body tab-content">
         <form id="profile-filter-form" method="get">
           <div id="profile-filter" class="collapse row">
             {{ profile_filter.form.media }}
-            <div class="col-6 col-lg-2 form-form">
-                {{ profile_filter.form.solution.label_tag }}
-                {% render_field profile_filter.form.solution class="form-control" %}
-            </div>
-            <div class="col-6 col-lg-4 form-form">
-                {{ profile_filter.form.category.label_tag }}
-                {% render_field profile_filter.form.category class="form-control" %}
-            </div>
-            <div class="col-6 col-lg-2 form-form">
-                {{ profile_filter.form.private_new.label_tag }}
-                {% render_field profile_filter.form.private_new class="form-control" %}
-            </div>
+            {% for field in profile_filter.form %}
+              <div class="col-lg-3 form-group">
+                {{ field.label_tag }}
+                {% render_field field class="form-control" %}
+              </div>
+            {% endfor %}
           </div>
         </form>
-        <div class="tab-pane fade profile-table-container" role="tabpanel" aria-labelledby="categories_table-label" id="categories_table-tab">
-          {% render_table categories_table %}
-        </div>
-        <div class="tab-pane fade show profile-table-container active" role="tabpanel" aria-labelledby="images_table-label" id="images_table-tab">
-          {% render_table images_table %}
-        </div>
-        <div class="tab-pane fade profile-table-container" role="tabpanel" aria-labelledby="sounds_table-label" id="sounds_table-tab">
-          {% render_table sounds_table %}
-        </div>
-        <div class="tab-pane fade profile-table-container" role="tabpanel" aria-labelledby="questions_table-label" id="questions_table-tab">
-          {% render_table questions_table %}
-        </div>
-        <div class="tab-pane fade profile-table-container" role="tabpanel" aria-labelledby="hints_table-label" id="hints_table-tab">
-          {% render_table hints_table %}
-        </div>
-        <div class="tab-pane fade profile-table-container" role="tabpanel" aria-labelledby="whoknowsmore_table-label" id="whoknowsmore_table-tab">
-          {% render_table whoknowsmore_table %}
-        </div>
+
+        {% for table_name, label in tables.items %}
+          <div class="tab-pane fade {% if forloop.first %}show active{% endif %} profile-table-container" 
+               role="tabpanel" aria-labelledby="{{ table_name }}_table-label" id="{{ table_name }}_table-tab">
+            {% render_table table_name|add:"_table" %}
+          </div>
+        {% endfor %}
       </div>
     </div>
 </div>
+
 <script type="text/javascript">
-  $('.table-row-header').click(function(){
-    $(this).nextUntil('.table-row-header').css('display', function(i,v){
-      return this.style.display === 'table-row' ? 'none' : 'table-row';
-    });
-  });
-
-  $('.collapse-header').click(function(){
-    $("#" + $(this).attr("id") + "-collapse").collapse('toggle');
-  });
-
-  $('.profile-table-container').on("click", ".orderable a", function(ev){
-    get_table_data(ev, $(this));
-  });
-
-  $('.profile-table-container').on("click", ".page-link", function(ev){
-    get_table_data(ev, $(this));
-  });
-
-  function get_table_data(ev, clicked_object){
+  function get_table_data(ev, clicked_object) {
     ev.preventDefault();
-
     document.body.style.cursor = "wait";
-    clicked_object.css('cursor','wait');
+    clicked_object.css('cursor', 'wait');
 
     $.ajax({
       url: clicked_object.attr("href"),
       type: 'GET',
-      data: {},
-      success: function(data){
-        if(data["active_table"] == "error"){
+      success: function(data) {
+        if (data["active_table"] == "error") {
           alert(data["msg"]);
-        }else{
-          $("#"+data["active_table"]+"table-tab").html(data["html"]);
+        } else {
+          $("#" + data["active_table"] + "_table-tab").html(data["html"]);
         }
       },
-      complete: function(){
+      complete: function() {
         document.body.style.cursor = "auto";
+        clicked_object.css('cursor', 'pointer');
       }
     });
   }
 
-  $("#profile-filter-submit").click(function(){
+  $(document).on("click", ".orderable a, .page-link", function(ev) {
+    get_table_data(ev, $(this));
+  });
+
+  $("#profile-filter-submit").click(function() {
     $("#profile-filter-form").submit();
   });
 
-  $("#profile-filter-form").on("submit", function(ev){
+  $("#profile-filter-form").on("submit", function(ev) {
     ev.preventDefault();
-    document.body.style.cursor = "wait";
-    $("#profile-filter-submit").css('cursor','wait');
-    var per_page = $('#per_page_form').val();
-    var url = '{% url "gamefiles:set_profile_filter" "10" %}';
-    url = url.replace('10', per_page);
+    var per_page = $('#per_page').val();
+    var url = '{% url "gamefiles:set_profile_filter" "10" %}'.replace('10', per_page);
 
     $.ajax({
       url: url,
       type: 'GET',
       data: $(this).serialize(),
-      success: function(data){
-        for(key in data){
-          $("#"+key+"-tab").html(data[key]);
+      success: function(data) {
+        for (key in data) {
+          $("#" + key + "-tab").html(data[key]);
         }
       },
-      complete: function(){
+      complete: function() {
         document.body.style.cursor = "auto";
-        $("#profile-filter-submit").css('cursor','pointer');
       }
     });
   });
 
-  $('#profile-collapse-link').click(function(ev){
-    handle_filter_collapse('#profile-filter-img');
-  });
-
-  $('#per_page_form').change(function(ev){
+  $("#per_page").change(function(ev) {
     ev.preventDefault();
     var per_page = $(this).val();
-    var url = '{% url "gamefiles:set_profile_filter" "10" %}';
-    url = url.replace('10', per_page);
+    var url = '{% url "gamefiles:set_profile_filter" "10" %}'.replace('10', per_page);
 
     $.ajax({
       url: url,
       type: 'GET',
       data: $("#profile-filter-form").serialize(),
-      success: function(data){
-        for(key in data){
-          $("#"+key+"-tab").html(data[key]);
+      success: function(data) {
+        for (key in data) {
+          $("#" + key + "-tab").html(data[key]);
         }
-      },
+      }
     });
   });
 
-  $(document).ready(function() {
-      var segments = window.location.href.split( '/' );
-      var per_page = segments[segments.length - 2];
-      $("#per_page_form").val(per_page);
+  $("#download_elements").click(function(ev) {
+    ev.preventDefault();
+    var active_table = $(".profile-table-container.show").attr("id").split('_')[0] + "_";
+    var base_url = $(this).attr("href").split("/download/")[0] + "/download/";
+    var selected_ids = $(".select_checkbox:checked").map(function() { return this.id.split("_")[1]; }).get().join("+");
+    window.location.href = base_url + active_table + (selected_ids ? selected_ids : "all/");
   });
 
-  $(document).on('click', '.confirm-delete', function(){
-    return confirm('Are you sure you want to delete this?');
-  })
-
-  $("#download_elements").click(function (ev) {
-      ev.preventDefault(); // Prevent default navigation until we modify the URL
-
-      var active_table_id = document.getElementsByClassName('profile-table-container active')[0].id;
-      var active_table = active_table_id.split('_')[0] + "_";
-      
-      var base_url = $(this).attr("href").split("/download/")[0] + "/download/"; // Get base URL
-      var new_href = base_url + active_table + "/"; // Start constructing the URL
-
-      var checkboxes = $(".select_checkbox:checked"); // Only checked checkboxes
-      var selected_ids = [];
-
-      checkboxes.each(function () {
-          let checkbox_id = $(this).attr("id");
-          let element_id = checkbox_id.split("_")[1];
-          selected_ids.push(element_id);
-      });
-
-      if (selected_ids.length > 0) {
-          new_href += selected_ids.join("+"); // Concatenate selected IDs with "+"
-      } else {
-        new_href += "all/"; // Fallback to download all items
-      }
-
-      // Redirect user to the generated URL
-      window.location.href = new_href;
+  $(".nav-link").click(function() {
+    $(':checkbox').prop('checked', false);
   });
 
-  $("#images_table-label").click(function() {
-    $(':checkbox').each(function() {
-            this.checked = false;
-        });
-  });
+  function handle_filter_collapse(img_id) {
+    $(img_id).toggleClass("fa-chevron-right fa-chevron-down");
+  }
 
-  $("#sounds_table-label").click(function() {
-    $(':checkbox').each(function() {
-            this.checked = false;
-        });
-  });
-
-  $("#questions_table-label").click(function() {
-    $(':checkbox').each(function() {
-            this.checked = false;
-        });
-  });
-
-  $("#hints_table-label").click(function() {
-    $(':checkbox').each(function() {
-            this.checked = false;
-        });
-  });
-
-  $("#whoknowsmore_table-label").click(function() {
-    $(':checkbox').each(function() {
-            this.checked = false;
-        });
+  $('#profile-collapse-link').click(function() {
+    handle_filter_collapse('#profile-filter-img');
   });
 
   function toggle(source) {
-    checkboxes = document.getElementsByName('select');
-    for(var i in checkboxes)
-        checkboxes[i].checked = source.checked;
-  }
-
-  function handle_filter_collapse(img_id){
-    if ($(img_id).hasClass("fa-chevron-down")){
-      $(img_id).removeClass("fa-chevron-down");
-      $(img_id).addClass("fa-chevron-right");
-    }else{
-      $(img_id).removeClass("fa-chevron-right");
-      $(img_id).addClass("fa-chevron-down");
-    }
+    $("input[name='select']").prop('checked', source.checked);
   }
 </script>
 {% endblock %}
