@@ -42,7 +42,7 @@
                             {% if forloop.counter <= 10 %}
                                 <div class="col-12 col-lg-6 mb-3">
                                     <div class="form-group">
-                                        {{ form|getattribute:field_name }}
+                                        {{ form }}
                                         {% render_field form|getattribute:field_name class="form-control" aria-label="Hinweis "|add:i %}
                                         {% if form|getattribute:field_name|get_errors %}
                                             <div class="invalid-feedback d-block">{{ form|getattribute:field_name|get_errors }}</div>
