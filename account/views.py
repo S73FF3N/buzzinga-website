@@ -31,10 +31,10 @@ TABLE_MAPPING = {
 def profile_view(request, per_page=10):
     tables = {
             "category": "Kategorien",
-            "images": "Bilder",
-            "sounds": "Sounds",
-            "questions": "Fragen",
-            "hints": "Hinweise",
+            "image": "Bilder",
+            "sound": "Sounds",
+            "question": "Fragen",
+            "hint": "Hinweise",
             "whoknowsmore": "Wer weiß mehr?"
             }
     context = {
