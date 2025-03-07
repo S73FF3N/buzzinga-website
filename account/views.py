@@ -24,13 +24,12 @@ TABLE_MAPPING = {
     "questions_": (Question, QuestionFilter, QuestionTable),
     "hints_": (Hints, HintFilter, HintTable),
     "whoknowsmore_": (WhoKnowsMore, WhoKnowsMoreFilter, WhoKnowsMoreTable),
-    "category_": (Category, CategoryFilter, CategoryTable),
 }
 
 @login_required
 def profile_view(request, per_page=10):
     tables = {
-            "category": "Kategorien",
+            "categories": "Kategorien",
             "images": "Bilder",
             "sounds": "Sounds",
             "questions": "Fragen",
@@ -43,6 +42,7 @@ def profile_view(request, per_page=10):
             f"{table_name}table": create_profile_table(request, table_name, per_page)
             for table_name in TABLE_MAPPING
         },
+        "categories_table": create_profile_table(request, "categories_", per_page),
         "tables": tables,
     }
     return render(request, "profile.html", context)
