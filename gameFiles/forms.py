@@ -21,7 +21,7 @@ class BaseMediaForm(forms.ModelForm):
             'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete'),
         }
 
-
+#TODO: dynamically pass the game_type to the autocomplete view
 class ImageForm(BaseMediaForm):
     """Form for Image model."""
     class Meta(BaseMediaForm.Meta):
@@ -52,7 +52,7 @@ class QuestionForm(BaseMediaForm):
     class Meta(BaseMediaForm.Meta):
         model = Question
         fields = ('solution', 'quiz_question', 'option1', 'option2', 'option3', 'difficulty', 'explicit', 'category', 'private_new')
-        widgets = {**BaseMediaForm.Meta.widgets, 'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete', forward=(forward.Const(3, 'game_type'),))}
+        widgets = {**BaseMediaForm.Meta.widgets, 'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete', forward=(forward.Const(4, 'game_type'),))}
         error_messages = {NON_FIELD_ERRORS: {'unique_together': "%(model_name)s's %(field_labels)s are not unique."}}
 
 
@@ -61,7 +61,7 @@ class HintForm(BaseMediaForm):
     class Meta(BaseMediaForm.Meta):
         model = Hints
         fields = ('solution', 'hint1', 'hint2', 'hint3', 'hint4', 'hint5', 'hint6', 'hint7', 'hint8', 'hint9', 'hint10', 'difficulty', 'explicit', 'category', 'private_new')
-        widgets = {**BaseMediaForm.Meta.widgets, 'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete', forward=(forward.Const(4, 'game_type'),))}
+        widgets = {**BaseMediaForm.Meta.widgets, 'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete', forward=(forward.Const(3, 'game_type'),))}
 
 
 class WhoKnowsMoreForm(BaseMediaForm):
