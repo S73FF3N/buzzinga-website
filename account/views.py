@@ -41,10 +41,12 @@ def profile_view(request, per_page=10):
         f"{table_name}_table": create_profile_table(request, table_name, per_page)
         for table_name in TABLE_MAPPING
     }
+    per_page_options = [5, 10, 25, 50]
     context = {
         "profile_filter": ImageFilter(prefix="profile"),
         "tables": tables,
         "table_names": table_names,
+        "per_page_options": per_page_options,
     }
     return render(request, "profile.html", context)
 
