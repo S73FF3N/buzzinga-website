@@ -13,3 +13,10 @@ def getattribute(obj, attr):
 @register.filter
 def get_label(field):
     return field.label
+
+@register.filter
+def get_errors(field):
+    """Returns errors of a form field"""
+    if hasattr(field, 'errors'):
+        return field.errors
+    return None
