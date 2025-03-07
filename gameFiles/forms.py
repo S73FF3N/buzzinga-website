@@ -18,7 +18,6 @@ class BaseMediaForm(forms.ModelForm):
     class Meta:
         abstract = True
         widgets = {
-            'tags': autocomplete.ModelSelect2Multiple(url='gamefiles:tag-autocomplete'),
             'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete'),
         }
 
@@ -28,7 +27,7 @@ class ImageForm(BaseMediaForm):
     class Meta(BaseMediaForm.Meta):
         model = Image
         form_tag = False
-        fields = ('solution', 'image_file', 'difficulty', 'explicit', 'tags', 'category', 'private_new', 'author', 'license', 'file_changed')
+        fields = ('solution', 'image_file', 'difficulty', 'explicit', 'category', 'private_new', 'author', 'license', 'file_changed')
         widgets = {**BaseMediaForm.Meta.widgets, 'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete', forward=(forward.Const(2, 'game_type'),))}
 
 
@@ -44,7 +43,7 @@ class SoundForm(BaseMediaForm):
     """Form for Sound model."""
     class Meta(BaseMediaForm.Meta):
         model = Sound
-        fields = ('solution', 'sound_file', 'difficulty', 'explicit', 'tags', 'category', 'private_new')
+        fields = ('solution', 'sound_file', 'difficulty', 'explicit', 'category', 'private_new')
         widgets = {**BaseMediaForm.Meta.widgets, 'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete', forward=(forward.Const(1, 'game_type'),))}
 
 
@@ -52,7 +51,7 @@ class QuestionForm(BaseMediaForm):
     """Form for Question model."""
     class Meta(BaseMediaForm.Meta):
         model = Question
-        fields = ('solution', 'quiz_question', 'option1', 'option2', 'option3', 'difficulty', 'tags', 'explicit', 'category', 'private_new')
+        fields = ('solution', 'quiz_question', 'option1', 'option2', 'option3', 'difficulty', 'explicit', 'category', 'private_new')
         widgets = {**BaseMediaForm.Meta.widgets, 'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete', forward=(forward.Const(3, 'game_type'),))}
         error_messages = {NON_FIELD_ERRORS: {'unique_together': "%(model_name)s's %(field_labels)s are not unique."}}
 
@@ -61,7 +60,7 @@ class HintForm(BaseMediaForm):
     """Form for Hints model."""
     class Meta(BaseMediaForm.Meta):
         model = Hints
-        fields = ('solution', 'hint1', 'hint2', 'hint3', 'hint4', 'hint5', 'hint6', 'hint7', 'hint8', 'hint9', 'hint10', 'difficulty', 'tags', 'explicit', 'category', 'private_new')
+        fields = ('solution', 'hint1', 'hint2', 'hint3', 'hint4', 'hint5', 'hint6', 'hint7', 'hint8', 'hint9', 'hint10', 'difficulty', 'explicit', 'category', 'private_new')
         widgets = {**BaseMediaForm.Meta.widgets, 'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete', forward=(forward.Const(4, 'game_type'),))}
 
 
@@ -69,7 +68,7 @@ class WhoKnowsMoreForm(BaseMediaForm):
     """Form for WhoKnowsMore model."""
     class Meta(BaseMediaForm.Meta):
         model = WhoKnowsMore
-        fields = ('solution', 'difficulty', 'tags', 'explicit', 'category', 'private_new')
+        fields = ('solution', 'difficulty', 'explicit', 'category', 'private_new')
         labels = {'solution': "Frage"}
         widgets = {**BaseMediaForm.Meta.widgets, 'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete', forward=(forward.Const(5, 'game_type'),))}
 
