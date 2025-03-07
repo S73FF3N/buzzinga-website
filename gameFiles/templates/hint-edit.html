@@ -2,7 +2,6 @@
 {% load gameFiles_tags %}
 {% load static %}
 {% load widget_tweaks %}
-{% load i18n %}
 
 {% block title %}Hinweis ändern{% endblock %}
 
@@ -14,7 +13,6 @@
             
             <form method="POST" class="hint-form">
                 {% csrf_token %}
-                {{ form.media }}
                 
                 {% if form.errors %}
                     {% for error in form.non_field_errors %}
@@ -44,7 +42,7 @@
                                 <div class="col-12 col-lg-6 mb-3">
                                     <div class="form-group">
                                         {{ field.label }}
-                                        {{ field }}
+                                        {% render_field field class="form-control" aria-label="Hinweis "|add:i %}
                                         {% if field.errors %}
                                             <div class="invalid-feedback d-block">{{ field|get_errors }}</div>
                                         {% endif %}
@@ -112,6 +110,8 @@
         </div>
     </div>
 </div>
+
+{{ form.media }}
 
 <style>
     .mt-4 {
