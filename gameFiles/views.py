@@ -328,15 +328,15 @@ class WhoknowsmoreCreateView(LoginRequiredMixin, ParentCreateView):
             return self.form_invalid(form, formset)
 
     def form_valid(self, form, formset):
-        self.object = form.save()
+        self.object = form.save()  # This ensures self.object exists before calling super()
+        
         instances = formset.save(commit=False)
-
         for instance in instances:
             instance.category_element = self.object
             instance.count_id = WhoKnowsMoreElement.objects.filter(category_element=self.object).count() + 1
             instance.save()
 
-        return redirect(self.get_success_url())
+        return super().form_valid(form)
 
     def form_invalid(self, form, formset):
         return self.render_to_response(self.get_context_data(form=form, formset=formset))
