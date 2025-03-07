@@ -243,6 +243,9 @@ class WhoknowsmoreDeleteView(BaseDeleteView, LoginRequiredMixin, DeleteView, Suc
 
 
 class ParentCreateView(CreateView, SuccessUrlMixin):
+    def get_success_url(self):
+        return reverse('account:profile', kwargs={'per_page': 10})
+    
     def form_valid(self, form):
         form.instance.created_by = self.request.user
         self.object = form.save()
