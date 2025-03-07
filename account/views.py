@@ -38,7 +38,7 @@ def profile_view(request, per_page=10):
             "whoknowsmore": "Wer weiß mehr?"
             }
     tables = {
-        f"{table_name + "_table"}": create_profile_table(request, table_name, per_page)
+        f"{table_name}_table": create_profile_table(request, table_name, per_page)
         for table_name in TABLE_MAPPING
     }
     context = {
