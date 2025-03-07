@@ -30,7 +30,7 @@ TABLE_MAPPING = {
 @login_required
 def profile_view(request, per_page=10):
     tables = {
-            "categories": "Kategorien",
+            "category": "Kategorien",
             "images": "Bilder",
             "sounds": "Sounds",
             "questions": "Fragen",
