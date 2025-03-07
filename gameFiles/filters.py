@@ -11,10 +11,6 @@ class BaseFilter(django_filters.FilterSet):
         widget=autocomplete.ModelSelect2Multiple(url='gamefiles:category-autocomplete'),
         label="Kategorie"
     )
-    tags = django_filters.ModelMultipleChoiceFilter(
-        queryset=Tag.objects.all(),
-        widget=autocomplete.ModelSelect2Multiple(url='gamefiles:tag-autocomplete')
-    )
     private_new = django_filters.BooleanFilter(label='Privat')
 
     class Meta:
