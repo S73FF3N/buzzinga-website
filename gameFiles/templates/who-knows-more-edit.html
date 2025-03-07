@@ -1,62 +1,106 @@
 {% extends "index.html" %}
 {% load static %}
 {% load widget_tweaks %}
-{% load i18n %}
 
 {% block title %}
     Wer weiß mehr?
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <form action="" method="POST" class="post-form" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.media }}
-        {% if form.errors %}
-           {% for error in form.non_field_errors %}
-              <div class="alert alert-danger">
-                   <strong>{{ error|escape }}</strong>
-              </div>
-           {% endfor %}
-        {% endif %}
-        <h1>Wer weiß mehr?</h1>
-        <div class="row">
-            <div class="col-12 col-lg-6 form-group">
-                {{ form.solution.label_tag }}
-                {% render_field form.solution class="form-control" %}
-            </div>
-            <div class="col-12 col-lg-6 form-group">
-                {{ form.difficulty.label_tag }}
-                {% render_field form.difficulty class="form-control" %}
-            </div>
-            <div class="col-12 col-lg-6 form-group">
-                {{ form.explicit.label_tag }}
-                {% render_field form.explicit class="form-control" %}
-            </div>
-            <div class="col-12 col-lg-6 form-group">
-                {{ form.private_new.label_tag }}
-                {% render_field form.private_new class="form-control" %}
-            </div>
-            <div class="col-12 col-lg-6 form-group">
-                {{ form.category.label_tag }}
-                {% render_field form.category class="form-control" %}
-            </div>
-        </div>
-        <h3>Lösungen</h3>
-        {{ formset.management_form }}
-        <div class="row">
-            {% for f in formset %}
-                <div class="col-12 col-lg-4 form-group">
-                    {{ f.id }}
-                    {{ f.count_id }}
-                    {{ f.answer.label_tag }}
-                    {% render_field f.answer class="form-control" %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1>Wer weiß mehr?</h1>
+
+            <form method="POST" class="whoknowsmore-form" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.media }}
+                {% if form.errors %}
+                    {% for error in form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            <strong>{{ error|escape }}</strong>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                <div class="row g-3">
+                    <div class="col-12 mb-3">
+                        <div class="form-group">
+                            {{ form.solution.label_tag }}
+                            {% render_field form.solution class="form-control" %}
+                            {% if form.solution.errors %}
+                                <div class="invalid-feedback d-block">{{ form.solution.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Difficulty -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <div class="form-group">
+                            {{ form.difficulty.label_tag }}
+                            {% render_field form.difficulty class="form-control" aria-label="Schwierigkeitsgrad" %}
+                            {% if form.difficulty.errors %}
+                                <div class="invalid-feedback d-block">{{ form.difficulty.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Explicit -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <div class="form-group">
+                            {{ form.explicit.label_tag }}
+                            {% render_field form.explicit class="form-check-input" aria-label="Explizit" %}
+                            {% if form.explicit.errors %}
+                                <div class="invalid-feedback d-block">{{ form.explicit.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Private -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <div class="form-group">
+                            {{ form.private_new.label_tag }}
+                            {% render_field form.private_new class="form-check-input" aria-label="Privat" %}
+                            {% if form.private_new.errors %}
+                                <div class="invalid-feedback d-block">{{ form.private_new.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Category -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <div class="form-group">
+                            {{ form.category.label_tag }}
+                            {% render_field form.category class="form-control" aria-label="Kategorie" %}
+                            {% if form.category.errors %}
+                                <div class="invalid-feedback d-block">{{ form.category.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
-            {% endfor %}
+                <h3>Lösungen</h3>
+                {{ formset.management_form }}
+                <div class="row">
+                    {% for f in formset %}
+                        <div class="col-12 col-lg-4 form-group">
+                            {{ f.id }}
+                            {{ f.count_id }}
+                            {{ f.answer.label_tag }}
+                            {% render_field f.answer class="form-control" %}
+                        </div>
+                    {% endfor %}
+                </div>
+                <input type="button" class="btn btn-primary btn-sm" value="Antwort hinzufügen" id="add_more">
+                <div class="form-actions mt-3">
+                    <button type="submit" id="submit" class="btn btn-primary">
+                        <i class="fa fa-save me-2" aria-hidden="true"></i>Speichern
+                    </button>
+                    <a href="javascript:history.back()" class="btn btn-secondary ms-2">
+                        Abbrechen
+                    </a>
+                </div>
+            </form>
         </div>
-        <input type="button" class="btn btn-primary btn-sm" value="Antwort hinzufügen" id="add_more">
-        <button type="submit" id="submit" class="btn btn-primary btn-sm pull-right"><i class="fa fa-save"></i></button>
-    </form>
+    </div>
 </div>
 <script type="text/javascript">
     function cloneMore(selector, type) {
@@ -80,5 +124,30 @@
         cloneMore('div.col-12:last', 'answers');
     });
 </script>
+
+<style>
+    .mt-4 {
+        margin-top: 1.5rem;
+    }
+    .mb-3 {
+        margin-bottom: 1rem;
+    }
+    .mt-3 {
+        margin-top: 1rem;
+    }
+    .me-2 {
+        margin-right: 0.5rem;
+    }
+    .ms-2 {
+        margin-left: 0.5rem;
+    }
+    .g-3 {
+        --bs-gutter-y: 1rem;
+        --bs-gutter-x: 1rem;
+    }
+    .form-check-input {
+        margin-left: 1rem;
+    }
+</style>
 {% endblock %}
 
