@@ -44,7 +44,7 @@
                                 <div class="col-12 col-lg-6 mb-3">
                                     <div class="form-group">
                                         {{ field.label }}
-                                        {% render_field field class="form-control" aria-label="Hinweis "|add:i %}
+                                        {{ field }}
                                         {% if field.errors %}
                                             <div class="invalid-feedback d-block">{{ field|get_errors }}</div>
                                         {% endif %}
