@@ -1,65 +1,150 @@
 {% extends "index.html" %}
+{% load gameFiles_tags %}
 {% load static %}
 {% load widget_tweaks %}
-{% load i18n %}
 
-{% block title %}
-    Frage ändern
-{% endblock %}
+{% block title %}Frage ändern{% endblock %}
 
 {% block content %}
-<div class="container">
-    <form action="" method="POST" class="post-form">
-        {% csrf_token %}
-        {{ form.media }}
-        {% if form.errors %}
-           {% for error in form.non_field_errors %}
-              <div class="alert alert-danger">
-                   <strong>{{ error|escape }}</strong>
-              </div>
-           {% endfor %}
-        {% endif %}
-        <h1>Frage</h1>
-        <div class="row">
-            <div class="col-12 col-lg-6 form-group">
-                {{ form.quiz_question.label_tag }}
-                {% render_field form.quiz_question class="form-control" %}
-            </div>
-            <div class="col-12 col-lg-6 form-group">
-                {{ form.solution.label_tag }}
-                {% render_field form.solution class="form-control" %}
-            </div>
-            <div class="col-12 col-lg-6 form-group">
-                {{ form.option1.label_tag }}
-                {% render_field form.option1 class="form-control" %}
-            </div>
-            <div class="col-12 col-lg-6 form-group">
-                {{ form.option2.label_tag }}
-                {% render_field form.option2 class="form-control" %}
-            </div>
-            <div class="col-12 col-lg-6 form-group">
-                {{ form.option3.label_tag }}
-                {% render_field form.option3 class="form-control" %}
-            </div>
-            <div class="col-12 col-lg-6 form-group">
-                {{ form.difficulty.label_tag }}
-                {% render_field form.difficulty class="form-control" %}
-            </div>
-            <div class="col-12 col-lg-6 form-group">
-                {{ form.private_new.label_tag }}
-                {% render_field form.private_new class="form-control" %}
-            </div>
-            <div class="col-12 col-lg-6 form-group">
-                {{ form.tags.label_tag }}
-                {% render_field form.tags class="form-control" %}
-            </div>
-            <div class="col-12 col-lg-6 form-group">
-                {{ form.category.label_tag }}
-                {% render_field form.category class="form-control" %}
-            </div>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1>Frage</h1>
+            
+            <form method="POST" class="question-form">
+                {% csrf_token %}
+                {{ form.media }}
+                
+                {% if form.errors %}
+                    {% for error in form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            <strong>{{ error|escape }}</strong>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                
+                <div class="row g-3">
+                    <!-- Quiz Question -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <div class="form-group">
+                            {{ form.quiz_question.label_tag }}
+                            {% render_field form.quiz_question class="form-control" aria-label="Quizfrage" %}
+                            {% if form.quiz_question.errors %}
+                                <div class="invalid-feedback d-block">{{ form.quiz_question.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Solution -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <div class="form-group">
+                            {{ form.solution.label_tag }}
+                            {% render_field form.solution class="form-control" aria-label="Lösung" %}
+                            {% if form.solution.errors %}
+                                <div class="invalid-feedback d-block">{{ form.solution.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Options 1-3 -->
+                    {% for i in "123"|make_list %}
+                        {% with field_name="option"|add:i %}
+                            {% with field=form|get_field:field_name %}
+                                {% if forloop.counter <= 3 %}
+                                    <div class="col-12 col-lg-6 mb-3">
+                                        <div class="form-group">
+                                            {{ field.label }}
+                                            {% render_field field class="form-control" aria-label="Option "|add:i %}
+                                            {% if field.errors %}
+                                                <div class="invalid-feedback d-block">{{ form|attr:field_name.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endwith %}
+                        {% endwith %}
+                    {% endfor %}
+                    
+                    <!-- Difficulty -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <div class="form-group">
+                            {{ form.difficulty.label_tag }}
+                            {% render_field form.difficulty class="form-control" aria-label="Schwierigkeitsgrad" %}
+                            {% if form.difficulty.errors %}
+                                <div class="invalid-feedback d-block">{{ form.difficulty.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Private -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <div class="form-group">
+                            {{ form.private_new.label_tag }}
+                            {% render_field form.private_new class="form-check-input" aria-label="Privat" %}
+                            {% if form.private_new.errors %}
+                                <div class="invalid-feedback d-block">{{ form.private_new.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Tags -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <div class="form-group">
+                            {{ form.tags.label_tag }}
+                            {% render_field form.tags class="form-control" aria-label="Tags" %}
+                            {% if form.tags.errors %}
+                                <div class="invalid-feedback d-block">{{ form.tags.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Category -->
+                    <div class="col-12 col-lg-6 mb-3">
+                        <div class="form-group">
+                            {{ form.category.label_tag }}
+                            {% render_field form.category class="form-control" aria-label="Kategorie" %}
+                            {% if form.category.errors %}
+                                <div class="invalid-feedback d-block">{{ form.category.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-actions mt-3">
+                    <button type="submit" id="submit" class="btn btn-primary">
+                        <i class="fa fa-save me-2" aria-hidden="true"></i>Speichern
+                    </button>
+                    <a href="javascript:history.back()" class="btn btn-secondary ms-2">
+                        Abbrechen
+                    </a>
+                </div>
+            </form>
         </div>
-        <button type="submit" id="submit" class="btn btn-primary btn-sm"><i class="fa fa-save"></i></button>
-    </form>
+    </div>
 </div>
-{% endblock %}
 
+<style>
+    .mt-4 {
+        margin-top: 1.5rem;
+    }
+    .mb-3 {
+        margin-bottom: 1rem;
+    }
+    .mt-3 {
+        margin-top: 1rem;
+    }
+    .me-2 {
+        margin-right: 0.5rem;
+    }
+    .ms-2 {
+        margin-left: 0.5rem;
+    }
+    .g-3 {
+        --bs-gutter-y: 1rem;
+        --bs-gutter-x: 1rem;
+    }
+    .form-check-input {
+        margin-left: 1rem;
+    }
+</style>
+{% endblock %}
