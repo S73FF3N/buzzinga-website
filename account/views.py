@@ -29,7 +29,7 @@ TABLE_MAPPING = {
 
 @login_required
 def profile_view(request, per_page=10):
-    tables = {
+    table_names = {
             "category": "Kategorien",
             "image": "Bilder",
             "sound": "Sounds",
@@ -37,14 +37,14 @@ def profile_view(request, per_page=10):
             "hint": "Hinweise",
             "whoknowsmore": "Wer weiß mehr?"
             }
+    tables = {
+        f"{table_name + "_table"}": create_profile_table(request, table_name, per_page)
+        for table_name in TABLE_MAPPING
+    }
     context = {
         "profile_filter": ImageFilter(prefix="profile"),
-        **{
-            f"{table_name}table": create_profile_table(request, table_name, per_page)
-            for table_name in TABLE_MAPPING
-        },
-        #"categories_table": create_profile_table(request, "categories_", per_page),
         "tables": tables,
+        "table_names": table_names,
     }
     return render(request, "profile.html", context)
 

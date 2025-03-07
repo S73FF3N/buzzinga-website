@@ -8,7 +8,7 @@
         <div class="row">
           <div class="col-8">
             <ul class="nav nav-tabs card-header-tabs">
-              {% for table_name, label in tables.items %}
+              {% for table_name, label in table_names.items %}
                 <li>
                   <a class="nav-link {% if forloop.first %}active{% endif %}" id="{{ table_name }}_table-label" 
                      data-toggle="tab" href="#{{ table_name }}_table-tab" role="tab" aria-controls="{{ table_name }}_table-tab">
@@ -60,10 +60,10 @@
           </div>
         </form>
 
-        {% for table_name, label in tables.items %}
+        {% for table in tables %}
           <div class="tab-pane fade {% if forloop.first %}show active{% endif %} profile-table-container" 
-               role="tabpanel" aria-labelledby="{{ table_name }}_table-label" id="{{ table_name }}_table-tab">
-            {% render_table table_name|add:"_table" %}
+               role="tabpanel" aria-labelledby="{{ table }}-label" id="{{ table }}-tab">
+            {% render_table table %}
           </div>
         {% endfor %}
       </div>
