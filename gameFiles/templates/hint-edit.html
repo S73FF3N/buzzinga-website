@@ -13,6 +13,7 @@
             
             <form method="POST" class="hint-form">
                 {% csrf_token %}
+                {{ form.media }}
                 
                 {% if form.errors %}
                     {% for error in form.non_field_errors %}
@@ -110,8 +111,6 @@
         </div>
     </div>
 </div>
-
-{{ form.media }}
 
 <style>
     .mt-4 {
