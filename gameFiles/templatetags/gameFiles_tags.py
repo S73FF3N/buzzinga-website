@@ -9,3 +9,7 @@ def to_class_name(value):
 @register.filter
 def getattribute(obj, attr):
     return getattr(obj, attr)
+
+@register.filter
+def get_label(field):
+    return field.label
