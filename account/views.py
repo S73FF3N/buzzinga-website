@@ -24,13 +24,13 @@ TABLE_MAPPING = {
     "questions_": (Question, QuestionFilter, QuestionTable),
     "hints_": (Hints, HintFilter, HintTable),
     "whoknowsmore_": (WhoKnowsMore, WhoKnowsMoreFilter, WhoKnowsMoreTable),
-    "categories_": (Category, CategoryFilter, CategoryTable),
+    "category_": (Category, CategoryFilter, CategoryTable),
 }
 
 @login_required
 def profile_view(request, per_page=10):
     tables = {
-            "categories": "Kategorien",
+            "category": "Kategorien",
             "images": "Bilder",
             "sounds": "Sounds",
             "questions": "Fragen",
