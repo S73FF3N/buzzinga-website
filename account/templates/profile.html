@@ -60,9 +60,9 @@
           </div>
         </form>
 
-        {% for table in tables %}
+        {% for table_name, table in tables.items %}
           <div class="tab-pane fade {% if forloop.first %}show active{% endif %} profile-table-container" 
-               role="tabpanel" aria-labelledby="{{ table }}-label" id="{{ table }}-tab">
+               role="tabpanel" aria-labelledby="{{ table_name }}-label" id="{{ table_name }}-tab">
             {% render_table table %}
           </div>
         {% endfor %}
