@@ -20,3 +20,13 @@ def get_errors(field):
     if hasattr(field, 'errors'):
         return field.errors
     return None
+
+@register.filter
+def get_field(form, field_name):
+    """
+    Returns a form field by its name using dictionary-style access
+    """
+    try:
+        return form[field_name]
+    except (KeyError, TypeError):
+        return None

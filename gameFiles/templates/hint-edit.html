@@ -39,17 +39,19 @@
                     <!-- Hints 1-10 -->
                     {% for i in "12345678910"|make_list %}
                         {% with field_name="hint"|add:i %}
+                        {% with field=form|get_field:field_name %}
                             {% if forloop.counter <= 10 %}
                                 <div class="col-12 col-lg-6 mb-3">
                                     <div class="form-group">
-                                        {{ form }}
-                                        {% render_field form|getattribute:field_name class="form-control" aria-label="Hinweis "|add:i %}
-                                        {% if form|getattribute:field_name|get_errors %}
-                                            <div class="invalid-feedback d-block">{{ form|getattribute:field_name|get_errors }}</div>
+                                        {{ field.label }}
+                                        {% render_field field class="form-control" aria-label="Hinweis "|add:i %}
+                                        {% if field.errors %}
+                                            <div class="invalid-feedback d-block">{{ field|get_errors }}</div>
                                         {% endif %}
                                     </div>
                                 </div>
                             {% endif %}
+                        {% endwith %}
                         {% endwith %}
                     {% endfor %}
                     
