@@ -312,7 +312,13 @@ class WhoknowsmoreCreateView(LoginRequiredMixin, ParentCreateView):
     model = WhoKnowsMore
     form_class = WhoKnowsMoreForm
     template_name = 'who-knows-more-edit.html'
+    object = None
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['object'] = self.object  # Ensure `object` is always in context
+        return context
+    
     def get(self, request, *args, **kwargs):
         form = self.get_form(self.get_form_class())
         formset = WhoKnowsMoreElementFormSet()
@@ -328,15 +334,15 @@ class WhoknowsmoreCreateView(LoginRequiredMixin, ParentCreateView):
             return self.form_invalid(form, formset)
 
     def form_valid(self, form, formset):
-        self.object = form.save()  # This ensures self.object exists before calling super()
-        
+        self.object = form.save()
         instances = formset.save(commit=False)
+
         for instance in instances:
             instance.category_element = self.object
             instance.count_id = WhoKnowsMoreElement.objects.filter(category_element=self.object).count() + 1
             instance.save()
 
-        return super().form_valid(form)
+        return redirect(self.get_success_url())
 
     def form_invalid(self, form, formset):
         return self.render_to_response(self.get_context_data(form=form, formset=formset))
