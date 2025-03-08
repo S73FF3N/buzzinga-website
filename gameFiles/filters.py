@@ -26,7 +26,7 @@ class BaseProfileFilter(BaseFilter):
         return type(
             f"{model.__name__}Filter",
             (cls,),
-            {"Meta": type("Meta", (), {"model": model, "fields": ['solution', 'category', 'private_new', 'tags'], "order_by": ['pk']})}
+            {"Meta": type("Meta", (), {"model": model, "fields": ['solution', 'category', 'private_new'], "order_by": ['pk']})}
         )
 
 
