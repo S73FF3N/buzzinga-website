@@ -71,6 +71,13 @@
 </div>
 
 <script type="text/javascript">
+  $(document).ready(function () {
+    $('.nav-tabs a').click(function (e) {
+        e.preventDefault();
+        $(this).tab('show');
+    });
+});
+
   function get_table_data(ev, clicked_object) {
     ev.preventDefault();
     document.body.style.cursor = "wait";
@@ -80,12 +87,13 @@
       url: clicked_object.attr("href"),
       type: 'GET',
       success: function(data) {
-        if (data["active_table"] == "error") {
-          alert(data["msg"]);
-        } else {
-          $("#" + data["active_table"] + "_table-tab").html(data["html"]);
+          if (data["active_table"] === "error") {
+              alert(data["msg"]);
+          } else {
+              $("#" + data["active_table"]).html(data["html"]);
+          }
         }
-      },
+    });
       complete: function() {
         document.body.style.cursor = "auto";
         clicked_object.css('cursor', 'pointer');
@@ -131,11 +139,11 @@
       type: 'GET',
       data: $("#profile-filter-form").serialize(),
       success: function(data) {
-        for (key in data) {
-          $("#" + key + "-tab").html(data[key]);
-        }
+          for (key in data) {
+              $("#" + key).html(data[key]);
+          }
       }
-    });
+  });
   });
 
   $("#download_elements").click(function(ev) {

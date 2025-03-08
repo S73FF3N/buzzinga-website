@@ -54,25 +54,23 @@ def profile_view(request, per_page=10):
 def get_profile_table(request, per_page):
     active_table = request.GET.get("active_table")
     if active_table in TABLE_MAPPING:
-        data = {
-            "active_table": active_table,
-            "html": render_to_string(
-                "profile_table_view.html",
-                {"request": request, "table": create_profile_table(request, active_table, per_page)},
-            ),
-        }
-        return JsonResponse(data)
+        html_content = render_to_string(
+            "profile_table_view.html",
+            {"request": request, "table": create_profile_table(request, active_table, per_page)},
+        )
+        return JsonResponse({"active_table": f"{active_table}_table", "html": html_content})
     return JsonResponse({"active_table": "error", "msg": "Invalid table name"})
 
 
 def set_profile_filter(request, per_page):
-    return JsonResponse({
-        f"{table_name}table": render_to_string(
+    data = {
+        f"{table_name}_table": render_to_string(
             "profile_table_view.html",
             {"request": request, "table": create_profile_table(request, table_name, per_page)},
         )
         for table_name in TABLE_MAPPING
-    })
+    }
+    return JsonResponse(data)
 
 
 def create_profile_table(request, table_name, per_page):
