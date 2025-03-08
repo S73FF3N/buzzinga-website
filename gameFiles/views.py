@@ -135,7 +135,7 @@ class SuccessUrlMixin:
         return reverse('account:profile', kwargs={'per_page': 10})
     
 
-class CategoryCreateView(LoginRequiredMixin, CreateView, SuccessUrlMixin):
+class CategoryCreateView(LoginRequiredMixin, SuccessUrlMixin, CreateView):
     model = Category
     form_class = CategoryForm
     template_name = 'category-edit.html'
@@ -146,37 +146,37 @@ class CategoryCreateView(LoginRequiredMixin, CreateView, SuccessUrlMixin):
         return super().form_valid(form)
 
 
-class CategoryEditView(LoginRequiredMixin, UpdateView, SuccessUrlMixin):
+class CategoryEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
     model = Category
     form_class = CategoryForm
     template_name = 'category-edit.html'
 
 
-class ImageEditView(LoginRequiredMixin, UpdateView, SuccessUrlMixin):
+class ImageEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
     model = Image
     form_class = ImageEditForm
     template_name = 'image-edit.html'
 
 
-class SoundEditView(LoginRequiredMixin, UpdateView, SuccessUrlMixin):
+class SoundEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
     model = Sound
     form_class = SoundForm
     template_name = 'sound-edit.html'
 
 
-class QuestionEditView(LoginRequiredMixin, UpdateView, SuccessUrlMixin):
+class QuestionEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
     model = Question
     form_class = QuestionForm
     template_name = 'question-edit.html'
 
 
-class HintEditView(LoginRequiredMixin, UpdateView, SuccessUrlMixin):
+class HintEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
     model = Hints
     form_class = HintForm
     template_name = 'hint-edit.html'
 
 
-class WhoknowsmoreEditView(LoginRequiredMixin, UpdateView, SuccessUrlMixin):
+class WhoknowsmoreEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
     model = WhoKnowsMore
     form_class = WhoKnowsMoreForm
     template_name = 'who-knows-more-edit.html'
@@ -212,37 +212,37 @@ class WhoknowsmoreEditView(LoginRequiredMixin, UpdateView, SuccessUrlMixin):
                                                              formset=formset))
 
 
-class BaseDeleteView(LoginRequiredMixin, DeleteView, SuccessUrlMixin):
+class BaseDeleteView(LoginRequiredMixin, SuccessUrlMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, f"{self.model.__name__} successfully deleted.")
         return super().delete(request, *args, **kwargs)
 
 
-class CategoryDeleteView(BaseDeleteView, LoginRequiredMixin, DeleteView, SuccessUrlMixin):
+class CategoryDeleteView(BaseDeleteView, LoginRequiredMixin):
     model = Category
 
 
-class ImageDeleteView(BaseDeleteView, LoginRequiredMixin, DeleteView, SuccessUrlMixin):
+class ImageDeleteView(BaseDeleteView, LoginRequiredMixin):
     model = Image
 
 
-class SoundDeleteView(BaseDeleteView, LoginRequiredMixin, DeleteView, SuccessUrlMixin):
+class SoundDeleteView(BaseDeleteView, LoginRequiredMixin):
     model = Sound
 
 
-class QuestionDeleteView(BaseDeleteView, LoginRequiredMixin, DeleteView, SuccessUrlMixin):
+class QuestionDeleteView(BaseDeleteView, LoginRequiredMixin):
     model = Question
 
 
-class HintDeleteView(BaseDeleteView, LoginRequiredMixin, DeleteView, SuccessUrlMixin):
+class HintDeleteView(BaseDeleteView, LoginRequiredMixin):
     model = Hints
 
 
-class WhoknowsmoreDeleteView(BaseDeleteView, LoginRequiredMixin, DeleteView, SuccessUrlMixin):
+class WhoknowsmoreDeleteView(BaseDeleteView, LoginRequiredMixin):
     model = WhoKnowsMore
 
 
-class ParentCreateView(CreateView, SuccessUrlMixin):
+class ParentCreateView(SuccessUrlMixin, CreateView):
     def get_success_url(self):
         return reverse('account:profile', kwargs={'per_page': 10})
     
