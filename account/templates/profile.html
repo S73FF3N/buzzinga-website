@@ -72,18 +72,18 @@
 
 <script type="text/javascript">
   $(document).ready(function () {
-    $('.nav-tabs a').click(function (e) {
-        e.preventDefault();
+    $('.nav-tabs a').click(function () {
         $(this).tab('show');
     });
 });
 
-  function get_table_data(ev, clicked_object) {
-    ev.preventDefault();
-    document.body.style.cursor = "wait";
-    clicked_object.css('cursor', 'wait');
 
-    $.ajax({
+function get_table_data(ev, clicked_object) {
+  ev.preventDefault();
+  document.body.style.cursor = "wait";
+  clicked_object.css('cursor', 'wait');
+
+  $.ajax({
       url: clicked_object.attr("href"),
       type: 'GET',
       success: function(data) {
@@ -92,14 +92,14 @@
           } else {
               $("#" + data["active_table"]).html(data["html"]);
           }
-        }
-    });
-      complete: function() {
-        document.body.style.cursor = "auto";
-        clicked_object.css('cursor', 'pointer');
+      },
+      complete: function() {  // This was misplaced
+          document.body.style.cursor = "auto";
+          clicked_object.css('cursor', 'pointer');
       }
-    });
-  }
+  });
+}
+
 
   $(document).on("click", ".orderable a, .page-link", function(ev) {
     get_table_data(ev, $(this));
@@ -117,42 +117,45 @@
     $.ajax({
       url: url,
       type: 'GET',
-      data: $(this).serialize(),
+      data: $("#profile-filter-form").serialize(),
       success: function(data) {
-        for (key in data) {
-          $("#" + key + "-tab").html(data[key]);
-        }
+          for (key in data) {
+              $("#" + key.replace("_table", "-tab")).html(data[key]);
+          }
       },
       complete: function() {
-        document.body.style.cursor = "auto";
+          document.body.style.cursor = "auto";
       }
-    });
+  });
   });
 
-  $("#per_page").change(function(ev) {
-    ev.preventDefault();
+  $("#per_page").change(function() {
     var per_page = $(this).val();
     var url = '{% url "gamefiles:set_profile_filter" "10" %}'.replace('10', per_page);
 
     $.ajax({
-      url: url,
-      type: 'GET',
-      data: $("#profile-filter-form").serialize(),
-      success: function(data) {
-          for (key in data) {
-              $("#" + key).html(data[key]);
-          }
-      }
-  });
-  });
+        url: url,
+        type: 'GET',
+        data: $("#profile-filter-form").serialize(),
+        success: function(data) {
+            for (key in data) {
+                $("#" + key.replace("_table", "-tab")).html(data[key]);
+            }
+        }
+    });
+});
 
-  $("#download_elements").click(function(ev) {
-    ev.preventDefault();
-    var active_table = $(".profile-table-container.show").attr("id").split('_')[0] + "_";
-    var base_url = $(this).attr("href").split("/download/")[0] + "/download/";
-    var selected_ids = $(".select_checkbox:checked").map(function() { return this.id.split("_")[1]; }).get().join("+");
-    window.location.href = base_url + active_table + (selected_ids ? selected_ids : "all/");
-  });
+$("#download_elements").click(function(ev) {
+  ev.preventDefault();
+  var active_table = $(".profile-table-container.active").attr("id").split('-')[0] + "_";
+  var base_url = $(this).attr("href").split("/download/")[0] + "/download/";
+  var selected_ids = $(".select_checkbox:checked").map(function() {
+      return this.id.split("_")[1];
+  }).get().join("+");
+
+  window.location.href = base_url + active_table + (selected_ids ? selected_ids : "all/");
+});
+
 
   $(".nav-link").click(function() {
     $(':checkbox').prop('checked', false);
