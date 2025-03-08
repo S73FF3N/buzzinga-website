@@ -12,7 +12,7 @@
             {% for column in table.columns %}
                 <th {{ column.attrs.th.as_html }}>
                 {% if column.orderable %}
-                    <a href="{% url 'gamefiles:get_profile_table' per_page=table.per_page|default:10 %}{% querystring table.prefixed_order_by_field=column.order_by_alias.next 'active_table'=table.prefix %}">
+                    <a href="{% url 'gamefiles:get_profile_table' per_page=table.per_page|default:10 %}{% querystring table.prefixed_order_by_field=column.order_by_alias.next 'active_table'=table.prefix as query_params %}{{ '?' if '?' not in query_params else '&' }}{{ query_params }}">
                         {{ column.header }}
                     </a>
                 {% else %}
@@ -32,9 +32,7 @@
                 <tr {{ row.attrs.as_html }}>
                     {% for column, cell in row.items %}
                     <td {{ column.attrs.td.as_html }}>
-                        {% if column.localize == None %}
-                            {{ cell }}
-                        {% elif column.localize %}
+                        {% if column.localize is not False %}
                             {{ cell|localize }}
                         {% else %}
                             {{ cell|unlocalize }}
@@ -47,7 +45,7 @@
                 {% if table.empty_text %}
                     {% block table.tbody.empty_text %}
                     <tr>
-                        <td colspan="{{ table.columns|length }}">{{ table.empty_text }}</td>
+                        <td colspan="{{ table.visible_columns|length }}">{{ table.empty_text }}</td>
                     </tr>
                     {% endblock table.tbody.empty_text %}
                 {% endif %}
@@ -76,7 +74,8 @@
         {% if table.page.has_previous %}
             {% block pagination.previous %}
             <li class="previous page-item">
-                <a href="{% url 'gamefiles:get_profile_table' per_page=table.per_page|default:10 %}{% querystring table.prefixed_page_field=table.page.previous_page_number 'active_table'=table.prefix %}" class="page-link">
+                {% querystring table.prefixed_page_field=table.page.previous_page_number 'active_table'=table.prefix as pagination_params %}
+                <a href="{% url 'gamefiles:get_profile_table' per_page=table.per_page|default:10 %}{{ '?' if '?' not in pagination_params else '&' }}{{ pagination_params }}" class="page-link">
                     <span aria-hidden="true">&laquo;</span>
                     {% trans 'previous' %}
                 </a>
