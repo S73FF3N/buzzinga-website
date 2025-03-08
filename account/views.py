@@ -19,17 +19,15 @@ from gameFiles.models import Category, Image, Sound, Question, Hints, WhoKnowsMo
 from gameFiles.views import WhoKnowsMoreSerializer
 
 TABLE_MAPPING = {
-    "image": (Image, ImageFilter, ImageTable),
-    "sound": (Sound, SoundFilter, SoundTable),
-    "question": (Question, QuestionFilter, QuestionTable),
-    "hint": (Hints, HintFilter, HintTable),
-    "whoknowsmore": (WhoKnowsMore, WhoKnowsMoreFilter, WhoKnowsMoreTable),
-    "category": (Category, CategoryFilter, CategoryTable),
+    "images_": (Image, ImageFilter, ImageTable),
+    "sounds_": (Sound, SoundFilter, SoundTable),
+    "questions_": (Question, QuestionFilter, QuestionTable),
+    "hints_": (Hints, HintFilter, HintTable),
+    "whoknowsmore_": (WhoKnowsMore, WhoKnowsMoreFilter, WhoKnowsMoreTable),
+    "categories_": (Category, CategoryFilter, CategoryTable),
 }
 
-@login_required
-def profile_view(request, per_page=10):
-    table_names = {
+TABLE_NAMES = {
             "category": "Kategorien",
             "image": "Bilder",
             "sound": "Sounds",
@@ -37,15 +35,18 @@ def profile_view(request, per_page=10):
             "hint": "Hinweise",
             "whoknowsmore": "Wer weiß mehr?"
             }
+
+@login_required
+def profile_view(request, per_page=10):
     tables = {
         f"{table_name}_table": create_profile_table(request, table_name, per_page)
-        for table_name in TABLE_MAPPING
+        for table_name in TABLE_NAMES
     }
     per_page_options = [5, 10, 25, 50]
     context = {
         "profile_filter": ImageFilter(prefix="profile"),
         "tables": tables,
-        "table_names": table_names,
+        "table_names": TABLE_NAMES,
         "per_page_options": per_page_options,
     }
     return render(request, "profile.html", context)
@@ -53,7 +54,7 @@ def profile_view(request, per_page=10):
 
 def get_profile_table(request, per_page):
     active_table = request.GET.get("active_table")
-    if active_table in TABLE_MAPPING:
+    if active_table in TABLE_NAMES:
         html_content = render_to_string(
             "profile_table_view.html",
             {"request": request, "table": create_profile_table(request, active_table, per_page)},
@@ -68,7 +69,7 @@ def set_profile_filter(request, per_page):
             "profile_table_view.html",
             {"request": request, "table": create_profile_table(request, table_name, per_page)},
         )
-        for table_name in TABLE_MAPPING
+        for table_name in TABLE_NAMES
     }
     return JsonResponse(data)
 
@@ -92,7 +93,7 @@ class DownloadView(View):
         return self.download_elements(request, active_table, element_string)
 
     def download_elements(self, request, active_table, element_string):
-        if active_table not in TABLE_MAPPING:
+        if active_table not in TABLE_NAMES:
             return HttpResponse("Invalid table name", status=400)
 
         zip_buffer = BytesIO()
