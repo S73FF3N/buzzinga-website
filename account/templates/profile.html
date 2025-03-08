@@ -10,8 +10,11 @@
             <ul class="nav nav-tabs card-header-tabs">
               {% for table_name, label in table_names.items %}
                 <li>
-                  <a class="nav-link {% if forloop.first %}active{% endif %}" id="{{ table_name }}_table-label" 
-                     data-toggle="tab" href="#{{ table_name }}_table-tab" role="tab" aria-controls="{{ table_name }}_table-tab">
+                  <a class="nav-link {% if forloop.first %}active{% endif %}" 
+                    id="{{ table_name }}_table-label" 
+                    data-toggle="tab" 
+                    href="#{{ table_name }}-tab" 
+                    role="tab">
                     {{ label }}
                   </a>
                 </li>
@@ -72,8 +75,14 @@
 
 <script type="text/javascript">
   $(document).ready(function () {
-    $('.nav-tabs a').click(function () {
+    $('.nav-tabs a').on('click', function (e) {
+        e.preventDefault();
         $(this).tab('show');
+    });
+
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        var activeTable = $(e.target).attr("href").replace("#", "").replace("-tab", "_table");
+        $("#download_elements").attr("href", $("#download_elements").attr("href").replace(/images_/, activeTable));
     });
 });
 
@@ -165,9 +174,11 @@ $("#download_elements").click(function(ev) {
     $(img_id).toggleClass("fa-chevron-right fa-chevron-down");
   }
 
-  $('#profile-collapse-link').click(function() {
-    handle_filter_collapse('#profile-filter-img');
-  });
+  $("#profile-collapse-link").click(function (e) {
+    e.preventDefault();
+    $("#profile-filter").collapse("toggle");
+    $("#profile-filter-img").toggleClass("fa-chevron-right fa-chevron-down");
+});
 
   function toggle(source) {
     $("input[name='select']").prop('checked', source.checked);
