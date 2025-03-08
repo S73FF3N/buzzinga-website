@@ -75,12 +75,15 @@
 
 <script type="text/javascript">
   $(document).ready(function () {
+    // Use Bootstrap's native tab toggle for proper behavior
     $('.nav-tabs a').on('click', function (e) {
-        e.preventDefault();
-        $(this).tab('show');
+        console.log('Tab clicked!');
+        e.preventDefault();  // Prevent the default anchor behavior
+        $(this).tab('show');  // Bootstrap method to show the tab
     });
 
-    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+    // Optional: Change active table when tab is shown
+    $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
         var activeTable = $(e.target).attr("href").replace("#", "").replace("-tab", "_table");
         $("#download_elements").attr("href", $("#download_elements").attr("href").replace(/images_/, activeTable));
     });
