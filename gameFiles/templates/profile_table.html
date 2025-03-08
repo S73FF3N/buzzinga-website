@@ -12,7 +12,7 @@
             {% for column in table.columns %}
                 <th {{ column.attrs.th.as_html }}>
                 {% if column.orderable %}
-                    <a href="{% url 'gamefiles:get_profile_table' per_page=table.per_page|default:10 %}{% querystring table.prefixed_order_by_field=column.order_by_alias.next 'active_table'=table.prefix as query_params %}{{ '?' if '?' not in query_params else '&' }}{{ query_params }}">
+                    <a href="{% url 'gamefiles:get_profile_table' per_page=table.per_page|default:10 %}{% querystring table.prefixed_order_by_field=column.order_by_alias.next active_table=table.prefix %}">
                         {{ column.header }}
                     </a>
                 {% else %}
@@ -75,7 +75,7 @@
             {% block pagination.previous %}
             <li class="previous page-item">
                 {% querystring table.prefixed_page_field=table.page.previous_page_number 'active_table'=table.prefix as pagination_params %}
-                <a href="{% url 'gamefiles:get_profile_table' per_page=table.per_page|default:10 %}{{ '?' if '?' not in pagination_params else '&' }}{{ pagination_params }}" class="page-link">
+                <a href="{% url 'gamefiles:get_profile_table' per_page=table.per_page|default:10 %}{% querystring table.prefixed_page_field=table.page.previous_page_number active_table=table.prefix %}" class="page-link">
                     <span aria-hidden="true">&laquo;</span>
                     {% trans 'previous' %}
                 </a>
