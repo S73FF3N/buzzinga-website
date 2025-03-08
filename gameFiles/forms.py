@@ -28,7 +28,7 @@ class ImageForm(BaseMediaForm):
         model = Image
         form_tag = False
         fields = ('solution', 'image_file', 'difficulty', 'explicit', 'category', 'private_new', 'author', 'license', 'file_changed')
-        widgets = {**BaseMediaForm.Meta.widgets, 'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete', forward=(forward.Const(2, 'game_type'),))}
+        widgets = {**BaseMediaForm.Meta.widgets, 'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete', forward=(forward.Const(1, 'game_type'),))}
 
 
 class ImageEditForm(ImageForm):
@@ -44,7 +44,7 @@ class SoundForm(BaseMediaForm):
     class Meta(BaseMediaForm.Meta):
         model = Sound
         fields = ('solution', 'sound_file', 'difficulty', 'explicit', 'category', 'private_new')
-        widgets = {**BaseMediaForm.Meta.widgets, 'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete', forward=(forward.Const(1, 'game_type'),))}
+        widgets = {**BaseMediaForm.Meta.widgets, 'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete', forward=(forward.Const(2, 'game_type'),))}
 
 
 class QuestionForm(BaseMediaForm):
