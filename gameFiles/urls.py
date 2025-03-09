@@ -21,7 +21,6 @@ urlpatterns = [
     # AJAX Calls
     path('ajax/get_profile_table/<str:per_page>/', account_views.get_profile_table, name='get_profile_table'),
     path('ajax/set_profile_filter/<str:per_page>/', account_views.set_profile_filter, name='set_profile_filter'),
-    path("profile/<str:per_page>/<str:table_name>/", account_views.profile_table_data, name="profile_table_data"),
 ]
 
 # Dynamic CRUD operations for multiple models

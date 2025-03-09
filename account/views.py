@@ -51,30 +51,22 @@ def profile_view(request, per_page=10):
     }
     return render(request, "profile.html", context)
 
-
 def get_profile_table(request, per_page):
     active_table = request.GET.get("active_table")
-    if active_table in TABLE_NAMES:
-        html_content = render_to_string(
-            "profile_table_view.html",
-            {"request": request, "table": create_profile_table(request, active_table, per_page)},
-        )
-        return JsonResponse({"active_table": f"{active_table}_table", "html": html_content})
-    return JsonResponse({"active_table": "error", "msg": "Invalid table name"})
 
-def profile_table_data(request, table_name):
-    tables = { 
-        "images_table": Image.objects.all(), 
-        "sounds_table": Sound.objects.all(),
-        "questions_table": Question.objects.all(),
-        "hints_table": Hints.objects.all(),
-    }
+    if active_table not in TABLE_NAMES:
+        return JsonResponse({"active_table": "error", "msg": "Invalid table name"})
 
-    table = tables.get(table_name)
-    if not table:
-        return JsonResponse({"error": "Invalid table name"}, status=400)
+    # Generate table based on active tab
+    table_html = render_to_string(
+        "profile_table_view.html",
+        {
+            "request": request,
+            "table": create_profile_table(request, active_table, per_page)
+        },
+    )
 
-    return render(request, "partials/table_partial.html", {"table": table})
+    return JsonResponse({"active_table": f"{active_table}_table", "html": table_html})
 
 
 def set_profile_filter(request, per_page):

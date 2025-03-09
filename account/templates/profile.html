@@ -75,60 +75,40 @@
 
 <script type="text/javascript">
   $(document).ready(function () {
-    $('a[data-bs-toggle="tab"]').on('click', function (e) {
+    $(".nav-tabs a").on("click", function (e) {
         e.preventDefault();
-        var targetTab = $(this).attr("href");  // Get tab ID (e.g., #hint-tab)
-        console.log("Switching to:", targetTab);
-        $(this).tab("show");  // Force Bootstrap to show the tab
-        window.location.hash = targetTab;  // Update URL hash
+        $(this).tab("show");
+
+        var activeTable = $(this).attr("href").replace("#", "").replace("-tab", "");
+
+        console.log("Switching to table:", activeTable);
+
+        fetchTableData(activeTable);
     });
-
-    // Restore active tab on page reload
-    var hash = window.location.hash;
-    if (hash) {
-        console.log("Restoring tab:", hash);
-        $('a[href="' + hash + '"]').tab("show");
-    }
 });
 
-$('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
-  var activeTable = $(e.target).attr("href").replace("#", "").replace("-tab", "_table");
-  console.log("Loading table data for:", activeTable);
-  
-  $.ajax({
-      url: "/account/profile/" + activeTable + "/",  // Adjust URL pattern as needed
-      type: 'GET',
-      success: function (data) {
-          $("#" + activeTable).html(data);  // Replace table content with new data
-      },
-      error: function (xhr, status, error) {
-          console.error("Error loading table data:", error);
-      }
-  });
-});
+function fetchTableData(activeTable) {
+    var per_page = $("#per_page").val();
+    var url = "/ajax/get_profile_table/" + per_page + "/?active_table=" + activeTable;
 
+    console.log("Fetching data from:", url);
 
-function get_table_data(ev, clicked_object) {
-  ev.preventDefault();
-  document.body.style.cursor = "wait";
-  clicked_object.css('cursor', 'wait');
-
-  $.ajax({
-      url: clicked_object.attr("href"),
-      type: 'GET',
-      success: function(data) {
-          if (data["active_table"] === "error") {
-              alert(data["msg"]);
-          } else {
-              $("#" + data["active_table"]).html(data["html"]);
-          }
-      },
-      complete: function() {  // This was misplaced
-          document.body.style.cursor = "auto";
-          clicked_object.css('cursor', 'pointer');
-      }
-  });
+    $.ajax({
+        url: url,
+        type: "GET",
+        success: function (data) {
+            if (data["active_table"] === "error") {
+                alert(data["msg"]);
+            } else {
+                $("#" + data["active_table"]).html(data["html"]);
+            }
+        },
+        error: function (xhr) {
+            console.error("Error loading table data:", xhr.responseText);
+        },
+    });
 }
+
 
 
   $(document).on("click", ".orderable a, .page-link", function(ev) {
