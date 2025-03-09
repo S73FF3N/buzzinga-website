@@ -87,13 +87,13 @@
     });
 });
 
-function get_table_data(ev, clicked_object) {
+function fetchTableData(ev, clicked_object) {
   ev.preventDefault();
   document.body.style.cursor = "wait";
   clicked_object.css('cursor', 'wait');
 
   // Construct absolute URL
-  var base_url = window.location.origin;
+  var base_url = window.location.origin;  // e.g., "https://s73ff3n.pythonanywhere.com"
   var ajax_url = clicked_object.attr("href");
 
   // Ensure the AJAX URL is absolute
@@ -120,6 +120,7 @@ function get_table_data(ev, clicked_object) {
       }
   });
 }
+
 
 
 
