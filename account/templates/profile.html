@@ -74,20 +74,22 @@
 </div>
 
 <script type="text/javascript">
-  $(document).ready(function () {
-    $(".nav-tabs a").on("click", function (e) {
-        e.preventDefault();
-        $(this).tab("show");
+$(document).ready(function () {
+  // Make sure to pass both event (e) and clicked_object (this)
+  $(".nav-tabs a").on("click", function (e) {
+      e.preventDefault();  // Prevent default anchor behavior
+      $(this).tab("show");
 
-        var activeTable = $(this).attr("href").replace("#", "").replace("-tab", "");
+      var activeTable = $(this).attr("href").replace("#", "").replace("-tab", "");
+      console.log("Switching to table:", activeTable);
 
-        console.log("Switching to table:", activeTable);
-
-        fetchTableData(activeTable);
-    });
+      // Pass both the event and clicked object (this)
+      fetchTableData(e, $(this)); 
+  });
 });
 
 function fetchTableData(ev, clicked_object) {
+  // Ensure the event is passed and prevent default action
   if (ev) {
       ev.preventDefault();  // Prevent default anchor behavior
   }
@@ -123,10 +125,7 @@ function fetchTableData(ev, clicked_object) {
   });
 }
 
-
-
-
-
+// For other parts of your script, make sure the same structure is followed
 $(document).on("click", ".orderable a, .page-link", function(ev) {
   fetchTableData(ev, $(this));  // Pass the event (ev) properly
 });
