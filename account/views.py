@@ -62,6 +62,20 @@ def get_profile_table(request, per_page):
         return JsonResponse({"active_table": f"{active_table}_table", "html": html_content})
     return JsonResponse({"active_table": "error", "msg": "Invalid table name"})
 
+def profile_table_data(request, table_name):
+    tables = { 
+        "images_table": Image.objects.all(), 
+        "sounds_table": Sound.objects.all(),
+        "questions_table": Question.objects.all(),
+        "hints_table": Hints.objects.all(),
+    }
+
+    table = tables.get(table_name)
+    if not table:
+        return JsonResponse({"error": "Invalid table name"}, status=400)
+
+    return render(request, "partials/table_partial.html", {"table": table})
+
 
 def set_profile_filter(request, per_page):
     data = {
