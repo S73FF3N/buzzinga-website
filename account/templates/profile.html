@@ -75,16 +75,20 @@
 
 <script type="text/javascript">
   $(document).ready(function () {
-    // Use Bootstrap's native tab toggle for proper behavior
-    $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
-      console.log('Tab switched:', e.target);
-  });
-
-    // Optional: Change active table when tab is shown
-    $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
-        var activeTable = $(e.target).attr("href").replace("#", "").replace("-tab", "_table");
-        $("#download_elements").attr("href", $("#download_elements").attr("href").replace(/images_/, activeTable));
+    $('a[data-bs-toggle="tab"]').on('click', function (e) {
+        e.preventDefault();
+        var targetTab = $(this).attr("href");  // Get tab ID (e.g., #hint-tab)
+        console.log("Switching to:", targetTab);
+        $(this).tab("show");  // Force Bootstrap to show the tab
+        window.location.hash = targetTab;  // Update URL hash
     });
+
+    // Restore active tab on page reload
+    var hash = window.location.hash;
+    if (hash) {
+        console.log("Restoring tab:", hash);
+        $('a[href="' + hash + '"]').tab("show");
+    }
 });
 
 
