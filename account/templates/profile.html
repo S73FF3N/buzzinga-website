@@ -91,6 +91,22 @@
     }
 });
 
+$('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+  var activeTable = $(e.target).attr("href").replace("#", "").replace("-tab", "_table");
+  console.log("Loading table data for:", activeTable);
+  
+  $.ajax({
+      url: "/account/profile/" + activeTable + "/",  // Adjust URL pattern as needed
+      type: 'GET',
+      success: function (data) {
+          $("#" + activeTable).html(data);  // Replace table content with new data
+      },
+      error: function (xhr, status, error) {
+          console.error("Error loading table data:", error);
+      }
+  });
+});
+
 
 function get_table_data(ev, clicked_object) {
   ev.preventDefault();
