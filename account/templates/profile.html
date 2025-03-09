@@ -12,7 +12,7 @@
                 <li>
                   <a class="nav-link {% if forloop.first %}active{% endif %}" 
                     id="{{ table_name }}_table-label" 
-                    data-toggle="tab" 
+                    data-bs-toggle="tab"   <!-- Corrected -->
                     href="#{{ table_name }}-tab" 
                     role="tab">
                     {{ label }}
@@ -76,11 +76,9 @@
 <script type="text/javascript">
   $(document).ready(function () {
     // Use Bootstrap's native tab toggle for proper behavior
-    $('.nav-tabs a').on('click', function (e) {
-        console.log('Tab clicked!');
-        e.preventDefault();  // Prevent the default anchor behavior
-        $(this).tab('show');  // Bootstrap method to show the tab
-    });
+    $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+      console.log('Tab switched:', e.target);
+  });
 
     // Optional: Change active table when tab is shown
     $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
