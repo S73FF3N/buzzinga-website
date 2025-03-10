@@ -98,6 +98,8 @@ $(document).on("click", ".pagination a", function (e) {
   }
 });
 
+var activeTable = "category_table"; // Declare activeTable globally
+
 function fetchTableData(ev, clicked_object) {
   if (ev) {
       ev.preventDefault();  // Prevent default anchor behavior
@@ -114,6 +116,7 @@ function fetchTableData(ev, clicked_object) {
   if (!ajax_url.startsWith("http")) {
       ajax_url = base_url + ajax_url;
   }
+
   if (clicked_object.hasClass("nav-link")) {
       var href = clicked_object.attr("href");
 
