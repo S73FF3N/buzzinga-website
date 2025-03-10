@@ -89,6 +89,16 @@ $(document).ready(function () {
   });
 });
 
+$(document).ready(function () {
+  $(".pagination a").on("click", function (e) {
+  e.preventDefault(); // Prevent default link behavior
+
+  var url = $(this).attr("href"); // Get pagination link URL
+  if (url) {
+      fetchTableData(url); // Fetch new table content
+  }
+});
+
 function fetchTableData(ev, clicked_object) {
   if (ev) {
       ev.preventDefault();  // Prevent default anchor behavior
@@ -106,8 +116,19 @@ function fetchTableData(ev, clicked_object) {
       ajax_url = base_url + ajax_url;
   }
 
-  var activeTable = clicked_object.attr("href").split("#")[1].replace("-tab", "");
-  console.log("Fetching table:", activeTable);  // Debugging
+  if (clicked_object.hasClass("nav-link")) {
+      var href = clicked_object.attr("href");
+
+      if (href) {
+          activeTable = href.split("#")[1].replace("-tab", ""); // Update active table
+          console.log("Switched to active table:", activeTable);
+      }
+  } else {
+      // Keep the current activeTable (Pagination or other clicks)
+      console.log("Non-tab element clicked, keeping active table:", activeTable);
+  }
+  //var activeTable = clicked_object.attr("href").split("#")[1].replace("-tab", "");
+  //console.log("Fetching table:", activeTable);  // Debugging
 
   $.ajax({
       url: ajax_url,
