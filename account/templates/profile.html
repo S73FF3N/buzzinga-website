@@ -93,6 +93,9 @@ $(document).ready(function () {
   $(".pagination a").on("click", function (e) {
   e.preventDefault(); // Prevent default link behavior
 
+  var activeTab = $(".nav-tabs .nav-link.active"); 
+  var activeTable = activeTab.length ? activeTab.attr("data-bs-target").replace("#", "") : "";
+
   var url = $(this).attr("href"); // Get pagination link URL
   if (url) {
       fetchTableData(url); // Fetch new table content
