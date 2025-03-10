@@ -65,7 +65,7 @@
 
         {% for table_name, table in tables.items %}
           <div class="tab-pane fade {% if forloop.first %}show active{% endif %} profile-table-container" 
-               role="tabpanel" aria-labelledby="{{ table_name }}-label" id="{{ table_name }}-tab">
+               role="tabpanel" aria-labelledby="{{ table_name }}-label" id="{{ table_name }}">
             {% render_table table %}
           </div>
         {% endfor %}
