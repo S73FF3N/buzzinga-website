@@ -51,7 +51,11 @@ def profile_view(request, per_page=10):
     }
     return render(request, "profile.html", context)
 
+@login_required
 def get_profile_table(request, per_page):
+    if not request.user.is_authenticated:
+        return JsonResponse({"active_table": "error", "msg": "Not authenticated"}, status=403)
+    
     active_table = request.GET.get("active_table")
     print("DEBUG: Received active_table =", active_table)
 
