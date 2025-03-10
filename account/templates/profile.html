@@ -14,7 +14,7 @@
                     id="{{ table_name }}_table-label" 
                     data-bs-toggle="tab"
                     data-bs-target="#{{ table_name }}"
-                    href="#{{ table_name }}" 
+                    href="#{{ table_name }}-tab" 
                     role="tab">
                     {{ label }}
                   </a>
@@ -81,7 +81,7 @@ $(document).ready(function () {
       e.preventDefault();  // Prevent default anchor behavior
       $(this).tab("show");
 
-      var activeTable = $(this).attr("href").replace("#", "");
+      var activeTable = $(this).attr("href").replace("#", "").replace("-tab", "");
       console.log("Switching to table:", activeTable);
 
       // Pass both the event and clicked object (this)
@@ -106,7 +106,7 @@ function fetchTableData(ev, clicked_object) {
   if (!ajax_url.startsWith("http")) {
       ajax_url = base_url + ajax_url;
   }
-  var activeTable = clicked_object.attr("href").split("#")[1];
+  var activeTable = clicked_object.attr("href").split("#")[1].replace("-tab", "");
   console.log("Fetching table:", activeTable);  // Debugging
 
   $.ajax({
