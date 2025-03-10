@@ -89,6 +89,15 @@ $(document).ready(function () {
   });
 });
 
+$(document).on("click", ".pagination a", function (e) {
+  e.preventDefault(); // Prevent default link behavior
+
+  var url = $(this).attr("href"); // Get pagination link URL
+  if (url) {
+      fetchTableData(e, $(this)); // Fetch new table content
+  }
+});
+
 function fetchTableData(ev, clicked_object) {
   if (ev) {
       ev.preventDefault();  // Prevent default anchor behavior
@@ -105,9 +114,19 @@ function fetchTableData(ev, clicked_object) {
   if (!ajax_url.startsWith("http")) {
       ajax_url = base_url + ajax_url;
   }
+  if (clicked_object.hasClass("nav-link")) {
+      var href = clicked_object.attr("href");
 
-  var activeTable = clicked_object.attr("href").split("#")[1].replace("-tab", "");
-  console.log("Fetching table:", activeTable);  // Debugging
+      if (href) {
+          activeTable = href.split("#")[1].replace("-tab", ""); // Update active table
+          console.log("Switched to active table:", activeTable);
+      }
+  } else {
+      // Keep the current activeTable (Pagination or other clicks)
+      console.log("Non-tab element clicked, keeping active table:", activeTable);
+  }
+  // var activeTable = clicked_object.attr("href").split("#")[1].replace("-tab", "");
+  // console.log("Fetching table:", activeTable);  // Debugging
 
   $.ajax({
       url: ajax_url,
@@ -147,12 +166,6 @@ function fetchTableData(ev, clicked_object) {
           console.error("Error fetching table:", xhr.responseText);
       }
   });
-}
-
-// For other parts of your script, make sure the same structure is followed
-//$(document).on("click", ".orderable a, .page-link", function(ev) {
-//  fetchTableData(ev, $(this));  // Pass the event (ev) properly
-//});
 
   $("#profile-filter-submit").click(function() {
     $("#profile-filter-form").submit();
