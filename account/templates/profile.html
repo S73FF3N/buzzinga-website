@@ -98,7 +98,7 @@ function fetchTableData(ev, clicked_object) {
   clicked_object.css('cursor', 'wait');
 
   // Construct absolute URL
-  //var base_url = window.location.origin;  // e.g., "https://s73ff3n.pythonanywhere.com"
+  var base_url = window.location.origin;  // e.g., "https://s73ff3n.pythonanywhere.com"
   //var ajax_url = clicked_object.attr("href");
   var ajax_url = "/gameFiles/ajax/get_profile_table/" + per_page + "/?active_table=" + activeTable;
 
