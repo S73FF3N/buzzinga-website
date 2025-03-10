@@ -110,7 +110,7 @@ function fetchTableData(ev, clicked_object) {
   $.ajax({
       url: ajax_url,
       type: 'GET',
-      data: { active_table: activeTable }
+      data: { active_table: activeTable },
       success: function(data) {
         console.log("Received data:", data);  
         if (!data["active_table"] || data["active_table"] === "error") {
