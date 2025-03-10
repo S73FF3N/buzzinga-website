@@ -109,21 +109,22 @@ function fetchTableData(ev, clicked_object) {
       url: ajax_url,
       type: 'GET',
       success: function(data) {
-        console.log("Received data:", data);  // Debugging output
-    
-        if (data["active_table"] === "error") {
-            alert(data["msg"]);
-        } else {
-            var table_id = "#" + data["active_table"];
-            console.log("Updating table:", table_id);
-    
-            if ($(table_id).length) {
-                $(table_id).html(data["html"]);
-            } else {
-                console.error("Table ID not found:", table_id);
-            }
+
+        if (!data["active_table"] || data["active_table"] === "error") {
+            console.error("Invalid table name:", data["msg"] || "No table received");
+            alert(data["msg"] || "Error updating table.");
+            return;
         }
-    },
+      
+        var table_id = "#" + data["active_table"];
+        console.log("Updating table:", table_id);
+      
+        if ($(table_id).length) {
+            $(table_id).html(data["html"]);
+        } else {
+            console.error("Table ID not found in HTML:", table_id);
+        }
+      },
       complete: function() {
           document.body.style.cursor = "auto";
           clicked_object.css('cursor', 'pointer');
