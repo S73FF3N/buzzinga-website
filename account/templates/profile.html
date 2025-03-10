@@ -133,7 +133,7 @@ function fetchTableData(ev, clicked_object) {
             $(table_id).addClass("show active"); // ✅ Activate the updated tab
 
             $(".nav-link").removeClass("active"); // ✅ Ensure tab button updates
-            $("a[data-bs-target='" + table_id + "']").addClass("active");
+            $("a[data-bs-target='" + table_id + "']").addClass("show active");
             } else {
                 console.error("Table container not found:", table_id);
             }
