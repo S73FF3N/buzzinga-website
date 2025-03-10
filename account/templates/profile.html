@@ -11,7 +11,7 @@
               {% for table_name, label in table_names.items %}
                 <li>
                   <a class="nav-link {% if forloop.first %}active{% endif %}" 
-                    id="{{ table_name }}_table-label" 
+                    id="{{ table_name }}-label" 
                     data-bs-toggle="tab"
                     data-bs-target="#{{ table_name }}"
                     href="#{{ table_name }}-tab" 
@@ -66,7 +66,7 @@
 
         {% for table_name, table in tables.items %}
           <div class="tab-pane fade {% if forloop.first %}show active{% endif %} profile-table-container" 
-               role="tabpanel" aria-labelledby="{{ table_name }}-label" id="{{ table_name }}">
+               role="tabpanel" aria-labelledby="{{ table_name }}-label" id="#{{ table_name }}">
               {% render_table table %}
           </div>
         {% endfor %}
@@ -106,8 +106,8 @@ function fetchTableData(ev, clicked_object) {
       ajax_url = base_url + ajax_url;
   }
 
-  // var activeTable = clicked_object.attr("href").split("#")[1].replace("-tab", "");
-  // console.log("Fetching table:", activeTable);  // Debugging
+  var activeTable = clicked_object.attr("href").split("#")[1].replace("-tab", "");
+  console.log("Fetching table:", activeTable);  // Debugging
 
   $.ajax({
       url: ajax_url,
@@ -133,13 +133,7 @@ function fetchTableData(ev, clicked_object) {
             $(table_id).addClass("show active"); // ✅ Activate the updated tab
 
             $(".nav-link").removeClass("active"); // ✅ Ensure tab button updates
-            $("a[data-bs-target='" + table_id + "']").addClass("active");
-            
-            // 🔄 Reinitialize Bootstrap tabs
-            //var activeTab = $(".nav-tabs .nav-link.active").attr("data-bs-target");
-            //if (activeTab) {
-            //    $(activeTab).addClass("show active"); // Ensure tab pane is visible
-            //}
+            $("a[data-bs-target=#'" + table_id + "']").addClass("active");
             } else {
                 console.error("Table container not found:", table_id);
             }
