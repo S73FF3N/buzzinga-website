@@ -125,8 +125,8 @@ function fetchTableData(ev, clicked_object) {
         var table_id = "#" + data["active_table"];
         console.log("Updating table:", table_id);
       
-        if ($(tableContainerID).length) {
-          $(tableContainerID).replaceWith(newHtml);
+        if ($(table_id).length) {
+          $(table_id).replaceWith(newHtml);
           console.log("Table container updated:", tableContainerID);
           
           // 🔄 Reinitialize Bootstrap tabs
