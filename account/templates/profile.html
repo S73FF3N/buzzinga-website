@@ -98,8 +98,6 @@ $(document).on("click", ".pagination a", function (e) {
   }
 });
 
-var activeTable = "category_table"; // Declare activeTable globally
-
 function fetchTableData(ev, clicked_object) {
   if (ev) {
       ev.preventDefault();  // Prevent default anchor behavior
@@ -128,7 +126,7 @@ function fetchTableData(ev, clicked_object) {
       // Keep the current activeTable (Pagination or other clicks)
       console.log("Non-tab element clicked, keeping active table:", activeTable);
   }
-  // var activeTable = clicked_object.attr("href").split("#")[1].replace("-tab", "");
+  var activeTable = clicked_object.attr("href").split("#")[1].replace("-tab", "");
   // console.log("Fetching table:", activeTable);  // Debugging
 
   $.ajax({
