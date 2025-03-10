@@ -104,18 +104,26 @@ function fetchTableData(ev, clicked_object) {
   if (!ajax_url.startsWith("http")) {
       ajax_url = base_url + ajax_url;
   }
-  console.log("Fetching table data from:", ajax_url);
+
   $.ajax({
       url: ajax_url,
       type: 'GET',
       success: function(data) {
-          if (data["active_table"] === "error") {
-              alert(data["msg"]);
-          } else {
-              $("#" + data["active_table"]).html(data["html"]);
-              console.log("AJAX response:", data);
-          }
-      },
+        console.log("Received data:", data);  // Debugging output
+    
+        if (data["active_table"] === "error") {
+            alert(data["msg"]);
+        } else {
+            var table_id = "#" + data["active_table"];
+            console.log("Updating table:", table_id);
+    
+            if ($(table_id).length) {
+                $(table_id).html(data["html"]);
+            } else {
+                console.error("Table ID not found:", table_id);
+            }
+        }
+    }
       complete: function() {
           document.body.style.cursor = "auto";
           clicked_object.css('cursor', 'pointer');
