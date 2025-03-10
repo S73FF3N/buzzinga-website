@@ -127,16 +127,22 @@ function fetchTableData(ev, clicked_object) {
         if (data.html) { // Ensure response contains HTML
           var newHtml = data.html;
           if ($(table_id).length) {
-            $(table_id).replaceWith(newHtml);
+            $(table_id).html(newHtml);
             console.log("Table container updated:", table_id);
+
+            $(".tab-pane").removeClass("show active");  // ❌ Remove 'show active' from all
+            $(table_id).addClass("show active"); // ✅ Activate the updated tab
+
+            $(".nav-link").removeClass("active"); // ✅ Ensure tab button updates
+            $("a[data-bs-target='" + table_id + "']").addClass("active");
             
             // 🔄 Reinitialize Bootstrap tabs
-            var activeTab = $(".nav-tabs .nav-link.active").attr("data-bs-target");
-            if (activeTab) {
-                $(activeTab).addClass("show active"); // Ensure tab pane is visible
-            }
+            //var activeTab = $(".nav-tabs .nav-link.active").attr("data-bs-target");
+            //if (activeTab) {
+            //    $(activeTab).addClass("show active"); // Ensure tab pane is visible
+            //}
             } else {
-                console.error("Table container not found:", tableContainerID);
+                console.error("Table container not found:", table_id);
             }
           }
         },
