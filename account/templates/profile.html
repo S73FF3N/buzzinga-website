@@ -124,20 +124,21 @@ function fetchTableData(ev, clicked_object) {
       
         var table_id = "#" + data["active_table"];
         console.log("Updating table:", table_id);
-      
-        if ($(table_id).length) {
-          $(table_id).replaceWith(newHtml);
-          console.log("Table container updated:", tableContainerID);
-          
-          // 🔄 Reinitialize Bootstrap tabs
-          var activeTab = $(".nav-tabs .nav-link.active").attr("data-bs-target");
-          if (activeTab) {
-              $(activeTab).addClass("show active"); // Ensure tab pane is visible
-          }
-      } else {
-          console.error("Table container not found:", tableContainerID);
-      }
-      },
+        if (data.html) { // Ensure response contains HTML
+          var newHtml = data.html;
+          if ($(table_id).length) {
+            $(table_id).replaceWith(newHtml);
+            console.log("Table container updated:", table_id);
+            
+            // 🔄 Reinitialize Bootstrap tabs
+            var activeTab = $(".nav-tabs .nav-link.active").attr("data-bs-target");
+            if (activeTab) {
+                $(activeTab).addClass("show active"); // Ensure tab pane is visible
+            }
+            } else {
+                console.error("Table container not found:", tableContainerID);
+            }
+        },
       complete: function() {
           document.body.style.cursor = "auto";
           clicked_object.css('cursor', 'pointer');
