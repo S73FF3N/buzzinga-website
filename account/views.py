@@ -53,6 +53,7 @@ def profile_view(request, per_page=10):
 
 def get_profile_table(request, per_page):
     active_table = request.GET.get("active_table")
+    print("DEBUG: Received active_table =", active_table)
 
     if active_table not in TABLE_NAMES:
         return JsonResponse({"active_table": "error", "msg": "Invalid table name"})
