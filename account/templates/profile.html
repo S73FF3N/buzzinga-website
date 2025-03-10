@@ -85,7 +85,7 @@ $(document).ready(function () {
       console.log("Switching to table:", activeTable);
 
       // Pass both the event and clicked object (this)
-      fetchTableData(e, $(this)); 
+      fetchTableData(e, $(this), activeTable); 
   });
 });
 
@@ -98,12 +98,12 @@ $(document).ready(function () {
 
   var url = $(this).attr("href"); // Get pagination link URL
   if (url) {
-      fetchTableData(url); // Fetch new table content
+      fetchTableData(e, $(this), activeTable); // Fetch new table content
   }
 });
 });
 
-function fetchTableData(ev, clicked_object) {
+function fetchTableData(ev, clicked_object, activeTable) {
   if (ev) {
       ev.preventDefault();  // Prevent default anchor behavior
   }
