@@ -89,13 +89,15 @@ $(document).ready(function () {
   });
 });
 
-$(document).on("click", ".pagination a", function (e) {
-  e.preventDefault(); // Prevent default link behavior
+$(document).ready(function () {
+  $(".pagination a").on("click", function (e) {
+    e.preventDefault(); // Prevent default link behavior
 
-  var url = $(this).attr("href"); // Get pagination link URL
-  if (url) {
+    var url = $(this).attr("href"); // Get pagination link URL
+    if (url) {
       fetchTableData(e, $(this)); // Fetch new table content
-  }
+    }
+  }); 
 });
 
 function fetchTableData(ev, clicked_object) {
@@ -126,7 +128,7 @@ function fetchTableData(ev, clicked_object) {
       // Keep the current activeTable (Pagination or other clicks)
       console.log("Non-tab element clicked, keeping active table:", activeTable);
   }
-  var activeTable = clicked_object.attr("href").split("#")[1].replace("-tab", "");
+  // var activeTable = clicked_object.attr("href").split("#")[1].replace("-tab", "");
   // console.log("Fetching table:", activeTable);  // Debugging
 
   $.ajax({
@@ -134,7 +136,6 @@ function fetchTableData(ev, clicked_object) {
       type: 'GET',
       data: { active_table: activeTable },
       success: function(data) {
-        console.log("Received data:", data);  
         if (!data["active_table"] || data["active_table"] === "error") {
             console.error("Invalid table name:", data["msg"] || "No table received");
             alert(data["msg"] || "Error updating table.");
@@ -142,12 +143,10 @@ function fetchTableData(ev, clicked_object) {
         }
       
         var table_id = "#" + data["active_table"];
-        console.log("Updating table:", table_id);
         if (data.html) { // Ensure response contains HTML
           var newHtml = data.html;
           if ($(table_id).length) {
             $(table_id).html(newHtml);
-            console.log("Table container updated:", table_id);
 
             $(".tab-pane").removeClass("show active");  // ❌ Remove 'show active' from all
             $(table_id).addClass("show active"); // ✅ Activate the updated tab
