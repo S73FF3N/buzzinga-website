@@ -89,7 +89,6 @@ $(document).ready(function () {
   });
 });
 
-
 function fetchTableData(ev, clicked_object) {
   if (ev) {
       ev.preventDefault();  // Prevent default anchor behavior
@@ -148,6 +147,9 @@ function fetchTableData(ev, clicked_object) {
           console.error("Error fetching table:", xhr.responseText);
       }
   });
+}
+
+
 
   $("#profile-filter-submit").click(function() {
     $("#profile-filter-form").submit();
