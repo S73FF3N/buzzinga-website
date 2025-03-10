@@ -106,7 +106,6 @@ function fetchTableData(ev, clicked_object) {
   if (!ajax_url.startsWith("http")) {
       ajax_url = base_url + ajax_url;
   }
-  var clicked_object = $(ev.target);
 
   // Check if a table tab was clicked
   if (clicked_object.hasClass("nav-link")) {
