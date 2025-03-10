@@ -106,8 +106,8 @@ function fetchTableData(ev, clicked_object) {
       ajax_url = base_url + ajax_url;
   }
 
-  var activeTable = clicked_object.attr("href").split("#")[1].replace("-tab", "");
-  console.log("Fetching table:", activeTable);  // Debugging
+  // var activeTable = clicked_object.attr("href").split("#")[1].replace("-tab", "");
+  // console.log("Fetching table:", activeTable);  // Debugging
 
   $.ajax({
       url: ajax_url,
