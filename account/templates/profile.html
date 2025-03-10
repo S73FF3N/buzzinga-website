@@ -89,16 +89,6 @@ $(document).ready(function () {
   });
 });
 
-$(document).ready(function () {
-  $(".pagination a").on("click", function (e) {
-    e.preventDefault(); // Prevent default link behavior
-
-    var url = $(this).attr("href"); // Get pagination link URL
-    if (url) {
-      fetchTableData(e, $(this)); // Fetch new table content
-    }
-  }); 
-});
 
 function fetchTableData(ev, clicked_object) {
   if (ev) {
@@ -117,25 +107,15 @@ function fetchTableData(ev, clicked_object) {
       ajax_url = base_url + ajax_url;
   }
 
-  if (clicked_object.hasClass("nav-link")) {
-      var href = clicked_object.attr("href");
-
-      if (href) {
-          activeTable = href.split("#")[1].replace("-tab", ""); // Update active table
-          console.log("Switched to active table:", activeTable);
-      }
-  } else {
-      // Keep the current activeTable (Pagination or other clicks)
-      console.log("Non-tab element clicked, keeping active table:", activeTable);
-  }
-  // var activeTable = clicked_object.attr("href").split("#")[1].replace("-tab", "");
-  // console.log("Fetching table:", activeTable);  // Debugging
+  var activeTable = clicked_object.attr("href").split("#")[1].replace("-tab", "");
+  console.log("Fetching table:", activeTable);  // Debugging
 
   $.ajax({
       url: ajax_url,
       type: 'GET',
       data: { active_table: activeTable },
       success: function(data) {
+        console.log("Received data:", data);  
         if (!data["active_table"] || data["active_table"] === "error") {
             console.error("Invalid table name:", data["msg"] || "No table received");
             alert(data["msg"] || "Error updating table.");
@@ -143,10 +123,12 @@ function fetchTableData(ev, clicked_object) {
         }
       
         var table_id = "#" + data["active_table"];
+        console.log("Updating table:", table_id);
         if (data.html) { // Ensure response contains HTML
           var newHtml = data.html;
           if ($(table_id).length) {
             $(table_id).html(newHtml);
+            console.log("Table container updated:", table_id);
 
             $(".tab-pane").removeClass("show active");  // ❌ Remove 'show active' from all
             $(table_id).addClass("show active"); // ✅ Activate the updated tab
@@ -188,6 +170,7 @@ function fetchTableData(ev, clicked_object) {
       complete: function() {
           document.body.style.cursor = "auto";
       }
+  });
   });
 
   $("#per_page").change(function() {
@@ -232,8 +215,8 @@ $("#download_elements").click(function(ev) {
     $("#profile-filter-img").toggleClass("fa-chevron-right fa-chevron-down");
 });
 
-  //function toggle(source) {
-  //  $("input[name='select']").prop('checked', source.checked);
-  //}
+  function toggle(source) {
+    $("input[name='select']").prop('checked', source.checked);
+  }
 </script>
 {% endblock %}
