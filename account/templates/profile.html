@@ -189,7 +189,6 @@ function fetchTableData(ev, clicked_object) {
           document.body.style.cursor = "auto";
       }
   });
-  });
 
   $("#per_page").change(function() {
     var per_page = $(this).val();
@@ -233,8 +232,8 @@ $("#download_elements").click(function(ev) {
     $("#profile-filter-img").toggleClass("fa-chevron-right fa-chevron-down");
 });
 
-  function toggle(source) {
-    $("input[name='select']").prop('checked', source.checked);
-  }
+  //function toggle(source) {
+  //  $("input[name='select']").prop('checked', source.checked);
+  //}
 </script>
 {% endblock %}
