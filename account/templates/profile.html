@@ -103,7 +103,7 @@ function fetchTableData(ev, clicked_object, activeTable) {
   if (ev) {
       ev.preventDefault();
   }
-
+  console.log("active_table:", data);
   document.body.style.cursor = "wait";
   clicked_object.css('cursor', 'wait');
 
