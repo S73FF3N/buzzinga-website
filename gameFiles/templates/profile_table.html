@@ -89,13 +89,6 @@
                 <a class="page-link" {% if p != '...' %}data-url="{% url 'gamefiles:get_profile_table' per_page=table.per_page|default:10 %}{% querystring table.prefixed_page_field=p 'active_table'=table.prefix %}"{% endif %}>
                     {{ p }}
                 </a>
-                <!--<a class="page-link" 
-                    data-bs-toggle="pagination"
-                    data-bs-target="#{{ table_name }}"
-                    {% if p != '...' %}href="#{{ table_name }}-pagination"{% endif %} 
-                    role="pagination">
-                    {{ p }}
-                  </a>-->
             </li>
             {% endfor %}
             {% endblock pagination.range %}
