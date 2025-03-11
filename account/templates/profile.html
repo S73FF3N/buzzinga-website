@@ -128,7 +128,7 @@ function fetchTableData(ev, clicked_object, activeTable) {
   $.ajax({
       url: ajax_url,
       type: 'GET',
-      dataType: 'json',
+      // dataType: 'json',
       data: { active_table: activeTable },
       success: function(data) {
         console.log("Received data:", data);  // 🔹 Log full response
