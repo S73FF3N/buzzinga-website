@@ -118,29 +118,29 @@ function fetchTableData(ev, clicked_object, activeTable) {
   document.body.style.cursor = "wait";
   clicked_object.css('cursor', 'wait');
 
-  var base_url = window.location.origin;
-  var per_page = document.getElementById("per_page").value;
-  var ajax_url = "/gameFiles/ajax/get_profile_table/" + per_page + "/?active_table=" + activeTable;
-
-  if (!ajax_url.startsWith("http")) {
-      ajax_url = base_url + ajax_url;
-  }
-
   if (clicked_object.hasClass("nav-link")) {
-      var href = clicked_object.attr("href");
+    var href = clicked_object.attr("href");
 
-      if (href) {
-          activeTable = href.split("#")[1].replace("-tab", ""); // Update active table
-      }
+    if (href) {
+        activeTable = href.split("#")[1].replace("-tab", ""); // Update active table
+    }
+    var base_url = window.location.origin;
+    var per_page = document.getElementById("per_page").value;
+    var ajax_url = "/gameFiles/ajax/get_profile_table/" + per_page + "/?active_table=" + activeTable;
+
+    if (!ajax_url.startsWith("http")) {
+        ajax_url = base_url + ajax_url;
+    }
   } else {
+    var ajax_url = $(clicked_object).attr("data-url");
       console.log("Non-tab element clicked, keeping active table:", activeTable);
   }
 
   $.ajax({
       url: ajax_url,
       type: 'GET',
-      dataType: 'json',
-      // data: { active_table: activeTable },
+      // dataType: 'json',
+      data: { active_table: activeTable },
       success: function(data) {
         console.log("Received data:", data);  // 🔹 Log full response
         if (!data["active_table"] || data["active_table"] === "error") {
