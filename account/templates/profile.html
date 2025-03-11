@@ -103,9 +103,8 @@ $(document).on("click", ".pagination-link", function (e) {
         return;
     }
 
+    var url = $(this).attr("data-url");
     console.log("✅ Pagination clicked - Fetching data for table:", activeTable, "from URL:", url);
-
-    var url = $(this).attr("data-url"); // Get pagination link URL
     if (url) {
         fetchTableData(e, $(this), activeTable); // Fetch new table content
     }
@@ -140,8 +139,8 @@ function fetchTableData(ev, clicked_object, activeTable) {
   $.ajax({
       url: ajax_url,
       type: 'GET',
-      // dataType: 'json',
-      data: { active_table: activeTable },
+      dataType: 'json',
+      // data: { active_table: activeTable },
       success: function(data) {
         console.log("Received data:", data);  // 🔹 Log full response
         if (!data["active_table"] || data["active_table"] === "error") {
