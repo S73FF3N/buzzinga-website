@@ -36,23 +36,32 @@
                     </div>
                     
                     <!-- Hints 1-10 -->
-                    {% for i in "x"|ljust:"10" %}
-                        {% with field_name="hint"|add:forloop.counter|stringformat:"i" %}
-                            {% with field=form|get_field:field_name %}
-                                {% if forloop.counter <= 10 %}
-                                    <div class="col-12 col-lg-6 mb-3">
-                                        <div class="form-group">
-                                            {{ field.label }}
-                                            {% render_field field class="form-control" aria-label="Hinweis "|add:forloop.counter|stringformat:"i" %}
-                                            {% if field.errors %}
-                                                <div class="invalid-feedback d-block">{{ field|get_errors }}</div>
-                                            {% endif %}
-                                        </div>
+                    {% for i in "123456789"|make_list %}
+                        {% with field_name="hint"|add:i %}
+                        {% with field=form|get_field:field_name %}
+                            {% if forloop.counter <= 10 %}
+                                <div class="col-12 col-lg-6 mb-3">
+                                    <div class="form-group">
+                                        {{ field.label }}
+                                        {% render_field field class="form-control" aria-label="Hinweis "|add:i %}
+                                        {% if field.errors %}
+                                            <div class="invalid-feedback d-block">{{ field|get_errors }}</div>
+                                        {% endif %}
                                     </div>
-                                {% endif %}
+                                </div>
+                            {% endif %}
                         {% endwith %}
                         {% endwith %}
                     {% endfor %}
+                    <div class="col-12 col-lg-6 mb-3">
+                        <div class="form-group">
+                            {{ form.hint10.label }}
+                            {% render_field form.hint10 class="form-control" aria-label="Hinweis 10" %}
+                            {% if form.hint10.errors %}
+                                <div class="invalid-feedback d-block">{{ form.hint10.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
                     
                     <!-- Difficulty -->
                     <div class="col-12 col-lg-6 mb-3">
