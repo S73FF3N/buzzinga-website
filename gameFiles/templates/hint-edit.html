@@ -36,20 +36,20 @@
                     </div>
                     
                     <!-- Hints 1-10 -->
-                    {% for _ in "x"|ljust:"10" %}
-                        {% with field_name="hint"|add:forloop.counter|stringformat:"s" %}
-                        {% with field=form|get_field:field_name %}
-                            {% if forloop.counter <= 10 %}
-                                <div class="col-12 col-lg-6 mb-3">
-                                    <div class="form-group">
-                                        {{ field.label }}
-                                        {% render_field field class="form-control" aria-label="Hinweis "|add:forloop.counter|stringformat:"s" %}
-                                        {% if field.errors %}
-                                            <div class="invalid-feedback d-block">{{ field|get_errors }}</div>
-                                        {% endif %}
+                    {% for i in "x"|ljust:"10" %}
+                        {% with field_name="hint"|add:forloop.counter|stringformat:"i" %}
+                            {% with field=form|get_field:field_name %}
+                                {% if forloop.counter <= 10 %}
+                                    <div class="col-12 col-lg-6 mb-3">
+                                        <div class="form-group">
+                                            {{ field.label }}
+                                            {% render_field field class="form-control" aria-label="Hinweis "|add:forloop.counter|stringformat:"i" %}
+                                            {% if field.errors %}
+                                                <div class="invalid-feedback d-block">{{ field|get_errors }}</div>
+                                            {% endif %}
+                                        </div>
                                     </div>
-                                </div>
-                            {% endif %}
+                                {% endif %}
                         {% endwith %}
                         {% endwith %}
                     {% endfor %}
