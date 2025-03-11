@@ -76,31 +76,28 @@
 
 <script type="text/javascript">
 $(document).ready(function () {
-  // Make sure to pass both event (e) and clicked_object (this)
   $(".nav-tabs a").on("click", function (e) {
-      e.preventDefault();  // Prevent default anchor behavior
+      e.preventDefault();
       $(this).tab("show");
 
       var activeTable = $(this).attr("href").replace("#", "").replace("-tab", "");
-      console.log("Switching to table:", activeTable);
 
-      // Pass both the event and clicked object (this)
       fetchTableData(e, $(this), activeTable); 
   });
 });
 
 $(document).ready(function () {
-  $(".pagination a").on("click", function (e) {
-  e.preventDefault(); // Prevent default link behavior
+  $("page-item a").on("click", function (e) {
+    e.preventDefault(); // Prevent default link behavior
 
-  var activeTab = $(".nav-tabs .nav-link.active"); 
-  var activeTable = activeTab.length ? activeTab.attr("data-bs-target").replace("#", "") : "";
+    var activeTab = $(".nav-tabs .nav-link.active"); 
+    var activeTable = activeTab.length ? activeTab.attr("data-bs-target").replace("#", "") : "";
 
-  var url = $(this).attr("href"); // Get pagination link URL
-  if (url) {
-      fetchTableData(e, $(this), activeTable); // Fetch new table content
-  }
-});
+    var url = $(this).attr("href"); // Get pagination link URL
+    if (url) {
+        fetchTableData(e, $(this), activeTable); // Fetch new table content
+    }
+  });
 });
 
 function fetchTableData(ev, clicked_object, activeTable) {
@@ -124,7 +121,6 @@ function fetchTableData(ev, clicked_object, activeTable) {
 
       if (href) {
           activeTable = href.split("#")[1].replace("-tab", ""); // Update active table
-          console.log("Switched to active table:", activeTable);
       }
   } else {
       console.log("Non-tab element clicked, keeping active table:", activeTable);
@@ -144,14 +140,12 @@ function fetchTableData(ev, clicked_object, activeTable) {
         }
       
         var table_id = "#" + data["active_table"];
-        console.log("Updating table:", table_id);
         if (data.html) {
           if ($(table_id).length) {
             $(table_id).html(data.html);
             var newTable = $(data.html).find("table");
             if (newTable.length) {
                 $(table_id).find("table").replaceWith(newTable); // Replace only table
-                console.log("Table updated successfully:", table_id);
             } else {
                 console.warn("No table found in response, inserting full HTML");
                 $(table_id).html(data.html);
