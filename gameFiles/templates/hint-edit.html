@@ -36,8 +36,8 @@
                     </div>
                     
                     <!-- Hints 1-10 -->
-                    {% for i in "12345678910"|make_list %}
-                        {% with field_name="hint"|add:i %}
+                    {% for i in range(1, 11) %}
+                        {% with field_name="hint"|add:i|string %}
                         {% with field=form|get_field:field_name %}
                             {% if forloop.counter <= 10 %}
                                 <div class="col-12 col-lg-6 mb-3">
