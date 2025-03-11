@@ -90,9 +90,9 @@ $(document).ready(function () {
   $(".page-item a").on("click", function (e) {
     e.preventDefault(); // Prevent default link behavior
 
-    // var activeTab = $(".nav-tabs .nav-link.active"); 
-    // var activeTable = activeTab.length ? activeTab.attr("data-bs-target").replace("#", "") : "";
-    var activeTable = $(this).attr("href").replace("#", "").replace("-pagination", "");
+    var activeTab = $(".nav-tabs .nav-link.active"); 
+    var activeTable = activeTab.length ? activeTab.attr("data-bs-target").replace("#", "") : "";
+    //var activeTable = $(this).attr("href").replace("#", "").replace("-pagination", "");
 
     var url = $(this).attr("href"); // Get pagination link URL
     if (url) {
@@ -133,7 +133,6 @@ function fetchTableData(ev, clicked_object, activeTable) {
       data: { active_table: activeTable },
       success: function(data) {
         console.log("Received data:", data);  // 🔹 Log full response
-        console.log("Extracted HTML:", data.html);  // 🔹 Log the extracted HTML
         if (!data["active_table"] || data["active_table"] === "error") {
             console.error("Invalid table name:", data["msg"] || "No table received");
             alert(data["msg"] || "Error updating table.");
