@@ -89,15 +89,13 @@ $(document).ready(function () {
 $(document).on("click", ".pagination-link", function (e) {
     e.preventDefault(); // Prevent default link behavior
 
-    console.log("Pagination link clicked!")
-
     var activeTab = $(".nav-tabs .nav-link.active"); 
     var activeTable = activeTab.length ? activeTab.attr("data-bs-target").replace("#", "") : "";
     //var activeTable = $(this).attr("href").replace("#", "").replace("-pagination", "");
 
     var url = $(this).attr("data-url"); // Get pagination link URL
     if (url) {
-        fetchTableData(e, url, activeTable); // Fetch new table content
+        fetchTableData(e, $(this), activeTable); // Fetch new table content
     }
   });
 
