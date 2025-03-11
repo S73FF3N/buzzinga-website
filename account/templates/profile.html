@@ -92,6 +92,7 @@ $(document).on("click", ".pagination-link", function (e) {
     var activeTab = $(".nav-tabs .nav-link.active"); 
     var activeTable = activeTab.length ? activeTab.attr("data-bs-target").replace("#", "") : "";
     //var activeTable = $(this).attr("href").replace("#", "").replace("-pagination", "");
+    console.log("active_table:", activeTable);
 
     var url = $(this).attr("data-url"); // Get pagination link URL
     if (url) {
@@ -103,7 +104,7 @@ function fetchTableData(ev, clicked_object, activeTable) {
   if (ev) {
       ev.preventDefault();
   }
-  console.log("active_table:", activeTable);
+
   document.body.style.cursor = "wait";
   clicked_object.css('cursor', 'wait');
 
