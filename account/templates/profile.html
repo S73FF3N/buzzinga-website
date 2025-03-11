@@ -122,7 +122,7 @@ function fetchTableData(ev, clicked_object, activeTable) {
     var href = clicked_object.attr("href");
 
     if (href) {
-        activeTable = href.split("#")[1].replace("-tab", ""); // Update active table
+        activeTable = href.split("#")[1].replace("-tab", "");
     }
     var base_url = window.location.origin;
     var per_page = document.getElementById("per_page").value;
@@ -132,8 +132,9 @@ function fetchTableData(ev, clicked_object, activeTable) {
         ajax_url = base_url + ajax_url;
     }
   } else {
-    var ajax_url = $(clicked_object).attr("data-url");
-      console.log("Non-tab element clicked, keeping active table:", activeTable);
+    var ajax_url = clicked_object.attr("data-url");
+    console.log("data_url:", ajax_url);
+    console.log("Non-tab element clicked, keeping active table:", activeTable);
   }
 
   $.ajax({
@@ -145,7 +146,6 @@ function fetchTableData(ev, clicked_object, activeTable) {
         console.log("Received data:", data);  // 🔹 Log full response
         if (!data["active_table"] || data["active_table"] === "error") {
             console.error("Invalid table name:", data["msg"] || "No table received");
-            alert(data["msg"] || "Error updating table.");
             return;
         }
       
