@@ -4,13 +4,13 @@
 {% if record|to_class_name == 'Category' %}
     {% url 'gamefiles:category-edit' record.pk %}
 {% else %}
-    {% if record.category.game_type.pk == 1 %}
+    {% if record.category.game_type.pk == 2 %}
         {% url 'gamefiles:sound-edit' record.pk %}
-    {% elif record.category.game_type.pk == 2 %}
+    {% elif record.category.game_type.pk == 1 %}
         {% url 'gamefiles:image-edit' record.pk %}
-    {% elif record.category.game_type.pk == 3 %}
-        {% url 'gamefiles:question-edit' record.pk %}
     {% elif record.category.game_type.pk == 4 %}
+        {% url 'gamefiles:question-edit' record.pk %}
+    {% elif record.category.game_type.pk == 3 %}
         {% url 'gamefiles:hint-edit' record.pk %}
     {% else %}
         {% url 'gamefiles:whoknowsmore-edit' record.pk %}
