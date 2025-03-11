@@ -87,9 +87,11 @@
             {% for p in table.page|table_page_range:table.paginator %}
             <li class="page-item{% if table.page.number == p %} active{% endif %}">
                 <a class="page-link pagination-link"
-                {% if p != '...' %}
-                data-url="{% url 'gamefiles:get_profile_table' per_page=table.per_page|default:10 %}{% querystring table.prefixed_page_field=p 'active_table'=table.prefix %}"
-                {% endif %}>
+                    role="button"
+                   style="cursor: pointer; text-decoration: none;"
+                    {% if p != '...' %}
+                    data-url="{% url 'gamefiles:get_profile_table' per_page=table.per_page|default:10 %}{% querystring table.prefixed_page_field=p 'active_table'=table.prefix %}"
+                    {% endif %}>
                     {{ p }}
                 </a>
             </li>
