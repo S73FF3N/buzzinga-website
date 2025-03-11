@@ -89,9 +89,20 @@ $(document).ready(function () {
 $(document).on("click", ".pagination-link", function (e) {
     e.preventDefault(); // Prevent default link behavior
 
-    var activeTab = $(".nav-tabs .nav-link.active"); 
-    var activeTable = activeTab.length ? activeTab.attr("data-bs-target").replace("#", "") : "";
-    //var activeTable = $(this).attr("href").replace("#", "").replace("-pagination", "");
+    var activeTab = $(".nav-tabs .nav-link.active");
+    if (!activeTab.length) {
+        console.error("❌ ERROR: No active tab detected!"); // Debugging
+        return;
+    }
+
+    // ✅ Extract activeTable correctly
+    var activeTable = activeTab.attr("data-bs-target");
+    if (!activeTable) {
+        console.error("❌ ERROR: activeTable is undefined in data-bs-target!");
+        return;
+    }
+
+    activeTable = activeTable.replace("#", "");
     console.log("active_table:", activeTab);
 
     var url = $(this).attr("data-url"); // Get pagination link URL
