@@ -89,21 +89,21 @@ $(document).ready(function () {
 $(document).on("click", ".pagination-link", function (e) {
     e.preventDefault(); // Prevent default link behavior
 
-    var activeTab = $(".nav-tabs .nav-link.active");
-    if (!activeTab.length) {
-        console.error("❌ ERROR: No active tab detected!"); // Debugging
+    // ✅ Find the active tab using `.show.active` from `.tab-pane`
+    var activePane = $(".tab-pane.show.active");
+    if (!activePane.length) {
+        console.error("❌ ERROR: No active tab detected!");
         return;
     }
 
-    // ✅ Extract activeTable correctly
-    var activeTable = activeTab.attr("data-bs-target");
+    // ✅ Extract the ID of the active tab-pane and convert it to activeTable
+    var activeTable = activePane.attr("id");
     if (!activeTable) {
-        console.error("❌ ERROR: activeTable is undefined in data-bs-target!");
+        console.error("❌ ERROR: activeTable is undefined!");
         return;
     }
 
-    activeTable = activeTable.replace("#", "");
-    console.log("active_table:", activeTab);
+    console.log("✅ Pagination clicked - Fetching data for table:", activeTable, "from URL:", url);
 
     var url = $(this).attr("data-url"); // Get pagination link URL
     if (url) {
