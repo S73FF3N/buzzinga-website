@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.core.serializers import serialize
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.base import ContentFile
-from django.contrib.messages import constants as messages
+from django.contrib import messages
 from django.db.models import Count, OuterRef, Subquery, Q, IntegerField
 from django.db.models.expressions import Value
 from django.db.models.functions import Coalesce
