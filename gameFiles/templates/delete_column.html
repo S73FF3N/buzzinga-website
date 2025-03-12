@@ -16,4 +16,20 @@
         {% url 'gamefiles:whoknowsmore-delete' record.pk %}
     {% endif %}
 {% endif %}
-"><i class="fa fa-trash"></i></a>
+" class="delete-link"
+data-confirm="Are you sure you want to delete this item?"><i class="fa fa-trash"></i></a>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const deleteLinks = document.querySelectorAll('.delete-link');
+        deleteLinks.forEach(link => {
+            link.addEventListener('click', function (event) {
+                event.preventDefault(); // Prevent the default navigation behavior
+                const confirmMessage = this.getAttribute('data-confirm');
+                if (confirm(confirmMessage)) {
+                    window.location.href = this.href; // Redirect to the delete URL if confirmed
+                }
+            });
+        });
+    });
+</script>

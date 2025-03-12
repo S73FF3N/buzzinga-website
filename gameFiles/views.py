@@ -214,7 +214,8 @@ class WhoknowsmoreEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
 
 class BaseDeleteView(LoginRequiredMixin, SuccessUrlMixin, DeleteView):
     def get(self, request, *args, **kwargs):
-        return self.post(request, *args, **kwargs)
+        # Skip rendering a confirmation page and directly perform deletion
+        return self.delete(request, *args, **kwargs)
     
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, f"{self.model.__name__} successfully deleted.")
