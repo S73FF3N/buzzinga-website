@@ -247,6 +247,7 @@ function fetchTableData(ev, clicked_object, activeTable) {
 $("#download_elements").click(function(ev) {
   ev.preventDefault();
   var active_table = $(".profile-table-container.active").attr("id").split('-')[0] + "_";
+  console.log(active_table);
   var base_url = $(this).attr("href").split("/download/")[0] + "/download/";
   var selected_ids = $(".select_checkbox:checked").map(function() {
       return this.id.split("_")[1];
