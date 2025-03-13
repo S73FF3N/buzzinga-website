@@ -76,7 +76,7 @@
 
 <script type="text/javascript">
 $(document).ready(function () {
-  $(".nav-tabs a").on("click", function (e) {
+  $(".nav-tabs a.nav-link").on("click", function (e) {
       e.preventDefault();
       $(this).tab("show");
 
@@ -127,18 +127,15 @@ function fetchTableData(ev, clicked_object, activeTable) {
     }
     var per_page = document.getElementById("per_page").value;
     var ajax_url = "/gameFiles/ajax/get_profile_table/" + per_page + "/?active_table=" + activeTable;
-    if (!ajax_url.startsWith("http")) {
-      ajax_url = base_url + ajax_url;
-      console.log("data_url:", ajax_url);
-  }
 
   } else {
     var ajax_url = clicked_object.attr("data-url");
     console.log("Non-tab element clicked, keeping active table:", activeTable);
-    if (!ajax_url.startsWith("http")) {
+  }
+
+  if (!ajax_url.startsWith("http")) {
       ajax_url = base_url + ajax_url;
       console.log("data_url:", ajax_url);
-  }
   }
 
   $.ajax({
