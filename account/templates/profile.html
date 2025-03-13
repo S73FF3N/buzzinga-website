@@ -246,12 +246,14 @@ function fetchTableData(ev, clicked_object, activeTable) {
 
 $("#download_elements").click(function(ev) {
   ev.preventDefault();
-  var active_table = $(".profile-table-container.active").attr("id").split('-')[0] + "_";
+  var active_table = $(".profile-table-container.active").attr("id").split('-')[0];
   console.log(active_table);
   // var base_url = $(this).attr("href").split("/download/")[0] + "/download/";
   var base_url = window.location.origin;
   console.log(base_url);
-  var selected_ids = $(".select_checkbox:checked")
+  var selected_ids = $(".select_checkbox:checked").map(function() {
+    return this.id.split("_")[1];
+   })
   console.log(selected_ids);
   // var selected_ids = $(".select_checkbox:checked").map(function() {
   //    return this.id.split("_")[1];
@@ -260,7 +262,7 @@ $("#download_elements").click(function(ev) {
   //if ($(selected_ids).length) {
 
   // window.location.href = base_url + active_table + (selected_ids ? selected_ids : "all/");
-  window.location.href = base_url + active_table + "/all/";
+  window.location.href = base_url + "/" + active_table + "/all/";
 });
 
 
