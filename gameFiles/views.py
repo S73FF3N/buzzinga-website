@@ -221,7 +221,7 @@ class BaseDeleteView(LoginRequiredMixin, SuccessUrlMixin, DeleteView):
         messages.success(self.request, f"{self.model.__name__} successfully deleted.")
         return super().delete(request, *args, **kwargs)
     
-    template_name = "confirm_delete.html"
+    #template_name = "confirm_delete.html"
 
 
 class CategoryDeleteView(BaseDeleteView, LoginRequiredMixin):
