@@ -256,7 +256,8 @@ $("#download_elements").click(function(ev) {
   // }).get().join("+");
 
   if ($(selected_ids).length) {
-    selected_ids = selected_ids.get().join("+");
+    selected_ids = selected_ids.join("+");
+    console.log(selected_ids);
     window.location.href = base_url + "/account/download/" + active_table + (selected_ids ? selected_ids : "/all/");
   } else {
     window.location.href = base_url + "/account/download/" + active_table + "/all/";
