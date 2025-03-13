@@ -217,9 +217,9 @@ class BaseDeleteView(LoginRequiredMixin, SuccessUrlMixin, DeleteView):
     #    # Skip rendering a confirmation page and directly perform deletion
     #    return self.delete(request, *args, **kwargs)
     
-    #def delete(self, request, *args, **kwargs):
-    #    messages.success(self.request, f"{self.model.__name__} successfully deleted.")
-    #    return super().delete(request, *args, **kwargs)
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, f"{self.model.__name__} successfully deleted.")
+        return super().delete(request, *args, **kwargs)
     
     #template_name = "confirm_delete.html"
 
