@@ -84,7 +84,7 @@ def set_profile_filter(request, per_page):
     return JsonResponse(data)
 
 
-def create_profile_table(request, table_name, per_page):
+def create_profile_table(request, table_name, per_page): # Ensure this maps correctly
     user = request.user
     ModelClass, FilterClass, TableClass = TABLE_MAPPING[table_name]
 
@@ -92,7 +92,7 @@ def create_profile_table(request, table_name, per_page):
     qs_public = ModelClass.objects.filter(category__private=False, private_new=False) if table_name != "category" else ModelClass.objects.filter(private=False)
     elements = qs_created_by_user | qs_public
 
-    filter_obj = FilterClass(request.GET, elements, prefix="profile")
+    filter_obj = FilterClass(request.GET, queryset=elements, prefix="profile")
     table = TableClass(filter_obj.qs, prefix=table_name)
     RequestConfig(request, paginate={"per_page": int(per_page)}).configure(table)
 

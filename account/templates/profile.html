@@ -250,10 +250,6 @@ $("#download_elements").click(function(ev) {
   var base_url = window.location.origin;
   var selected_ids = [...document.querySelectorAll('.select_checkbox:checked')]
   .map(checkbox => checkbox.id.split('_')[1]);
-  console.log(selected_ids);
-  // var selected_ids = $(".select_checkbox:checked").map(function() {
-  //    return this.id.split("_")[1];
-  // }).get().join("+");
 
   if ($(selected_ids).length) {
     selected_ids = selected_ids.join("+");
@@ -264,21 +260,13 @@ $("#download_elements").click(function(ev) {
   }
 });
 
-
-  //$(".nav-link").click(function() {
-   // $(':checkbox').prop('checked', false);
-  //});
-
- // function handle_filter_collapse(img_id) {
- //   $(img_id).toggleClass("fa-chevron-right fa-chevron-down");
- // }
-
   $("#profile-collapse-link").click(function (e) {
     e.preventDefault();
     $("#profile-filter").collapse("toggle");
     $("#profile-filter-img").toggleClass("fa-chevron-right fa-chevron-down");
 });
 
+// select/deselect all objects
   function toggle(source) {
     $("input[name='select']").prop('checked', source.checked);
   }
