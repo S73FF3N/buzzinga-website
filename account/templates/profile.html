@@ -246,7 +246,7 @@ function fetchTableData(ev, clicked_object, activeTable) {
 
 $("#download_elements").click(function(ev) {
   ev.preventDefault();
-  var active_table = $(".profile-table-container.active").attr("id").split('-')[0];
+  var active_table = $(".profile-table-container.active").attr("id").split('_')[0];
   console.log(active_table);
   // var base_url = $(this).attr("href").split("/download/")[0] + "/download/";
   var base_url = window.location.origin;
