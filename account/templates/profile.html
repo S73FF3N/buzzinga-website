@@ -214,9 +214,15 @@ function fetchTableData(ev, clicked_object, activeTable) {
       type: 'GET',
       data: $("#profile-filter-form").serialize(),
       success: function(data) {
-          for (key in data) {
-            console.log("Updating:", key, "with data:", data[key]);
-              $("#" + key.replace("_table", "-tab")).html(data[key]);
+            console.log("✅ Full AJAX response:", data);  // Log everything
+
+            for (let key in data) {
+                console.log("🔄 Updating:", key, "with data:", data[key]); // Debug each key-value pair
+    
+                let tabId = key.replace("_table", "-tab");
+                console.log("📌 Target element ID:", tabId);
+    
+                $("#" + tabId).html(data[key]);
           }
       },
       complete: function() {
