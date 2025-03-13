@@ -1,7 +1,6 @@
 {% load gameFiles_tags %}
 <button class="btn btn-info btn-sm confirm-delete"
 data-bs-toggle="modal" data-bs-target="#deleteModal"
-<!--href="-->   
 {% if record|to_class_name == 'Category' %}
     onclick="setDeleteUrl('{% url 'gamefiles:category-delete' record.pk %}')"
 {% else %}
@@ -17,7 +16,7 @@ data-bs-toggle="modal" data-bs-target="#deleteModal"
          onclick="setDeleteUrl('{% url 'gamefiles:whoknowsmore-delete' record.pk %}')"
     {% endif %}
 {% endif %}
-"><i class="fa fa-trash"></i></button>
+><i class="fa fa-trash"></i></button>
 
 <script>
     function setDeleteUrl(url) {
