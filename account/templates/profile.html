@@ -247,22 +247,19 @@ function fetchTableData(ev, clicked_object, activeTable) {
 $("#download_elements").click(function(ev) {
   ev.preventDefault();
   var active_table = $(".profile-table-container.active").attr("id").split('_')[0];
-  console.log(active_table);
-  // var base_url = $(this).attr("href").split("/download/")[0] + "/download/";
   var base_url = window.location.origin;
-  console.log(base_url);
-  var selected_ids = $(".select_checkbox:checked").map(function() {
-    return this.id.split("_")[1];
-   })
+  const selected_ids = [...document.querySelectorAll('.select_checkbox:checked')]
+  .map(checkbox => checkbox.id.split('_')[1]);
   console.log(selected_ids);
   // var selected_ids = $(".select_checkbox:checked").map(function() {
   //    return this.id.split("_")[1];
   // }).get().join("+");
 
-  //if ($(selected_ids).length) {
-
-  // window.location.href = base_url + active_table + (selected_ids ? selected_ids : "all/");
-  window.location.href = base_url + "/account/download/" + active_table + "/all/";
+  if ($(selected_ids).length) {
+    window.location.href = base_url + "/account/download/" + active_table + (selected_ids ? selected_ids : "/all/");
+  } else {
+    window.location.href = base_url + "/account/download/" + active_table + "/all/";
+  }
 });
 
 
