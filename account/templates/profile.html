@@ -215,9 +215,8 @@ function fetchTableData(ev, clicked_object, activeTable) {
       data: $("#profile-filter-form").serialize(),
       success: function(data) {
           for (key in data) {
-            console.log(key);
+            console.log("Updating:", key, "with data:", data[key]);
               $("#" + key.replace("_table", "-tab")).html(data[key]);
-              console.log($("#" + key.replace("_table", "-tab")).html(data[key]));
           }
       },
       complete: function() {
