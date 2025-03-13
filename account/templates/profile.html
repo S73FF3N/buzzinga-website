@@ -2,6 +2,28 @@
 {% load render_table from django_tables2 %}
 {% load widget_tweaks %}
 {% block content %}
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="deleteModalLabel">Wirklich löschen?</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              Bist du sicher, dass du das Objekt löschen willst?
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+              <form id="deleteForm" method="post">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger">Löschen</button>
+              </form>
+          </div>
+      </div>
+  </div>
+</div>
+
 <div id="profileTable" class="container" style="margin-top:8vw">
     <div class="card">
       <div class="card-header">

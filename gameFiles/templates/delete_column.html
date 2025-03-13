@@ -1,18 +1,26 @@
 {% load gameFiles_tags %}
-<a class="btn btn-info btn-sm confirm-delete " href="
+<button class="btn btn-info btn-sm confirm-delete"
+data-bs-toggle="modal" data-bs-target="#deleteModal"
+<!--href="-->   
 {% if record|to_class_name == 'Category' %}
-    {% url 'gamefiles:category-delete' record.pk %}
+    onclick="setDeleteUrl('{% url 'gamefiles:category-delete' record.pk %}')"
 {% else %}
     {% if record.category.game_type.pk == 2 %}
-        {% url 'gamefiles:sound-delete' record.pk %}
+         onclick="setDeleteUrl('{% url 'gamefiles:sound-delete' record.pk %}')"
     {% elif record.category.game_type.pk == 1 %}
-        {% url 'gamefiles:image-delete' record.pk %}
+         onclick="setDeleteUrl('{% url 'gamefiles:image-delete' record.pk %}')"
     {% elif record.category.game_type.pk == 4 %}
-        {% url 'gamefiles:question-delete' record.pk %}
+         onclick="setDeleteUrl('{% url 'gamefiles:question-delete' record.pk %}')"
     {% elif record.category.game_type.pk == 3 %}
-        {% url 'gamefiles:hint-delete' record.pk %}
+         onclick="setDeleteUrl('{% url 'gamefiles:hint-delete' record.pk %}')"
     {% else %}
-        {% url 'gamefiles:whoknowsmore-delete' record.pk %}
+         onclick="setDeleteUrl('{% url 'gamefiles:whoknowsmore-delete' record.pk %}')"
     {% endif %}
 {% endif %}
-"><i class="fa fa-trash"></i></a>
+"><i class="fa fa-trash"></i></button>
+
+<script>
+    function setDeleteUrl(url) {
+        document.getElementById("deleteForm").action = url;
+    }
+</script>
