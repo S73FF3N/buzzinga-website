@@ -217,6 +217,7 @@ function fetchTableData(ev, clicked_object, activeTable) {
           for (key in data) {
             console.log(key);
               $("#" + key.replace("_table", "-tab")).html(data[key]);
+              console.log($("#" + key.replace("_table", "-tab")).html(data[key]));
           }
       },
       complete: function() {
