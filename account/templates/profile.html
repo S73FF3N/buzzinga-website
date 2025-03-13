@@ -215,6 +215,7 @@ function fetchTableData(ev, clicked_object, activeTable) {
       data: $("#profile-filter-form").serialize(),
       success: function(data) {
           for (key in data) {
+            console.log(key);
               $("#" + key.replace("_table", "-tab")).html(data[key]);
           }
       },
@@ -234,7 +235,6 @@ function fetchTableData(ev, clicked_object, activeTable) {
         data: $("#profile-filter-form").serialize(),
         success: function(data) {
             for (key in data) {
-              console.log(key);
                 $("#" + key.replace("_table", "-tab")).html(data[key]);
             }
         }
