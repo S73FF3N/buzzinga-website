@@ -32,7 +32,7 @@
   <div class="offcanvas-body">
     <form id="profile-filter-form" method="get" class="mb-3">
         {{ profile_filter.form.media }}
-        <ul>
+        <ul class="list-unstyled">
         {% for field in profile_filter.form %}
             <li class="form-group">
                 {{ field.label_tag }}
@@ -40,7 +40,7 @@
             </li>
           {% endfor %}
           </ul>
-          <a id="profile-filter-submit" class="btn btn-primary btn-sm"><i class="fa fa-filter"></i> Filter</a>
+          <a id="profile-filter-submit" class="btn btn-primary btn-sm text-end"><i class="fa fa-filter"></i> Filter</a>
     </form>
   </div>
 </div>
