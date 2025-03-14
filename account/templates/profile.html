@@ -40,13 +40,13 @@
                             {{ label }}
                         </a>
                     </li>
+                    <li>
+                      <a href="{% url 'gamefiles:'|add:table_name|add:'-create' %}" class="btn btn-primary btn-sm">
+                        <i class="fa fa-plus"></i>
+                      </a>
+                    </li>
                 {% endfor %}
             </ul>
-            <div>
-                <a href="{% url 'gamefiles:create' %}" class="btn btn-primary btn-sm">
-                    <i class="fa fa-plus"></i> Hinzufügen
-                </a>
-            </div>
         </div>
 
         <div class="card-body tab-content">
