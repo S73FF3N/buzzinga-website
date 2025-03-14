@@ -204,35 +204,8 @@ function fetchTableData(ev, clicked_object, activeTable) {
     $("#profile-filter-form").submit();
   });
 
-  $("#profile-filter-form").on("submit", function(ev) {
-    ev.preventDefault();
+  function updateProfileTable() {
     var per_page = $('#per_page').val();
-    var url = '{% url "gamefiles:set_profile_filter" "10" %}'.replace('10', per_page);
-
-    $.ajax({
-      url: url,
-      type: 'GET',
-      data: $("#profile-filter-form").serialize(),
-      success: function(data) {
-            console.log("✅ Full AJAX response:", data);  // Log everything
-
-            for (let key in data) {
-                console.log("🔄 Updating:", key, "with data:", data[key]); // Debug each key-value pair
-    
-                //let tabId = key.replace("_table", "-tab");
-                console.log("📌 Target element ID:", key);
-    
-                $("#" + key).html(data[key]);
-          }
-      },
-      complete: function() {
-          document.body.style.cursor = "auto";
-      }
-  });
-  });
-
-  $("#per_page").change(function() {
-    var per_page = $(this).val();
     var url = '{% url "gamefiles:set_profile_filter" "10" %}'.replace('10', per_page);
 
     $.ajax({
@@ -240,12 +213,26 @@ function fetchTableData(ev, clicked_object, activeTable) {
         type: 'GET',
         data: $("#profile-filter-form").serialize(),
         success: function(data) {
-            for (key in data) {
-                $("#" + key.replace("_table", "-tab")).html(data[key]);
+            console.log("✅ Full AJAX response:", data); // Log everything
+
+            for (let key in data) {
+                console.log("🔄 Updating:", key, "with data:", data[key]); // Debug each key-value pair
+                $("#" + key).html(data[key]);
             }
+        },
+        complete: function() {
+            document.body.style.cursor = "auto";
         }
     });
+}
+
+// Attach the function to both events
+$("#profile-filter-form").on("submit", function(ev) {
+    ev.preventDefault();
+    updateProfileTable();
 });
+
+$("#per_page").change(updateProfileTable);
 
 $("#download_elements").click(function(ev) {
   ev.preventDefault();
