@@ -213,8 +213,6 @@ function fetchTableData(ev, clicked_object, activeTable) {
         type: 'GET',
         data: $("#profile-filter-form").serialize(),
         success: function(data) {
-            console.log("✅ Full AJAX response:", data); // Log everything
-
             for (let key in data) {
                 console.log("🔄 Updating:", key, "with data:", data[key]); // Debug each key-value pair
                 $("#" + key).html(data[key]);
