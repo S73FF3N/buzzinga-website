@@ -1,260 +1,118 @@
 {% extends "index.html" %}
 {% load render_table from django_tables2 %}
 {% load widget_tweaks %}
+
 {% block content %}
 
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-      <div class="modal-content">
-          <div class="modal-header">
-              <h5 class="modal-title" id="deleteModalLabel">Wirklich löschen?</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-              Bist du sicher, dass du das Objekt löschen willst?
-          </div>
-          <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-              <form id="deleteForm" method="post">
-                  {% csrf_token %}
-                  <button type="submit" class="btn btn-danger">Löschen</button>
-              </form>
-          </div>
-      </div>
-  </div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Wirklich löschen?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Bist du sicher, dass du das Objekt löschen willst?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                <form id="deleteForm" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Löschen</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div id="profileTable" class="container" style="margin-top:8vw">
-    <div class="card">
-      <div class="card-header">
-        <div class="row">
-          <div class="col-8">
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header d-flex justify-content-between align-items-center">
             <ul class="nav nav-tabs card-header-tabs">
-              {% for table_name, label in table_names.items %}
-                <li>
-                  <a class="nav-link {% if forloop.first %}active{% endif %}" 
-                    id="{{ table_name }}-label" 
-                    data-bs-toggle="tab"
-                    data-bs-target="#{{ table_name }}"
-                    href="#{{ table_name }}-tab" 
-                    role="tab">
-                    {{ label }}
-                  </a>
-                </li>
-                <li>
-                  <a href="{% url 'gamefiles:'|add:table_name|add:'-create' %}" class="btn btn-primary btn-sm">
-                    <i class="fa fa-plus"></i>
-                  </a>
-                </li>
-              {% endfor %}
-            </ul>
-          </div>
-
-          <div class="col-2">
-            <form id="per_page_form">
-              <label class="nav-link" for="per_page" style="display:inline-block;">Pro Seite:</label>
-              <select id="per_page" name="per_page" class="form-control form-control-sm">
-                {% for value in per_page_options %}
-                  <option value="{{ value }}" {% if value == selected_per_page %}selected{% endif %}>{{ value }}</option>
+                {% for table_name, label in table_names.items %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if forloop.first %}active{% endif %}" 
+                            id="{{ table_name }}-label" 
+                            data-bs-toggle="tab"
+                            data-bs-target="#{{ table_name }}"
+                            href="#{{ table_name }}-tab" 
+                            role="tab">
+                            {{ label }}
+                        </a>
+                    </li>
                 {% endfor %}
-              </select>
-            </form>
-          </div>
-
-          <div class="col-2 text-right">
-            <a id="profile-collapse-link" class="nav-link" data-toggle="collapse" href="#profile-filter" role="button">
-              Filter <i id="profile-filter-img" class="fa fa-chevron-right"></i>
-            </a>
-            <button id="profile-filter-submit" class="btn btn-primary btn-sm"><i class="fa fa-filter"></i></button>
-            <a href="{% url 'account:download_all' active_table='images_' %}" id="download_elements" class="btn btn-primary btn-sm">
-              <i class="fa fa-download"></i>
-            </a>
-          </div>
+            </ul>
+            <div>
+                <a href="{% url 'gamefiles:create' %}" class="btn btn-primary btn-sm">
+                    <i class="fa fa-plus"></i> Hinzufügen
+                </a>
+            </div>
         </div>
-      </div>
 
-      <div class="card-body tab-content">
-        <form id="profile-filter-form" method="get">
-          <div id="profile-filter" class="collapse row">
-            {{ profile_filter.form.media }}
-            {% for field in profile_filter.form %}
-              <div class="col-lg-3 form-group">
-                {{ field.label_tag }}
-                {% render_field field class="form-control" %}
-              </div>
+        <div class="card-body tab-content">
+            <form id="profile-filter-form" method="get" class="mb-3">
+                <div id="profile-filter" class="collapse row">
+                    {{ profile_filter.form.media }}
+                    {% for field in profile_filter.form %}
+                        <div class="col-lg-3 form-group">
+                            {{ field.label_tag }}
+                            {% render_field field class="form-control" %}
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="text-end">
+                    <button id="profile-filter-submit" class="btn btn-primary btn-sm"><i class="fa fa-filter"></i> Filter</button>
+                </div>
+            </form>
+
+            {% for table_name, table in tables.items %}
+                <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" 
+                    id="{{ table_name }}" role="tabpanel">
+                    {% render_table table %}
+                </div>
             {% endfor %}
-          </div>
-        </form>
-
-        {% for table_name, table in tables.items %}
-          <div class="tab-pane fade {% if forloop.first %}show active{% endif %} profile-table-container" 
-               role="tabpanel" aria-labelledby="{{ table_name }}-label" id="{{ table_name }}">
-              {% render_table table %}
-          </div>
-        {% endfor %}
-      </div>
+        </div>
     </div>
 </div>
 
 <script type="text/javascript">
 $(document).ready(function () {
-  $(".nav-tabs a.nav-link").on("click", function (e) {
-      e.preventDefault();
-      $(this).tab("show");
-
-      var activeTable = $(this).attr("href").replace("#", "").replace("-tab", "");
-
-      fetchTableData(e, $(this), activeTable); 
-  });
-});
-
-$(document).on("click", ".pagination-link", function (e) {
-    e.preventDefault(); // Prevent default link behavior
-
-    // ✅ Find the active tab using `.show.active` from `.tab-pane`
-    var activePane = $(".tab-pane.show.active");
-    if (!activePane.length) {
-        console.error("❌ ERROR: No active tab detected!");
-        return;
-    }
-
-    // ✅ Extract the ID of the active tab-pane and convert it to activeTable
-    var activeTable = activePane.attr("id");
-    if (!activeTable) {
-        console.error("❌ ERROR: activeTable is undefined!");
-        return;
-    }
-
-    var url = $(this).attr("data-url");
-    if (url) {
-        fetchTableData(e, $(this), activeTable); // Fetch new table content
-    }
-  });
-
-function fetchTableData(ev, clicked_object, activeTable) {
-  if (ev) {
-      ev.preventDefault();
-  }
-
-  document.body.style.cursor = "wait";
-  clicked_object.css('cursor', 'wait');
-
-  var base_url = window.location.origin;
-  if (clicked_object.hasClass("nav-link")) {
-    var href = clicked_object.attr("href");
-
-    if (href) {
-        activeTable = href.split("#")[1].replace("-tab", "");
-    }
-    var per_page = document.getElementById("per_page").value;
-    var ajax_url = "/gameFiles/ajax/get_profile_table/" + per_page + "/?active_table=" + activeTable;
-
-  } else {
-    var ajax_url = clicked_object.attr("data-url");
-    console.log("Non-tab element clicked, keeping active table:", activeTable);
-  }
-
-  if (!ajax_url.startsWith("http")) {
-      ajax_url = base_url + ajax_url;
-  }
-
-  $.ajax({
-      url: ajax_url,
-      type: 'GET',
-      success: function(data) {
-        console.log("Received data:", data);  // 🔹 Log full response
-        if (!data["active_table"] || data["active_table"] === "error") {
-            console.error("Invalid table name:", data["msg"] || "No table received");
-            return;
-        }
-      
-        var table_id = "#" + data["active_table"];
-        if (data.html) {
-          if ($(table_id).length) {
-            $(table_id).html(data.html);
-            var newTable = $(data.html).find("table");
-            if (newTable.length) {
-                $(table_id).find("table").replaceWith(newTable); // Replace only table
-            } else {
-                console.warn("No table found in response, inserting full HTML");
-                $(table_id).html(data.html);
-            }
-
-            $(".tab-pane").removeClass("show active");  // ❌ Remove 'show active' from all
-            $(table_id).addClass("show active"); // ✅ Activate the updated tab
-
-            $(".nav-link").removeClass("active"); // ✅ Ensure tab button updates
-            $("a[data-bs-target='" + table_id + "']").addClass("show active");
-            } else {
-                console.error("Table container not found:", table_id);
-            }
-          }
-        },
-      complete: function() {
-          document.body.style.cursor = "auto";
-          clicked_object.css('cursor', 'pointer');
-      },
-      error: function(xhr) {
-          console.error("Error fetching table:", xhr.responseText);
-      }
-  });
-}
-
-  $("#profile-filter-submit").click(function() {
-    $("#profile-filter-form").submit();
-  });
-
-  function updateProfileTable() {
-    var per_page = $('#per_page').val();
-    var url = '{% url "gamefiles:set_profile_filter" "10" %}'.replace('10', per_page);
-
-    $.ajax({
-        url: url,
-        type: 'GET',
-        data: $("#profile-filter-form").serialize(),
-        success: function(data) {
-            for (let key in data) {
-                $("#" + key).html(data[key]);
-            }
-        },
-        complete: function() {
-            document.body.style.cursor = "auto";
-        }
+    $(".nav-tabs a.nav-link").on("click", function (e) {
+        e.preventDefault();
+        $(this).tab("show");
+        var activeTable = $(this).attr("href").replace("#", "").replace("-tab", "");
+        fetchTableData(e, $(this), activeTable);
     });
-}
 
-// Attach the function to both events
-$("#profile-filter-form").on("submit", function(ev) {
-    ev.preventDefault();
-    updateProfileTable();
+    $("#profile-filter-submit").click(function() {
+        $("#profile-filter-form").submit();
+    });
+
+    function fetchTableData(ev, clicked_object, activeTable) {
+        if (ev) ev.preventDefault();
+
+        document.body.style.cursor = "wait";
+        clicked_object.css('cursor', 'wait');
+
+        var ajax_url = "/gameFiles/ajax/get_profile_table/" + $("#per_page").val() + "/?active_table=" + activeTable;
+
+        $.ajax({
+            url: ajax_url,
+            type: 'GET',
+            success: function(data) {
+                if (data.html) {
+                    $("#" + data.active_table).html(data.html);
+                    $(".tab-pane").removeClass("show active");
+                    $("#" + data.active_table).addClass("show active");
+                }
+            },
+            complete: function() {
+                document.body.style.cursor = "auto";
+                clicked_object.css('cursor', 'pointer');
+            }
+        });
+    }
 });
-
-$("#per_page").change(updateProfileTable);
-
-$("#download_elements").click(function(ev) {
-  ev.preventDefault();
-  var active_table = $(".profile-table-container.active").attr("id").split('_')[0];
-  var base_url = window.location.origin;
-  var selected_ids = [...document.querySelectorAll('.select_checkbox:checked')]
-  .map(checkbox => checkbox.id.split('_')[1]);
-
-  if ($(selected_ids).length) {
-    selected_ids = selected_ids.join("+");
-    window.location.href = base_url + "/account/download/" + active_table + "/" + selected_ids;
-  } else {
-    window.location.href = base_url + "/account/download/" + active_table + "/all/";
-  }
-});
-
-  $("#profile-collapse-link").click(function (e) {
-    e.preventDefault();
-    $("#profile-filter").collapse("toggle");
-    $("#profile-filter-img").toggleClass("fa-chevron-right fa-chevron-down");
-});
-
-// select/deselect all objects
-  function toggle(source) {
-    $("input[name='select']").prop('checked', source.checked);
-  }
 </script>
+
 {% endblock %}
