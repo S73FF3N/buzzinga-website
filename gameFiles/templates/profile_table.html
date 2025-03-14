@@ -76,32 +76,32 @@
                 <ul class="pagination justify-content-center">
                 {% if table.page.has_previous %}
                     {% block pagination.previous %}
-                    <li class="previous page-item">
-                        <a class="page-link pagination-link"
-                            role="button"
-                            style="cursor: pointer; text-decoration: none;"
-                            data-url="{% url 'gamefiles:get_profile_table' per_page=table.per_page %}{% querystring table.prefixed_page_field=table.page.previous_page_number active_table=table.prefix %}">
-                            <span aria-hidden="true">&laquo;</span>
-                            {% trans 'previous' %}
-                        </a>
-                    </li>
+                        <li class="previous page-item">
+                            <a class="page-link pagination-link"
+                                role="button"
+                                style="cursor: pointer; text-decoration: none;"
+                                data-url="{% url 'gamefiles:get_profile_table' per_page=table.per_page|default:10 %}{% querystring table.prefixed_page_field=table.page.previous_page_number active_table=table.prefix %}">
+                                <span aria-hidden="true">&laquo;</span>
+                                {% trans 'previous' %}
+                            </a>
+                        </li>
                     {% endblock pagination.previous %}
                 {% endif %}
                 
                 {% if table.page.has_previous or table.page.has_next %}
                     {% block pagination.range %}
-                    {% for p in table.page|table_page_range:table.paginator %}
-                    <li class="page-item{% if table.page.number == p %} active{% endif %}">
-                        <a class="page-link pagination-link"
-                            role="button"
-                            style="cursor: pointer; text-decoration: none;"
-                            {% if p != '...' %}
-                            data-url="{% url 'gamefiles:get_profile_table' per_page=table.per_page %}{% querystring table.prefixed_page_field=p 'active_table'=table.prefix %}"
-                            {% endif %}>
-                            {{ p }}
-                        </a>
-                    </li>
-                    {% endfor %}
+                        {% for p in table.page|table_page_range:table.paginator %}
+                            <li class="page-item{% if table.page.number == p %} active{% endif %}">
+                                <a class="page-link pagination-link"
+                                    role="button"
+                                    style="cursor: pointer; text-decoration: none;"
+                                    {% if p != '...' %}
+                                    data-url="{% url 'gamefiles:get_profile_table' per_page=table.per_page|default:10 %}{% querystring table.prefixed_page_field=p 'active_table'=table.prefix %}"
+                                    {% endif %}>
+                                    {{ p }}
+                                </a>
+                            </li>
+                        {% endfor %}
                     {% endblock pagination.range %}
                 {% endif %}
                 
