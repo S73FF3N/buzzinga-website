@@ -222,7 +222,7 @@ function fetchTableData(ev, clicked_object, activeTable) {
                 //let tabId = key.replace("_table", "-tab");
                 console.log("📌 Target element ID:", key);
     
-                $("#" + tabId).html(data[key]);
+                $("#" + key).html(data[key]);
           }
       },
       complete: function() {
