@@ -55,14 +55,14 @@
                     </div>
                     <div class="col-6 mb-3 form-group">
                         {{ form.explicit.label_tag }}
-                        {% render_field form.explicit class="form-control" %}
+                        {% render_field form.explicit class="form-check-input" %}
                         {% if form.explicit.errors %}
                             <div class="invalid-feedback d-block">{{ form.explicit.errors }}</div>
                         {% endif %}
                     </div>
                     <div class="col-6 mb-3 form-group">
                         {{ form.private_new.label_tag }}
-                        {% render_field form.private_new class="form-control" %}
+                        {% render_field form.private_new class="form-check-input" aria-label="Privat" %}
                         {% if form.private_new.errors %}
                             <div class="invalid-feedback d-block">{{ form.private_new.errors }}</div>
                         {% endif %}
