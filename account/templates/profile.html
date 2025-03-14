@@ -219,8 +219,8 @@ function fetchTableData(ev, clicked_object, activeTable) {
             for (let key in data) {
                 console.log("🔄 Updating:", key, "with data:", data[key]); // Debug each key-value pair
     
-                let tabId = key.replace("_table", "-tab");
-                console.log("📌 Target element ID:", tabId);
+                //let tabId = key.replace("_table", "-tab");
+                console.log("📌 Target element ID:", key);
     
                 $("#" + tabId).html(data[key]);
           }

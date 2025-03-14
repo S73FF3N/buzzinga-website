@@ -74,11 +74,6 @@ def get_profile_table(request, per_page):
 
 
 def set_profile_filter(request, per_page):
-    #table_name = request.GET.get("table_name")
-
-    #if table_name not in TABLE_NAMES:
-    #    return JsonResponse({"active_table": "error", "msg": "Invalid table name"})
-
     data = {
         f"{table_name}_table": render_to_string(
             "profile_table_view.html",
