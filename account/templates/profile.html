@@ -40,7 +40,9 @@
             </li>
           {% endfor %}
           </ul>
-          <a id="profile-filter-submit" class="btn btn-primary btn-sm text-end"><i class="fa fa-filter"></i> Filter</a>
+          <div class="text-end">
+            <a id="profile-filter-submit" class="btn btn-primary btn-sm"><i class="fa fa-filter"></i> Filter</a>
+          </div>
     </form>
   </div>
 </div>
@@ -50,7 +52,7 @@
       <div class="card-header d-flex justify-content-between align-items-center">
         <ul class="nav nav-tabs card-header-tabs">
           {% for table_name, label in table_names.items %}
-            <li>
+            <li style="display: flex; align-items: center;">
               <a class="nav-link {% if forloop.first %}active{% endif %}" 
                 id="{{ table_name }}-label" 
                 data-bs-toggle="tab"
@@ -58,9 +60,9 @@
                 href="#{{ table_name }}-tab" 
                 role="tab">
                 {{ label }}
-                <a href="{% url 'gamefiles:'|add:table_name|add:'-create' %}" class="btn btn-primary btn-sm">
-                  <i class="fa fa-plus"></i>
-                </a>
+              </a>
+              <a href="{% url 'gamefiles:'|add:table_name|add:'-create' %}" class="btn btn-primary btn-sm ml-5">
+                <i class="fa fa-plus"></i>
               </a>
             </li>
           {% endfor %}
