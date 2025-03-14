@@ -214,7 +214,6 @@ function fetchTableData(ev, clicked_object, activeTable) {
         data: $("#profile-filter-form").serialize(),
         success: function(data) {
             for (let key in data) {
-                console.log("🔄 Updating:", key, "with data:", data[key]); // Debug each key-value pair
                 $("#" + key).html(data[key]);
             }
         },
