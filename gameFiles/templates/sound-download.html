@@ -8,52 +8,94 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <form action="" method="POST" class="post-form">{% csrf_token %}
-        {% csrf_token %}
-        {{ form.media }}
-        <h1>Download</h1>
-        <div class="row">
-            <div class="col-6 form-group">
-                {{ form.min_difficulty.label_tag }}
-                {% render_field form.min_difficulty class="form-control" %}
-            </div>
-            <div class="col-6 form-group">
-                {{ form.max_difficulty.label_tag }}
-                {% render_field form.max_difficulty class="form-control" %}
-            </div>
-            <div class="col-6 form-group">
-                {{ form.max_upload_date.label_tag }}
-                {% render_field form.max_upload_date class="form-control" %}
-            </div>
-            <div class="col-6 form-group">
-                {{ form.min_upload_date.label_tag }}
-                {% render_field form.min_upload_date class="form-control" %}
-            </div>
-            <div class="col-6 form-group">
-                {{ form.explicit.label_tag }}
-                {% render_field form.explicit class="form-control" %}
-            </div>
-            <div class="col-6 form-group">
-                {{ form.private_new.label_tag }}
-                {% render_field form.private_new class="form-control" %}
-            </div>
-            <div class="col-6 form-group">
-                {{ form.created_by.label_tag }}
-                {% render_field form.created_by class="form-control" %}
-            </div>
-            <div class="col-6 form-group">
-                {{ form.amount.label_tag }}
-                {% render_field form.amount class="form-control" %}
-            </div>
-            <div class="col-6 form-group">
-                {{ form.category.label_tag }}
-                {% render_field form.category class="form-control" %}
-            </div>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1>Download</h1>
+            <form action="" method="POST" class="download-form">{% csrf_token %}
+                {% csrf_token %}
+                {{ form.media }}
+
+                {% if form.errors %}
+                    {% for error in form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            <strong>{{ error|escape }}</strong>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="row g-3">
+                    <div class="col-6 mb-3 form-group">
+                        {{ form.min_difficulty.label_tag }}
+                        {% render_field form.min_difficulty class="form-control" %}
+                        {% if form.min_difficulty.errors %}
+                            <div class="invalid-feedback d-block">{{ form.min_difficulty.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-6 mb-3 form-group">
+                        {{ form.max_difficulty.label_tag }}
+                        {% render_field form.max_difficulty class="form-control" %}
+                        {% if form.max_difficulty.errors %}
+                            <div class="invalid-feedback d-block">{{ form.max_difficulty.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-6 mb-3 form-group">
+                        {{ form.max_upload_date.label_tag }}
+                        {% render_field form.max_upload_date class="form-control" %}
+                        {% if form.max_upload_date.errors %}
+                            <div class="invalid-feedback d-block">{{ form.max_upload_date.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-6 mb-3 form-group">
+                        {{ form.min_upload_date.label_tag }}
+                        {% render_field form.min_upload_date class="form-control" %}
+                        {% if form.min_upload_date.errors %}
+                            <div class="invalid-feedback d-block">{{ form.min_upload_date.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-6 mb-3 form-group">
+                        {{ form.explicit.label_tag }}
+                        {% render_field form.explicit class="form-control" %}
+                        {% if form.explicit.errors %}
+                            <div class="invalid-feedback d-block">{{ form.explicit.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-6 mb-3 form-group">
+                        {{ form.private_new.label_tag }}
+                        {% render_field form.private_new class="form-control" %}
+                        {% if form.private_new.errors %}
+                            <div class="invalid-feedback d-block">{{ form.private_new.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-6 mb-3 form-group">
+                        {{ form.created_by.label_tag }}
+                        {% render_field form.created_by class="form-control" %}
+                        {% if form.created_by.errors %}
+                            <div class="invalid-feedback d-block">{{ form.created_by.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-6 mb-3 form-group">
+                        {{ form.amount.label_tag }}
+                        {% render_field form.amount class="form-control" %}
+                        {% if form.amount.errors %}
+                            <div class="invalid-feedback d-block">{{ form.amount.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-6 mb-3 form-group">
+                        {{ form.category.label_tag }}
+                        {% render_field form.category class="form-control" %}
+                        {% if form.category.errors %}
+                            <div class="invalid-feedback d-block">{{ form.category.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-actions mt-3">
+                    <button type="submit" id="submit" class="btn btn-primary btn-sm" title="Download"><i class="fa fa-download"></i></button>
+                    <a href="{% url 'gamefiles:category_detail' game_type=game_type_id id=category_id %}" title="Zurück" class="btn btn-primary btn-sm"><i class="fa fa-backward"></i></a>
+                </div>
+            </form>
         </div>
-        <button type="submit" id="submit" class="btn btn-primary btn-sm" title="Download"><i class="fa fa-download"></i></button>
-        <a href="{% url 'gamefiles:category_detail' game_type=game_type_id id=category_id %}" title="Zurück" class="btn btn-primary btn-sm"><i class="fa fa-backward"></i></a>
-    </form>
+    </div>   
 </div>
 {% endblock %}
 
