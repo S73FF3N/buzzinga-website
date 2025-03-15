@@ -4,7 +4,7 @@
 {% block table-wrapper %}
 <div class="table-container">
     {% block table %}
-    <table {% render_attrs table.attrs class="table table-striped table-hover" %}>
+    <table {% render_attrs table.attrs class="table table-custom table-striped table-hover" %}>
         {% block table.thead %}
         {% if table.show_header %}
         <thead {{ table.attrs.thead.as_html }}>
