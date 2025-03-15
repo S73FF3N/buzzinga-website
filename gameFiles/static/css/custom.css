@@ -1,5 +1,5 @@
 :root {
-  --primary: #dc2019;
+  --primary: #d9534f;
   --secondary: #092f57;
   --white: #fff;
   --accent: #f4c430;
@@ -85,6 +85,9 @@ h5 { color: var(--white); }
 .navbar-custom .navbar-nav li a:hover {
   color: var(--accent);
   transform: scale(1.1);
+}
+.nav-link {
+  color:var(--primary)
 }
 
 /* Shapes & Cards */
