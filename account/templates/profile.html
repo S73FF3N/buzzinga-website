@@ -84,15 +84,19 @@
         {% endfor %}
       </div>
       <div class="card-footer text-muted">
-        <div class="form-container">
-          <form id="per_page_form" class="mb-3">
-            <label for="per_page" style="display:inline-block;">Pro Seite:</label>
-            <select id="per_page" name="per_page" class="form-control form-control-sm">
-              {% for value in per_page_options %}
-                <option value="{{ value }}" {% if value == selected_per_page %}selected{% endif %}>{{ value }}</option>
-              {% endfor %}
-            </select>
-          </form>
+        <div class="row">
+          <div class="col-8 col-sm-6">
+          </div>
+          <div class="col-4 col-sm-6">
+            <form id="per_page_form" class="mb-3">
+              <label for="per_page" style="display:inline-block;">Pro Seite:</label>
+              <select id="per_page" name="per_page" class="form-control form-control-sm">
+                {% for value in per_page_options %}
+                  <option value="{{ value }}" {% if value == selected_per_page %}selected{% endif %}>{{ value }}</option>
+                {% endfor %}
+              </select>
+            </form>
+          </div>
         </div>
       </div>
   </div>
