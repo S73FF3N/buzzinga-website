@@ -135,25 +135,3 @@ input:focus, textarea:focus {
   h1 { font-size: 36px; }
   h2 { font-size: 28px; }
 }
-
-.card-footer {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.form-container {
-  width: 30%; /* Adjust this value to control the form's width */
-}
-
-#per_page_form {
-  display: flex;
-  align-items: center;
-}
-
-#per_page_form label {
-  margin-right: 10px;
-}
-
-#per_page {
-  width: auto;
-}
