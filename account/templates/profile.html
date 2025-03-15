@@ -17,7 +17,7 @@
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
               <form id="deleteForm" method="post">
                   {% csrf_token %}
-                  <button type="submit" class="btn btn-danger">Löschen</button>
+                  <button type="submit" class="btn btn-warning">Löschen</button>
               </form>
           </div>
       </div>
@@ -41,7 +41,7 @@
           {% endfor %}
           </ul>
           <div class="text-end">
-            <a id="profile-filter-submit" class="btn btn-primary btn-sm"><i class="fa fa-filter"></i> Filter</a>
+            <a id="profile-filter-submit" class="btn btn-warning btn-sm"><i class="fa fa-filter"></i> Filter</a>
           </div>
     </form>
   </div>
@@ -61,15 +61,15 @@
                 role="tab">
                 {{ label }}
               </a>
-              <a href="{% url 'gamefiles:'|add:table_name|add:'-create' %}" class="btn btn-primary btn-sm ml-5">
+              <a href="{% url 'gamefiles:'|add:table_name|add:'-create' %}" class="btn btn-warning btn-sm ml-5">
                 <i class="fa fa-plus"></i>
               </a>
             </li>
           {% endfor %}
         </ul>
         <div class="btn-group text-end">
-          <a id="profile-filter-show" class="btn btn-primary btn-sm" data-bs-toggle="offcanvas" href="#offcanvasExample" role="button" aria-controls="offcanvasExample"><i class="fa fa-filter"></i> Filter</a>
-          <a href="{% url 'account:download_all' active_table='images_' %}" id="download_elements" role="button" class="btn btn-primary btn-sm">
+          <a id="profile-filter-show" class="btn btn-warning btn-sm" data-bs-toggle="offcanvas" href="#offcanvasExample" role="button" aria-controls="offcanvasExample"><i class="fa fa-filter"></i> Filter</a>
+          <a href="{% url 'account:download_all' active_table='images_' %}" id="download_elements" role="button" class="btn btn-warning btn-sm">
             <i class="fa fa-download"></i> Download
           </a>
         </div>
