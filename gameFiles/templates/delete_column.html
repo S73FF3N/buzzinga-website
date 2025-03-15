@@ -1,5 +1,5 @@
 {% load gameFiles_tags %}
-<button class="btn btn-info btn-sm confirm-delete"
+<button class="btn btn-warning btn-sm confirm-delete"
 data-bs-toggle="modal" data-bs-target="#deleteModal"
 {% if record|to_class_name == 'Category' %}
     onclick="setDeleteUrl('{% url 'gamefiles:category-delete' record.pk %}')"
