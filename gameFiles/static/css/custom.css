@@ -9,6 +9,24 @@
   --text-dark: #111;
 }
 
+.table-custom {
+  background-color: --text-light; /* Light gray */
+  color: --dark; /* Dark text */
+}
+
+.table-custom th {
+  background-color: --secondary;
+  color: --white;
+}
+
+.table-custom tbody tr:nth-child(odd) {
+  background-color: #e9ecef; /* Alternate row color */
+}
+
+.table-custom tbody tr:hover {
+  background-color: #f1f1f1; /* Hover effect */
+}
+
 body {
   font-family: "Press Start 2P", "Impact", fantasy, sans-serif;
   background: var(--bg);
