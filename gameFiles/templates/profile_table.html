@@ -32,7 +32,11 @@
                 <tr {{ row.attrs.as_html }}>
                     {% for column, cell in row.items %}
                     <td {{ column.attrs.td.as_html }}>
-                        {{ cell|localize if column.localize is not False else cell|unlocalize }}
+                        {% if column.localize is not False %}
+                            {{ cell|localize }}
+                        {% else %}
+                            {{ cell|unlocalize }}
+                        {% endif %}
                     </td>
                     {% endfor %}
                 </tr>
