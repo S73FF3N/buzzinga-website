@@ -10,12 +10,9 @@
               <h5 class="modal-title" id="deleteModalLabel">Wirklich löschen?</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
-              Bist du sicher, dass du das Objekt löschen willst?
-          </div>
           <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-              <form id="deleteForm" method="post">
+              <form id="deleteForm" class="form-override" method="post">
                   {% csrf_token %}
                   <button type="submit" class="btn btn-danger">Löschen</button>
               </form>
@@ -88,7 +85,7 @@
           <div class="col-sm-10 col-xs-4">
           </div>
           <div class="col-sm-2 col-xs-8">
-            <form id="per_page_form" class="mb-3">
+            <form id="per_page_form" class="form-override mb-3">
               <label for="per_page" style="display:inline-block;">Pro Seite:</label>
               <select id="per_page" name="per_page" class="form-control form-control-sm">
                 {% for value in per_page_options %}
