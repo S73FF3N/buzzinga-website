@@ -8,7 +8,6 @@ urlpatterns = [
     path('categories/<int:game_type>/', views.CategoryView.as_view(), name='category_list'),
     path('<int:game_type>/<int:id>/', views.category_detail, name='category_detail'),
     path('solution-form/', views.solution_form_view, name='solution_form'),
-    path('get_category_elements/', views.get_category_elements, name='get_category_elements'),
     path('solution/<int:game_type>/<int:category_element>/', views.solution, name='solution'),
 
     # Category Views
