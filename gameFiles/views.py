@@ -552,7 +552,7 @@ def get_category_elements(request):
     model = game_types.get(game.name_de)
 
     if model:
-        elements = model.objects.all().values_list('id', 'name')  # Assuming a 'name' field exists
+        elements = model.objects.all().values_list('id', 'solution')  # Assuming a 'name' field exists
         return JsonResponse(list(elements), safe=False)
     
     return JsonResponse([], safe=False)
