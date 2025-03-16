@@ -151,7 +151,7 @@ from .models import GameType, Category
 
 class SolutionForm(forms.Form):
     game_type = forms.ModelChoiceField(
-        queryset=GameType.objects.all(),
+        queryset=GameType.objects.all(id__in=[3,5]),
         label="Spielart",
         empty_label="Spielart auswählen"
     )
@@ -167,7 +167,7 @@ class SolutionForm(forms.Form):
     )
 
     category_element = forms.ModelChoiceField(
-        queryset=Category.objects.none(),
+        queryset=Hints.objects.none(),
         label="Element (Gib die ID ein!)",
         required=False,
         widget=autocomplete.ModelSelect2(
@@ -186,9 +186,6 @@ class SolutionForm(forms.Form):
 
                 # Determine the correct model based on game type
                 game_types = {
-                    "Audio": Sound,
-                    "Bilder": Image,
-                    "Multiple Choice": Question,
                     "10 Hinweise": Hints,
                     "Wer weiß mehr?": WhoKnowsMore,
                 }

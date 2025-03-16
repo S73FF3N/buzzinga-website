@@ -553,9 +553,6 @@ def solution_form_view(request):
 def solution(request, game_type, category_element):
     """Fetches and returns the solution based on game type."""
     game_types = {
-        "Audio": (Sound, "Sound"),
-        "Bilder": (Image, "Image"),
-        "Multiple Choice": (Question, "Multiple Choice"),
         "10 Hinweise": (Hints, "Hints"),
         "Wer weiß mehr?": (WhoKnowsMore, "WhoKnowsMore"),
     }
@@ -596,9 +593,6 @@ class CategoryElementAutocomplete(autocomplete.Select2QuerySetView):
         qs = []
         # Determine the correct model for category elements
         game_types = {
-            "Audio": Sound,
-            "Bilder": Image,
-            "Multiple Choice": Question,
             "10 Hinweise": Hints,
             "Wer weiß mehr?": WhoKnowsMore,
         }

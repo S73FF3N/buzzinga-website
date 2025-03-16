@@ -38,6 +38,9 @@
     {% else %}
         <h1>{{ solution.qs }}</h1>
     {% endif %}
+    <a href="javascript:history.back()" class="btn btn-warning ms-2">
+        Nächste Lösung
+    </a>
 </div>
 <script type="text/javascript">
     var checkboxes = $('[id^="checkbox-"]');
