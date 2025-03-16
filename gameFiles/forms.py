@@ -151,7 +151,7 @@ from .models import GameType, Category
 
 class SolutionForm(forms.Form):
     game_type = forms.ModelChoiceField(
-        queryset=GameType.objects.all(id__in=[3,5]),
+        queryset=GameType.objects.filter(id__in=[3,5]),
         label="Spielart",
         empty_label="Spielart auswählen"
     )
