@@ -162,3 +162,7 @@ input:focus, textarea:focus {
   h1 { font-size: 36px; }
   h2 { font-size: 28px; }
 }
+
+.offcanvas {
+  background: var(--primary);
+}
