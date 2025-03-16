@@ -176,3 +176,30 @@ class SolutionForm(forms.Form):
         )
     )
 
+    def __init__(self, *args, **kwargs):
+        super(SolutionForm, self).__init__(*args, **kwargs)
+
+        # Pre-fill queryset for category_element if form has data
+        if 'game_type' in self.data and 'category' in self.data:
+            try:
+                game_type_id = int(self.data.get('game_type'))
+                category_id = int(self.data.get('category'))
+
+                # Determine the correct model based on game type
+                game_types = {
+                    "Audio": Sound,
+                    "Bilder": Image,
+                    "Multiple Choice": Question,
+                    "10 Hinweise": Hints,
+                    "Wer weiß mehr?": WhoKnowsMore,
+                }
+
+                game_type = GameType.objects.get(id=game_type_id)
+                model = game_types.get(game_type.name_de)
+
+                if model:
+                    self.fields['category_element'].queryset = model.objects.filter(category_id=category_id)
+
+            except (ValueError, TypeError, GameType.DoesNotExist):
+                pass  # Ignore invalid IDs
+
