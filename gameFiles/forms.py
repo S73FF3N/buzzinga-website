@@ -2,7 +2,7 @@ from dal import autocomplete, forward
 from django import forms
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.forms import inlineformset_factory
-from .models import Category, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, DIFFICULTY
+from .models import GameType, Category, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, DIFFICULTY
 
 
 class CategoryForm(forms.ModelForm):
@@ -143,3 +143,22 @@ class WhoKnowsMoreDownloadForm(BaseDownloadForm):
     """Download form for WhoKnowsMore model."""
     class Meta(BaseDownloadForm.Meta):
         model = WhoKnowsMore
+
+
+class SolutionForm(forms.Form):
+    game_type = forms.ModelChoiceField(
+        queryset=GameType.objects.all(),
+        label="Game Type",
+        empty_label="Select Game Type",
+        widget=forms.Select(attrs={'onchange': 'updateCategoryElements()'})
+    )
+    
+    category_element = forms.ChoiceField(
+        label="Category Element",
+        choices=[],
+        widget=forms.Select()
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(SolutionForm, self).__init__(*args, **kwargs)
+        self.fields['category_element'].choices = [('', 'Select a Game Type first')]

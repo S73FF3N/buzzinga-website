@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.views.generic import ListView, FormView, CreateView, UpdateView, DeleteView
 from django.conf import settings
 from django.urls import reverse
@@ -13,7 +13,7 @@ from django.db.models.expressions import Value
 from django.db.models.functions import Coalesce
 
 from .models import GameType, Category, CategoryElement, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement
-from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, WhoKnowsMoreForm, WhoKnowsMoreElementFormSet, WhoKnowsMoreElementFormSetUpdate, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm, WhoKnowsMoreDownloadForm
+from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, WhoKnowsMoreForm, WhoKnowsMoreElementFormSet, WhoKnowsMoreElementFormSetUpdate, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm, WhoKnowsMoreDownloadForm, SolutionForm
 
 from dal import autocomplete
 from itertools import chain
@@ -537,6 +537,38 @@ class WhoknowsmoreDownloadView(BaseDownloadView):
         response['Content-Disposition'] = f'attachment; filename={zip_filename}'
         return response
 
+def get_category_elements(request):
+    """Fetch category elements based on selected game type."""
+    game_type_id = request.GET.get('game_type')
+    game_types = {
+        "Audio": Sound,
+        "Bilder": Image,
+        "Multiple Choice": Question,
+        "10 Hinweise": Hints,
+        "Wer weiß mehr?": WhoKnowsMore,
+    }
+
+    game = GameType.objects.get(id=game_type_id)
+    model = game_types.get(game.name_de)
+
+    if model:
+        elements = model.objects.all().values_list('id', 'name')  # Assuming a 'name' field exists
+        return JsonResponse(list(elements), safe=False)
+    
+    return JsonResponse([], safe=False)
+
+def solution_form_view(request):
+    """Handles solution selection through form submission."""
+    if request.method == 'POST':
+        form = SolutionForm(request.POST)
+        if form.is_valid():
+            game_type = form.cleaned_data['game_type'].id
+            category_element = form.cleaned_data['category_element']
+            return redirect('solution', game_type=game_type, category_element=category_element)
+    else:
+        form = SolutionForm()
+
+    return render(request, 'solution_form.html', {'form': form})
 
 def solution(request, game_type, category_element):
     """Fetches and returns the solution based on game type."""
