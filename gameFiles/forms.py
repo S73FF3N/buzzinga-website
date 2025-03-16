@@ -180,10 +180,9 @@ class SolutionForm(forms.Form):
         super(SolutionForm, self).__init__(*args, **kwargs)
 
         # Pre-fill queryset for category_element if form has data
-        if 'game_type' in self.data and 'category' in self.data:
+        if 'game_type' in self.data:# and 'category' in self.data:
             try:
                 game_type_id = int(self.data.get('game_type'))
-                category_id = int(self.data.get('category'))
 
                 # Determine the correct model based on game type
                 game_types = {
@@ -198,7 +197,11 @@ class SolutionForm(forms.Form):
                 model = game_types.get(game_type.name_de)
 
                 if model:
-                    self.fields['category_element'].queryset = model.objects.filter(category_id=category_id)
+                    if 'category' in self.data:
+                        category_id = int(self.data.get('category'))
+                        self.fields['category_element'].queryset = model.objects.filter(category_id=category_id)
+                    else:    
+                        self.fields['category_element'].queryset = model.objects.all()
 
             except (ValueError, TypeError, GameType.DoesNotExist):
                 pass  # Ignore invalid IDs
