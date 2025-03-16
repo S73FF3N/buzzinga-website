@@ -161,7 +161,7 @@ class SolutionForm(forms.Form):
         label="Kategorie",
         required=False,
         widget=autocomplete.ModelSelect2(
-            url='category-autocomplete',
+            url='gamefiles:category-autocomplete',
             forward=['game_type']  # Filters categories based on game_type
         )
     )
@@ -171,7 +171,7 @@ class SolutionForm(forms.Form):
         label="Element",
         required=False,
         widget=autocomplete.ModelSelect2(
-            url='category-element-autocomplete',
+            url='gamefiles:category-element-autocomplete',
             forward=['category']  # Filters elements based on category
         )
     )
