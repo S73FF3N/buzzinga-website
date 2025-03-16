@@ -15,7 +15,8 @@
 
             categoryElement.innerHTML = "<option value=''>Lade...</option>";
 
-            fetch(`/get_category_elements/?game_type=${gameType}`)
+            var base_url = window.location.origin;
+            fetch(base_url + `/gameFiles/get_category_elements/?game_type=${gameType}`)
                 .then(response => response.json())
                 .then(data => {
                     categoryElement.innerHTML = "<option value=''>Element auswählen</option>";
