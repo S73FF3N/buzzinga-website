@@ -194,12 +194,14 @@ class SolutionForm(forms.Form):
                 model = game_types.get(game_type.name_de)
 
                 if model:
-                    if 'category' in self.data:
-                        category_id = int(self.data.get('category'))
+                    # If category is provided, filter by category_id
+                    category_id = self.data.get('category')
+                    if category_id:
+                        category_id = int(category_id)
                         self.fields['category_element'].queryset = model.objects.filter(category_id=category_id)
-                    else:    
+                    else:
+                        # If category is empty, show all elements of the selected game type
                         self.fields['category_element'].queryset = model.objects.all()
 
             except (ValueError, TypeError, GameType.DoesNotExist):
                 pass  # Ignore invalid IDs
-
