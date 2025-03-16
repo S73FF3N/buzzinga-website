@@ -537,25 +537,6 @@ class WhoknowsmoreDownloadView(BaseDownloadView):
         response['Content-Disposition'] = f'attachment; filename={zip_filename}'
         return response
 
-"""def get_category_elements(request):
-    game_type_id = request.GET.get('game_type')
-    game_types = {
-        "Audio": Sound,
-        "Bilder": Image,
-        "Multiple Choice": Question,
-        "10 Hinweise": Hints,
-        "Wer weiß mehr?": WhoKnowsMore,
-    }
-
-    game = GameType.objects.get(id=game_type_id)
-    model = game_types.get(game.name_de)
-
-    if model:
-        elements = model.objects.all().values_list('id', 'solution')  # Assuming a 'name' field exists
-        return JsonResponse(list(elements), safe=False)
-    
-    return JsonResponse([], safe=False)"""
-
 def solution_form_view(request):
     """Handles solution selection through form submission."""
     if request.method == 'POST':
