@@ -612,8 +612,8 @@ class CategoryElementAutocomplete(autocomplete.Select2QuerySetView):
     """Autocomplete for filtering category elements by selected Category."""
     def get_queryset(self):
         category_id = self.forwarded.get('category', None)
-        if not category_id:
-            return []
+        game_type_id = self.forwarded.get('game_type', None)
+        qs = []
         # Determine the correct model for category elements
         game_types = {
             "Audio": Sound,
@@ -623,14 +623,14 @@ class CategoryElementAutocomplete(autocomplete.Select2QuerySetView):
             "Wer weiß mehr?": WhoKnowsMore,
         }
 
-        qs = []
-        category = get_object_or_404(Category, id=category_id)
-        game_type = category.game_type
-
+        game_type = get_object_or_404(GameType, id=game_type_id)
         model = game_types.get(game_type.name_de)
 
         if model:
-            qs = model.objects.filter(category_id=category_id)
+            if category_id:
+                qs = model.objects.filter(category_id=category_id)
+            else:
+                qs = model.objects.all()
         
         if self.q:
             qs = qs.filter(pk=self.q)

@@ -172,7 +172,7 @@ class SolutionForm(forms.Form):
         required=False,
         widget=autocomplete.ModelSelect2(
             url='gamefiles:category-element-autocomplete',
-            forward=['category']  # Filters elements based on category
+            forward=['category', 'game_type']  # Filters elements based on category
         )
     )
 
