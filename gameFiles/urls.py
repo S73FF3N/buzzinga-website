@@ -18,6 +18,7 @@ urlpatterns = [
 
     # Autocomplete Views
     path('category-autocomplete', views.CategoryAutocomplete.as_view(), name='category-autocomplete'),
+    path('category-element-autocomplete/', views.CategoryElementAutocomplete.as_view(), name='category-element-autocomplete'),
     path('user-autocomplete', views.UserAutocomplete.as_view(), name='user-autocomplete'),
 
     # AJAX Calls

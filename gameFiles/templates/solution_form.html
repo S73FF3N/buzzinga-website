@@ -3,32 +3,10 @@
 {% load widget_tweaks %}
 {% block content %}
     <h2>Lösung anzeigen</h2>
+    {{ form.media }}
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <button class="btn btn-sm btn-warning" type="submit">Anzeigen</button>
     </form>
-    <script>
-        function updateCategoryElements() {
-            let gameType = document.getElementById("id_game_type").value;
-            let categoryElement = document.getElementById("id_category_element");
-
-            categoryElement.innerHTML = "<option value=''>Lade...</option>";
-
-            var base_url = window.location.origin;
-            fetch(base_url + `/gameFiles/get_category_elements/?game_type=${gameType}`)
-                .then(response => response.json())
-                .then(data => {
-                    categoryElement.innerHTML = "<option value=''>Element auswählen</option>";
-                    data.forEach(item => {
-                        let option = document.createElement("option");
-                        option.value = item[0];
-                        option.textContent = item[1];
-                        categoryElement.appendChild(option);
-                        console.log(item[0]);
-                        console.log(item[1]);
-                    });
-                });
-        }
-    </script>
 {% endblock %}

@@ -145,20 +145,34 @@ class WhoKnowsMoreDownloadForm(BaseDownloadForm):
         model = WhoKnowsMore
 
 
+from django import forms
+from dal import autocomplete
+from .models import GameType, Category
+
 class SolutionForm(forms.Form):
     game_type = forms.ModelChoiceField(
         queryset=GameType.objects.all(),
-        label="Speielart",
-        empty_label="Spielart auswählen",
-        widget=forms.Select(attrs={'onchange': 'updateCategoryElements()'})
-    )
-    
-    category_element = forms.ChoiceField(
-        label="Element",
-        choices=[],
-        widget=forms.Select()
+        label="Spielart",
+        empty_label="Spielart auswählen"
     )
 
-    def __init__(self, *args, **kwargs):
-        super(SolutionForm, self).__init__(*args, **kwargs)
-        self.fields['category_element'].choices = [('', 'Zuerst Spielart auswählen')]
+    category = forms.ModelChoiceField(
+        queryset=Category.objects.all(),
+        label="Kategorie",
+        required=False,
+        widget=autocomplete.ModelSelect2(
+            url='category-autocomplete',
+            forward=['game_type']  # Filters categories based on game_type
+        )
+    )
+
+    category_element = forms.ModelChoiceField(
+        queryset=Category.objects.none(),
+        label="Element",
+        required=False,
+        widget=autocomplete.ModelSelect2(
+            url='category-element-autocomplete',
+            forward=['category']  # Filters elements based on category
+        )
+    )
+

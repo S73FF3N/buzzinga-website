@@ -606,6 +606,33 @@ class CategoryAutocomplete(autocomplete.Select2QuerySetView):
             qs = qs.filter(name_de__icontains=self.q)
 
         return qs
+    
+
+class CategoryElementAutocomplete(autocomplete.Select2QuerySetView):
+    """Autocomplete for filtering category elements by selected Category."""
+    def get_queryset(self):
+        category_id = self.forwarded.get('category', None)
+        if not category_id:
+            return []
+
+        # Determine the correct model for category elements
+        game_types = {
+            "Audio": Sound,
+            "Bilder": Image,
+            "Multiple Choice": Question,
+            "10 Hinweise": Hints,
+            "Wer weiß mehr?": WhoKnowsMore,
+        }
+
+        category = get_object_or_404(Category, id=category_id)
+        game_type = category.game_type
+
+        model = game_types.get(game_type.name_de)
+
+        if model:
+            return model.objects.filter(category_id=category_id)
+
+        return []
 
 
 class UserAutocomplete(autocomplete.Select2QuerySetView):
