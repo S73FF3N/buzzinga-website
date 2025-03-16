@@ -614,7 +614,6 @@ class CategoryElementAutocomplete(autocomplete.Select2QuerySetView):
         category_id = self.forwarded.get('category', None)
         if not category_id:
             return []
-
         # Determine the correct model for category elements
         game_types = {
             "Audio": Sound,
@@ -624,15 +623,19 @@ class CategoryElementAutocomplete(autocomplete.Select2QuerySetView):
             "Wer weiß mehr?": WhoKnowsMore,
         }
 
+        qs = []
         category = get_object_or_404(Category, id=category_id)
         game_type = category.game_type
 
         model = game_types.get(game_type.name_de)
 
-        if model:
-            return model.objects.filter(category_id=category_id)
+        if model and self.q:
+            qs = model.objects.filter(category_id=category_id)
+        
+        if self.q:
+            qs = qs.filter(name_de__icontains=self.q)
 
-        return []
+        return qs
 
 
 class UserAutocomplete(autocomplete.Select2QuerySetView):
