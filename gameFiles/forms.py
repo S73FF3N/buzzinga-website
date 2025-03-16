@@ -148,17 +148,17 @@ class WhoKnowsMoreDownloadForm(BaseDownloadForm):
 class SolutionForm(forms.Form):
     game_type = forms.ModelChoiceField(
         queryset=GameType.objects.all(),
-        label="Game Type",
-        empty_label="Select Game Type",
+        label="Speielart",
+        empty_label="Spielart auswählen",
         widget=forms.Select(attrs={'onchange': 'updateCategoryElements()'})
     )
     
     category_element = forms.ChoiceField(
-        label="Category Element",
+        label="Element",
         choices=[],
         widget=forms.Select()
     )
 
     def __init__(self, *args, **kwargs):
         super(SolutionForm, self).__init__(*args, **kwargs)
-        self.fields['category_element'].choices = [('', 'Select a Game Type first')]
+        self.fields['category_element'].choices = [('', 'Zuerst Spielart auswählen')]

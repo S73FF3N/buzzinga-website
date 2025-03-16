@@ -2,23 +2,23 @@
 {% load render_table from django_tables2 %}
 {% load widget_tweaks %}
 {% block content %}
-    <h2>Select a Solution</h2>
+    <h2>Lösung anzeigen</h2>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Get Solution</button>
+        <button class="btn btn-sm btn-warning" type="submit">Anzeigen</button>
     </form>
     <script>
         function updateCategoryElements() {
             let gameType = document.getElementById("id_game_type").value;
             let categoryElement = document.getElementById("id_category_element");
 
-            categoryElement.innerHTML = "<option value=''>Loading...</option>";
+            categoryElement.innerHTML = "<option value=''>Lade...</option>";
 
             fetch(`/get_category_elements/?game_type=${gameType}`)
                 .then(response => response.json())
                 .then(data => {
-                    categoryElement.innerHTML = "<option value=''>Select Category Element</option>";
+                    categoryElement.innerHTML = "<option value=''>Element auswählen</option>";
                     data.forEach(item => {
                         let option = document.createElement("option");
                         option.value = item[0];
