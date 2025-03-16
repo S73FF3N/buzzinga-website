@@ -629,7 +629,7 @@ class CategoryElementAutocomplete(autocomplete.Select2QuerySetView):
 
         model = game_types.get(game_type.name_de)
 
-        if model and self.q:
+        if model:
             qs = model.objects.filter(category_id=category_id)
         
         if self.q:
