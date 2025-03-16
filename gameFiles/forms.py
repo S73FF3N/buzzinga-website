@@ -168,7 +168,7 @@ class SolutionForm(forms.Form):
 
     category_element = forms.ModelChoiceField(
         queryset=Category.objects.none(),
-        label="Element",
+        label="Element (Gib die ID ein!)",
         required=False,
         widget=autocomplete.ModelSelect2(
             url='gamefiles:category-element-autocomplete',

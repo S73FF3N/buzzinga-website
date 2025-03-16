@@ -537,7 +537,7 @@ class WhoknowsmoreDownloadView(BaseDownloadView):
         response['Content-Disposition'] = f'attachment; filename={zip_filename}'
         return response
 
-def get_category_elements(request):
+"""def get_category_elements(request):
     """Fetch category elements based on selected game type."""
     game_type_id = request.GET.get('game_type')
     game_types = {
@@ -555,7 +555,7 @@ def get_category_elements(request):
         elements = model.objects.all().values_list('id', 'solution')  # Assuming a 'name' field exists
         return JsonResponse(list(elements), safe=False)
     
-    return JsonResponse([], safe=False)
+    return JsonResponse([], safe=False)"""
 
 def solution_form_view(request):
     """Handles solution selection through form submission."""
@@ -563,7 +563,7 @@ def solution_form_view(request):
         form = SolutionForm(request.POST)
         if form.is_valid():
             game_type = form.cleaned_data['game_type'].id
-            category_element = form.cleaned_data['category_element']
+            category_element = form.cleaned_data['category_element'].id
             return redirect('solution', game_type=game_type, category_element=category_element)
     else:
         form = SolutionForm()
