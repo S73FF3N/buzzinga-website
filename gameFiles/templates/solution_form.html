@@ -7,6 +7,21 @@
     {{ form.media }}
     <form method="post">
         {% csrf_token %}
+        <div class="row g-3">
+            {% for field in form.fields %}
+                <div class="col-12 mb-3">
+                    <div class="form-group">
+                        {{ field.label_tag }}
+                        {% render_field field class="form-control" %}
+                        {% if field.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
         {{ form.as_p }}
         <button class="btn btn-sm btn-warning" type="submit">Anzeigen</button>
     </form>
