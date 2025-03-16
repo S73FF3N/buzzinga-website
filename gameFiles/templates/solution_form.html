@@ -8,19 +8,39 @@
     <form method="post">
         {% csrf_token %}
         <div class="row g-3">
-            {% for field in form.fields %}
-                <div class="col-12 mb-3">
-                    <div class="form-group">
-                        {{ field.label_tag }}
-                        {% render_field field class="form-control" %}
-                        {% if field.errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ field.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
+            <div class="col-12 mb-3">
+                <div class="form-group">
+                    {{ form.game_type.label_tag }}
+                    {% render_field form.game_type class="form-control" %}
+                    {% if form.game_type.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.game_type.errors }}
+                        </div>
+                    {% endif %}
                 </div>
-            {% endfor %}
+            </div>
+            <div class="col-12 mb-3">
+                <div class="form-group">
+                    {{ form.category.label_tag }}
+                    {% render_field form.category class="form-control" %}
+                    {% if form.category.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.category.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-12 mb-3">
+                <div class="form-group">
+                    {{ form.category_element.label_tag }}
+                    {% render_field form.category_element class="form-control" %}
+                    {% if form.category_element.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.category_element.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
         {{ form.as_p }}
         <button class="btn btn-sm btn-warning" type="submit">Anzeigen</button>
