@@ -633,7 +633,7 @@ class CategoryElementAutocomplete(autocomplete.Select2QuerySetView):
             qs = model.objects.filter(category_id=category_id)
         
         if self.q:
-            qs = qs.filter(name_de__icontains=self.q)
+            qs = qs.filter(pk=self.q)
 
         return qs
 
