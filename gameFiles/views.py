@@ -544,7 +544,7 @@ def solution_form_view(request):
         if form.is_valid():
             game_type = form.cleaned_data['game_type'].id
             category_element = form.cleaned_data['category_element'].id
-            return redirect('solution', game_type=game_type, category_element=category_element)
+            return redirect('gamefiles:solution', game_type=game_type, category_element=category_element)
     else:
         form = SolutionForm()
 
