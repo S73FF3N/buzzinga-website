@@ -167,6 +167,7 @@ class SolutionForm(forms.Form):
     )
 
     category_element = forms.ModelChoiceField(
+        queryset=Hints.objects.none(),
         label="Element (Gib die ID ein!)",
         required=False,
         widget=autocomplete.ModelSelect2(
