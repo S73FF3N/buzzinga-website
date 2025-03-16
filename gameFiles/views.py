@@ -538,7 +538,6 @@ class WhoknowsmoreDownloadView(BaseDownloadView):
         return response
 
 """def get_category_elements(request):
-    """Fetch category elements based on selected game type."""
     game_type_id = request.GET.get('game_type')
     game_types = {
         "Audio": Sound,
