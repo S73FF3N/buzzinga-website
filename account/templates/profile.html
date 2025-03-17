@@ -206,10 +206,10 @@ function fetchTableData(ev, clicked_object, activeTable) {
                 $(table_id).html(data.html);
             }
 
-            $(".tab-pane").removeClass("show active");  // ❌ Remove 'show active' from all
+           // $(".tab-pane").removeClass("show active");  // ❌ Remove 'show active' from all
             $(table_id).addClass("show active"); // ✅ Activate the updated tab
 
-            $(".nav-link").removeClass("active"); 
+           // $(".nav-link").removeClass("active"); 
             $("a[data-bs-target='#" + data["active_table"] + "']").addClass("active");
 
             } else {
