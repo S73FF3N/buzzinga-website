@@ -110,14 +110,27 @@
 
 
 <script type="text/javascript">
-$(document).ready(function () {
-  $(".nav-tabs a.nav-link").on("click", function (e) {
-      e.preventDefault();
-      $(this).tab("show");
+// $(document).ready(function () {
+// $(".nav-tabs a.nav-link").on("click", function (e) {
+//      e.preventDefault();
+//      $(this).tab("show");
+//
+//      var activeTable = $(this).attr("href").replace("#", "").replace("-tab", "");
+//
+//      fetchTableData(e, $(this), activeTable); 
+//  });
+//});
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".nav-tabs .nav-link").forEach(tab => {
+      tab.addEventListener("click", function (e) {
+          e.preventDefault();
+          let tabObject = new bootstrap.Tab(this);
+          tabObject.show(); // ✅ Bootstrap 5 way of activating tabs
 
-      var activeTable = $(this).attr("href").replace("#", "").replace("-tab", "");
+          var activeTable = $(this).attr("href").replace("#", "").replace("-tab", "");
 
-      fetchTableData(e, $(this), activeTable); 
+        fetchTableData(e, $(this), activeTable); 
+      });
   });
 });
 
