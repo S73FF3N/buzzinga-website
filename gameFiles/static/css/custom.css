@@ -92,6 +92,24 @@ h5 { color: var(--white); }
   color:var(--primary)
 }
 
+.nav-tabs .nav-link {
+  color: --primary;
+  font-weight: bold; /* Make text bold */
+  border-radius: 8px 8px 0 0; /* Rounded top corners */
+  padding: 10px 20px; /* More padding */
+  transition: all 0.3s ease-in-out; /* Smooth transition */
+}
+
+.nav-tabs .nav-link.active {
+  background-color: --dark;
+  color: white; /* Active tab text color */
+  border-color: --primary --primary transparent; /* Remove bottom border */
+}
+
+.nav-tabs .nav-link:hover {
+  background-color: --accent; /* Light hover effect */
+}
+
 /* Shapes & Cards */
 .shape {
   background: var(--primary);
