@@ -1,0 +1,48 @@
+{% extends "index.html" %}
+{% load render_table from django_tables2 %}
+{% load widget_tweaks %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Lösung anzeigen</h2>
+    {{ form.media }}
+    <form method="post">
+        {% csrf_token %}
+        <div class="row g-3">
+            <div class="col-12 mb-3">
+                <div class="form-group">
+                    {{ form.game_type.label_tag }}
+                    {% render_field form.game_type class="form-control" %}
+                    {% if form.game_type.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.game_type.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-12 mb-3">
+                <div class="form-group">
+                    {{ form.category.label_tag }}
+                    {% render_field form.category class="form-control" %}
+                    {% if form.category.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.category.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-12 mb-3">
+                <div class="form-group">
+                    {{ form.category_element.label_tag }}
+                    {% render_field form.category_element class="form-control" %}
+                    {% if form.category_element.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.category_element.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-sm btn-warning" type="submit">Anzeigen</button>
+    </form>
+</div>
+{% endblock %}

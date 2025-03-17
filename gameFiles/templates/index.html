@@ -29,6 +29,10 @@
 <body>
     <nav class="navbar navbar-expand-md navbar-custom fixed-top">
         <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <img src="{% static 'buzzing-logo.png' %}" alt="Logo">
+            </a>
+
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -37,6 +41,7 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'gameFiles:game_type_list' %}">Spiele</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'gameFiles:solution_form' %}">Lösungen</a></li>
                 </ul>
                 
                 <ul class="navbar-nav ms-auto">
@@ -46,7 +51,7 @@
                                 <a class="btn btn-warning btn-sm text-dark" href="{% url 'account:profile' per_page='10' %}" title="User">
                                     <i class="fas fa-user"></i>
                                 </a>
-                                <a class="btn btn-danger btn-sm text-white" href="{% url 'account:logout' %}" title="Logout">
+                                <a class="btn btn-warning btn-sm text-white" href="{% url 'account:logout' %}" title="Logout">
                                     <i class="fas fa-sign-out-alt"></i>
                                 </a>
                             </div>

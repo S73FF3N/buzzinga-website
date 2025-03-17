@@ -1,5 +1,5 @@
 :root {
-  --primary: #dc2019;
+  --primary: #d9534f;
   --secondary: #092f57;
   --white: #fff;
   --accent: #f4c430;
@@ -7,6 +7,25 @@
   --bg: #2b2b2b;
   --text-light: #eee;
   --text-dark: #111;
+  --navbar-height: 70px
+}
+
+.table-nice {
+  background-color: var(--text-light); /* Light gray */
+  color: var(--dark); /* Dark text */
+}
+
+.table-nice th a {
+  background-color: var(--white);
+  color: var(--primary);
+}
+
+.table-nice tbody tr:nth-child(odd) {
+  background-color: #e9ecef; /* Alternate row color */
+}
+
+.table-nice tbody tr:hover {
+  background-color: #f1f1f1; /* Hover effect */
 }
 
 body {
@@ -15,6 +34,7 @@ body {
   color: var(--text-light);
   line-height: 1.6;
   text-align: center;
+  padding-top: var(--navbar-height);
 }
 
 h1, h2, h3, h4, h5 {
@@ -56,7 +76,7 @@ h5 { color: var(--white); }
   border-bottom: 4px solid var(--accent);
 }
 .navbar-brand img {
-  width: 4vw;
+  width: 15vw;
   height: auto;
 }
 .navbar-custom .navbar-nav li a {
@@ -68,7 +88,14 @@ h5 { color: var(--white); }
   color: var(--accent);
   transform: scale(1.1);
 }
+.nav-link {
+  color:var(--primary)
+}
 
+.nav-tabs li a:hover {
+  color: var(--accent);
+  transform: scale(1.1);
+}
 /* Shapes & Cards */
 .shape {
   background: var(--primary);
@@ -108,6 +135,10 @@ form {
   border-radius: 12px;
   box-shadow: 4px 4px 0 var(--primary);
 }
+.form-override {
+  background: none !important;
+  box-shadow: none !important;
+}
 input, textarea {
   width: 100%;
   padding: 0.8rem;
@@ -134,4 +165,8 @@ input:focus, textarea:focus {
   .navbar-brand img { width: 10vw; }
   h1 { font-size: 36px; }
   h2 { font-size: 28px; }
+}
+
+.offcanvas {
+  background: var(--primary);
 }

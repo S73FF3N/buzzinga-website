@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.views.generic import ListView, FormView, CreateView, UpdateView, DeleteView
 from django.conf import settings
 from django.urls import reverse
@@ -13,7 +13,7 @@ from django.db.models.expressions import Value
 from django.db.models.functions import Coalesce
 
 from .models import GameType, Category, CategoryElement, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement
-from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, WhoKnowsMoreForm, WhoKnowsMoreElementFormSet, WhoKnowsMoreElementFormSetUpdate, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm, WhoKnowsMoreDownloadForm
+from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, WhoKnowsMoreForm, WhoKnowsMoreElementFormSet, WhoKnowsMoreElementFormSetUpdate, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm, WhoKnowsMoreDownloadForm, SolutionForm
 
 from dal import autocomplete
 from itertools import chain
@@ -537,13 +537,22 @@ class WhoknowsmoreDownloadView(BaseDownloadView):
         response['Content-Disposition'] = f'attachment; filename={zip_filename}'
         return response
 
+def solution_form_view(request):
+    """Handles solution selection through form submission."""
+    if request.method == 'POST':
+        form = SolutionForm(request.POST)
+        if form.is_valid():
+            game_type = form.cleaned_data['game_type'].id
+            category_element = form.cleaned_data['category_element'].id
+            return redirect('gamefiles:solution', game_type=game_type, category_element=category_element)
+    else:
+        form = SolutionForm()
+
+    return render(request, 'solution_form.html', {'form': form})
 
 def solution(request, game_type, category_element):
     """Fetches and returns the solution based on game type."""
     game_types = {
-        "Audio": (Sound, "Sound"),
-        "Bilder": (Image, "Image"),
-        "Multiple Choice": (Question, "Multiple Choice"),
         "10 Hinweise": (Hints, "Hints"),
         "Wer weiß mehr?": (WhoKnowsMore, "WhoKnowsMore"),
     }
@@ -572,6 +581,33 @@ class CategoryAutocomplete(autocomplete.Select2QuerySetView):
 
         if self.q:
             qs = qs.filter(name_de__icontains=self.q)
+
+        return qs
+    
+
+class CategoryElementAutocomplete(autocomplete.Select2QuerySetView):
+    """Autocomplete for filtering category elements by selected Category."""
+    def get_queryset(self):
+        category_id = self.forwarded.get('category', None)
+        game_type_id = self.forwarded.get('game_type', None)
+        qs = []
+        # Determine the correct model for category elements
+        game_types = {
+            "10 Hinweise": Hints,
+            "Wer weiß mehr?": WhoKnowsMore,
+        }
+
+        game_type = get_object_or_404(GameType, id=game_type_id)
+        model = game_types.get(game_type.name_de)
+
+        if model:
+            if category_id:
+                qs = model.objects.filter(category_id=category_id)
+            else:
+                qs = model.objects.all()
+        
+        if self.q:
+            qs = qs.filter(pk=self.q)
 
         return qs
 

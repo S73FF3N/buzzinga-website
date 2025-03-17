@@ -7,6 +7,7 @@ urlpatterns = [
     path('', views.GameTypeView.as_view(), name='game_type_list'),
     path('categories/<int:game_type>/', views.CategoryView.as_view(), name='category_list'),
     path('<int:game_type>/<int:id>/', views.category_detail, name='category_detail'),
+    path('solution-form/', views.solution_form_view, name='solution_form'),
     path('solution/<int:game_type>/<int:category_element>/', views.solution, name='solution'),
 
     # Category Views
@@ -16,6 +17,7 @@ urlpatterns = [
 
     # Autocomplete Views
     path('category-autocomplete', views.CategoryAutocomplete.as_view(), name='category-autocomplete'),
+    path('category-element-autocomplete/', views.CategoryElementAutocomplete.as_view(), name='category-element-autocomplete'),
     path('user-autocomplete', views.UserAutocomplete.as_view(), name='user-autocomplete'),
 
     # AJAX Calls

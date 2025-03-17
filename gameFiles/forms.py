@@ -2,7 +2,7 @@ from dal import autocomplete, forward
 from django import forms
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.forms import inlineformset_factory
-from .models import Category, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, DIFFICULTY
+from .models import GameType, Category, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, DIFFICULTY
 
 
 class CategoryForm(forms.ModelForm):
@@ -143,3 +143,65 @@ class WhoKnowsMoreDownloadForm(BaseDownloadForm):
     """Download form for WhoKnowsMore model."""
     class Meta(BaseDownloadForm.Meta):
         model = WhoKnowsMore
+
+
+from django import forms
+from dal import autocomplete
+from .models import GameType, Category
+
+class SolutionForm(forms.Form):
+    game_type = forms.ModelChoiceField(
+        queryset=GameType.objects.filter(id__in=[3,5]),
+        label="Spielart",
+        empty_label="Spielart auswählen"
+    )
+
+    category = forms.ModelChoiceField(
+        queryset=Category.objects.all(),
+        label="Kategorie (kann leer gelassen werden)",
+        required=False,
+        widget=autocomplete.ModelSelect2(
+            url='gamefiles:category-autocomplete',
+            forward=['game_type']  # Filters categories based on game_type
+        )
+    )
+
+    category_element = forms.ModelChoiceField(
+        queryset=Hints.objects.none(),
+        label="Element (Gib die ID ein!)",
+        required=False,
+        widget=autocomplete.ModelSelect2(
+            url='gamefiles:category-element-autocomplete',
+            forward=['category', 'game_type']  # Filters elements based on category
+        )
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(SolutionForm, self).__init__(*args, **kwargs)
+
+        # Pre-fill queryset for category_element if form has data
+        if 'game_type' in self.data:# and 'category' in self.data:
+            try:
+                game_type_id = int(self.data.get('game_type'))
+
+                # Determine the correct model based on game type
+                game_types = {
+                    "10 Hinweise": Hints,
+                    "Wer weiß mehr?": WhoKnowsMore,
+                }
+
+                game_type = GameType.objects.get(id=game_type_id)
+                model = game_types.get(game_type.name_de)
+
+                if model:
+                    # If category is provided, filter by category_id
+                    category_id = self.data.get('category')
+                    if category_id:
+                        category_id = int(category_id)
+                        self.fields['category_element'].queryset = model.objects.filter(category_id=category_id)
+                    else:
+                        # If category is empty, show all elements of the selected game type
+                        self.fields['category_element'].queryset = model.objects.all()
+
+            except (ValueError, TypeError, GameType.DoesNotExist):
+                pass  # Ignore invalid IDs

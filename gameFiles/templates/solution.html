@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container mt-5">
     {% if solution.type == "WhoKnowsMore" %}
         <h2 style="color: red;">Ungelöst</h2>
         {% for s in solution.qs.all %}
@@ -38,6 +38,9 @@
     {% else %}
         <h1>{{ solution.qs }}</h1>
     {% endif %}
+    <a href="javascript:history.back()" class="btn btn-warning ms-2">
+        Nächste Lösung
+    </a>
 </div>
 <script type="text/javascript">
     var checkboxes = $('[id^="checkbox-"]');

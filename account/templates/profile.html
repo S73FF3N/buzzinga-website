@@ -10,9 +10,6 @@
               <h5 class="modal-title" id="deleteModalLabel">Wirklich löschen?</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
-              Bist du sicher, dass du das Objekt löschen willst?
-          </div>
           <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
               <form id="deleteForm" method="post">
@@ -24,35 +21,80 @@
   </div>
 </div>
 
-<div id="profileTable" class="container" style="margin-top:8vw">
-    <div class="card">
-      <div class="card-header">
-        <div class="row">
-          <div class="col-8">
-            <ul class="nav nav-tabs card-header-tabs">
-              {% for table_name, label in table_names.items %}
-                <li>
-                  <a class="nav-link {% if forloop.first %}active{% endif %}" 
-                    id="{{ table_name }}-label" 
-                    data-bs-toggle="tab"
-                    data-bs-target="#{{ table_name }}"
-                    href="#{{ table_name }}-tab" 
-                    role="tab">
-                    {{ label }}
-                  </a>
-                </li>
-                <li>
-                  <a href="{% url 'gamefiles:'|add:table_name|add:'-create' %}" class="btn btn-primary btn-sm">
-                    <i class="fa fa-plus"></i>
-                  </a>
-                </li>
-              {% endfor %}
-            </ul>
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title" id="offcanvasExampleLabel">Filter</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <form id="profile-filter-form" method="get" class="form-override mb-3">
+        {{ profile_filter.form.media }}
+        <ul class="list-unstyled">
+        {% for field in profile_filter.form %}
+            <li class="form-group">
+                {{ field.label_tag }}
+                {% render_field field class="form-control" %}
+            </li>
+          {% endfor %}
+          </ul>
+          <div class="text-end">
+            <a id="profile-filter-submit" class="btn btn-warning btn-sm"><i class="fa fa-filter"></i> Filter</a>
           </div>
+    </form>
+  </div>
+</div>
 
-          <div class="col-2">
-            <form id="per_page_form">
-              <label class="nav-link" for="per_page" style="display:inline-block;">Pro Seite:</label>
+<div id="profileTable" class="container mt-5">
+    <div class="card shadow-lg">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <ul class="nav nav-tabs card-header-tabs">
+          {% for table_name, label in table_names.items %}
+            <li style="display: flex; align-items: center;">
+              <!--<a class="nav-link {% if forloop.first %}active{% endif %}" 
+                id="{{ table_name }}-label" 
+                data-bs-toggle="tab"
+                data-bs-target="#{{ table_name }}"
+                href="#{{ table_name }}-tab" 
+                role="tab">
+                {{ label }}
+              </a>-->
+              <a class="nav-link {% if forloop.first %}active{% endif %}" 
+                id="{{ table_name }}-label" 
+                data-bs-toggle="tab"
+                data-bs-target="#{{ table_name }}"
+                href="#{{ table_name }}"
+                role="tab">
+                {{ label }}
+              </a>
+              <a href="{% url 'gamefiles:'|add:table_name|add:'-create' %}" class="btn btn-warning btn-sm ml-5">
+                <i class="fa fa-plus"></i>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+        <div class="btn-group text-end">
+          <a id="profile-filter-show" class="btn btn-warning btn-sm" data-bs-toggle="offcanvas" href="#offcanvasExample" role="button" aria-controls="offcanvasExample"><i class="fa fa-filter"></i> Filter</a>
+          <a href="{% url 'account:download_all' active_table='images_' %}" id="download_elements" role="button" class="btn btn-danger btn-sm">
+            <i class="fa fa-download"></i> Download
+          </a>
+        </div>
+      </div>
+
+      <div class="card-body tab-content">
+          {% for table_name, table in tables.items %}
+          <div class="tab-pane fade {% if forloop.first %}show active{% endif %} profile-table-container" 
+               role="tabpanel" aria-labelledby="{{ table_name }}-label" id="{{ table_name }}">
+              {% render_table table %}
+          </div>
+        {% endfor %}
+      </div>
+      <div class="card-footer text-muted">
+        <div class="row">
+          <div class="col-sm-10 col-xs-4">
+          </div>
+          <div class="col-sm-2 col-xs-8">
+            <form id="per_page_form" class="form-override mb-3">
+              <label for="per_page" style="display:inline-block;">Pro Seite:</label>
               <select id="per_page" name="per_page" class="form-control form-control-sm">
                 {% for value in per_page_options %}
                   <option value="{{ value }}" {% if value == selected_per_page %}selected{% endif %}>{{ value }}</option>
@@ -60,58 +102,42 @@
               </select>
             </form>
           </div>
-
-          <div class="col-2 text-right">
-            <a id="profile-collapse-link" class="nav-link" data-toggle="collapse" href="#profile-filter" role="button">
-              Filter <i id="profile-filter-img" class="fa fa-chevron-right"></i>
-            </a>
-            <button id="profile-filter-submit" class="btn btn-primary btn-sm"><i class="fa fa-filter"></i></button>
-            <a href="{% url 'account:download_all' active_table='images_' %}" id="download_elements" class="btn btn-primary btn-sm">
-              <i class="fa fa-download"></i>
-            </a>
-          </div>
         </div>
       </div>
-
-      <div class="card-body tab-content">
-        <form id="profile-filter-form" method="get">
-          <div id="profile-filter" class="collapse row">
-            {{ profile_filter.form.media }}
-            {% for field in profile_filter.form %}
-              <div class="col-lg-3 form-group">
-                {{ field.label_tag }}
-                {% render_field field class="form-control" %}
-              </div>
-            {% endfor %}
-          </div>
-        </form>
-
-        {% for table_name, table in tables.items %}
-          <div class="tab-pane fade {% if forloop.first %}show active{% endif %} profile-table-container" 
-               role="tabpanel" aria-labelledby="{{ table_name }}-label" id="{{ table_name }}">
-              {% render_table table %}
-          </div>
-        {% endfor %}
-      </div>
-    </div>
+  </div>
 </div>
 
+
+
 <script type="text/javascript">
-$(document).ready(function () {
-  $(".nav-tabs a.nav-link").on("click", function (e) {
-      e.preventDefault();
-      $(this).tab("show");
+// $(document).ready(function () {
+// $(".nav-tabs a.nav-link").on("click", function (e) {
+//      e.preventDefault();
+//      $(this).tab("show");
+//
+//      var activeTable = $(this).attr("href").replace("#", "").replace("-tab", "");
+//
+//      fetchTableData(e, $(this), activeTable); 
+//  });
+//});
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".nav-tabs .nav-link").forEach(tab => {
+      tab.addEventListener("click", function (e) {
+          e.preventDefault();
+          let tabObject = new bootstrap.Tab(this);
+          tabObject.show(); // ✅ Bootstrap 5 way of activating tabs
 
-      var activeTable = $(this).attr("href").replace("#", "").replace("-tab", "");
+          var activeTable = $(this).attr("href").replace("#", "").replace("-tab", "");
 
-      fetchTableData(e, $(this), activeTable); 
+        fetchTableData(e, $(this), activeTable); 
+      });
   });
 });
 
 $(document).on("click", ".pagination-link", function (e) {
     e.preventDefault(); // Prevent default link behavior
 
-    // ✅ Find the active tab using `.show.active` from `.tab-pane`
+    // ✅ Find the active tab using .show.active from .tab-pane
     var activePane = $(".tab-pane.show.active");
     if (!activePane.length) {
         console.error("❌ ERROR: No active tab detected!");
@@ -183,8 +209,9 @@ function fetchTableData(ev, clicked_object, activeTable) {
             $(".tab-pane").removeClass("show active");  // ❌ Remove 'show active' from all
             $(table_id).addClass("show active"); // ✅ Activate the updated tab
 
-            $(".nav-link").removeClass("active"); // ✅ Ensure tab button updates
-            $("a[data-bs-target='" + table_id + "']").addClass("show active");
+           // $(".nav-link").removeClass("active"); 
+            $("a[data-bs-target='#" + data["active_table"] + "']").addClass("active");
+
             } else {
                 console.error("Table container not found:", table_id);
             }
