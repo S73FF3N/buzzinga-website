@@ -92,8 +92,8 @@ h5 { color: var(--white); }
   color:var(--primary)
 }
 
-.nav-tabs .nav-link:hover {
-  color:--accent;
+.nav-tabs .nav-link li a:hover {
+  color: var(--accent);
 }
 /* Shapes & Cards */
 .shape {
