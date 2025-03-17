@@ -5,44 +5,57 @@
 
 {% block content %}
 <div class="container mt-5">
-    <div class="row mb-3">
-        <div class="col-10">
-            <h1>{{ category.name_de }}</h1>
-            <p class="text-danger">
-                <a href="{% url 'gamefiles:game_type_list' %}" class="text-danger text-decoration-none">Spielarten</a> >
-                <a href="{% url 'gamefiles:category_list' category.game_type.pk %}" class="text-danger text-decoration-none">{{ category.game_type }}</a> >
-                {{ category.name_de }}
-            </p>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="mb-1">{{ category.name_de }}</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb text-danger m-0 p-0">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'gamefiles:game_type_list' %}" class="text-danger text-decoration-none">Spielarten</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'gamefiles:category_list' category.game_type.pk %}" class="text-danger text-decoration-none">{{ category.game_type }}</a>
+                    </li>
+                    <li class="breadcrumb-item active text-danger" aria-current="page">{{ category.name_de }}</li>
+                </ol>
+            </nav>
         </div>
-        <div class="col-2 text-center align-self-center bg-danger py-2">
-            <a href="{% url category_download_url category.pk %}" class="text-white">
-                <h4>Download</h4>
-            </a>
-        </div>
+        <a href="{% url category_download_url category.pk %}" class="btn btn-danger text-white px-4 py-2">
+            <i class="bi bi-download"></i> Download
+        </a>
     </div>
 
-    <div class="row">
-        <div class="col-12 mb-4">
-            <h3>{{ category.description_de }}</h3>
+    <div class="row gy-4">
+        <!-- Description -->
+        <div class="col-12">
+            <div class="card border-0 shadow-sm p-4">
+                <h3 class="mb-0">{{ category.description_de }}</h3>
+            </div>
         </div>
-        
-        <div class="col-lg-2 col-9 text-center align-self-center bg-danger py-4">
-            <h3 class="text-white">{{ category.amount_files }}</h3>
-            <h3 class="text-white">Elemente</h3>
+    
+        <!-- Amount of Elements -->
+        <div class="col-md-3 col-12">
+            <div class="card bg-danger text-white text-center shadow-sm py-4">
+                <div class="card-body">
+                    <h2 class="fw-bold">{{ category.amount_files }}</h2>
+                    <p class="mb-0 fs-5">Elemente</p>
+                </div>
+            </div>
         </div>
-
-        <div class="col-lg-3 col-12">
-            <h3 class="text-danger">Beispiele</h3>
-            {% for e in category.examples %}
-                <p class="text-danger">{{ e.solution }}</p>
-            {% endfor %}
-        </div>
-
-        <div class="col-lg-3 col-12">
-            <h3 class="text-danger">Schwierigkeit</h3>
-            <canvas id="pie-chart"></canvas>
+    
+        <!-- Examples -->
+        <div class="col-md-6 col-12">
+            <div class="card border-0 shadow-sm p-4">
+                <h3 class="text-danger">Beispiele</h3>
+                <ul class="list-unstyled m-0">
+                    {% for e in category.examples %}
+                        <li class="text-danger fs-5">{{ e.solution }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
     </div>
+    
 </div>
 
 <!-- External Scripts -->
