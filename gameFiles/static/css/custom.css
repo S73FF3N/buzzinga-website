@@ -91,6 +91,10 @@ h5 { color: var(--white); }
 .nav-link {
   color:var(--primary)
 }
+.navbar-logo {
+  height: 90%;
+  width: auto; /* Maintain aspect ratio */
+}
 
 /* Shapes & Cards */
 .shape {
