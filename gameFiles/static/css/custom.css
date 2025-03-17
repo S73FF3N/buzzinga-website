@@ -10,21 +10,21 @@
   --navbar-height: 70px
 }
 
-.table-custom {
+.table-nice {
   background-color: var(--text-light); /* Light gray */
   color: var(--dark); /* Dark text */
 }
 
-.table-custom th {
+.table-nice th {
   background-color: var(--white);
   color: var(--primary);
 }
 
-.table-custom tbody tr:nth-child(odd) {
+.table-nice tbody tr:nth-child(odd) {
   background-color: #e9ecef; /* Alternate row color */
 }
 
-.table-custom tbody tr:hover {
+.table-nice tbody tr:hover {
   background-color: #f1f1f1; /* Hover effect */
 }
 

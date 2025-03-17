@@ -29,7 +29,7 @@ class BaseTable(dt2.Table):
     class Meta:
         abstract = True  # Prevents Django from treating this as a standalone table
         per_page = 10
-        attrs = {"class": "table table-custom table-hover", "style": "table-layout: fixed;"}
+        attrs = {"class": "table table-nice table-hover", "style": "table-layout: fixed;"}
         template_name = "profile_table.html"
         empty_text = "There is no data matching the search criteria..."
 
@@ -76,6 +76,6 @@ class CategoryTable(dt2.Table):
         model = Category
         fields = ('name_de', 'game_type', 'private', 'edit', 'delete')
         per_page = 10
-        ttrs = {"class": "table table-custom table-hover", "style": "table-layout: fixed;"}
+        ttrs = {"class": "table table-nice table-hover", "style": "table-layout: fixed;"}
         template_name = "profile_table.html"
         empty_text = "There is no data matching the search criteria..."
