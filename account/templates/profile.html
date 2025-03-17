@@ -50,11 +50,19 @@
         <ul class="nav nav-tabs card-header-tabs">
           {% for table_name, label in table_names.items %}
             <li style="display: flex; align-items: center;">
-              <a class="nav-link {% if forloop.first %}active{% endif %}" 
+              <!--<a class="nav-link {% if forloop.first %}active{% endif %}" 
                 id="{{ table_name }}-label" 
                 data-bs-toggle="tab"
                 data-bs-target="#{{ table_name }}"
                 href="#{{ table_name }}-tab" 
+                role="tab">
+                {{ label }}
+              </a>-->
+              <a class="nav-link {% if forloop.first %}active{% endif %}" 
+                id="{{ table_name }}-label" 
+                data-bs-toggle="tab"
+                data-bs-target="#{{ table_name }}"
+                href="#{{ table_name }}"
                 role="tab">
                 {{ label }}
               </a>
