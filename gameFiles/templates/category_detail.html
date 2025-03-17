@@ -20,8 +20,8 @@
                 </ol>
             </nav>
         </div>
-        <a href="{% url category_download_url category.pk %}" class="btn btn-danger text-white px-4 py-2">
-            <i class="bi bi-download"></i> Download
+        <a href="{% url category_download_url category.pk %}" class="btn btn-warning px-4 py-2">
+            <i class="fa fa-download"></i> Download
         </a>
     </div>
 
@@ -29,7 +29,7 @@
         <!-- Description -->
         <div class="col-12">
             <div class="card border-0 shadow-sm p-4">
-                <h3 class="mb-0">{{ category.description_de }}</h3>
+                <h2 class="mb-0">{{ category.description_de }}</h2>
             </div>
         </div>
     
@@ -46,10 +46,10 @@
         <!-- Examples -->
         <div class="col-md-6 col-12">
             <div class="card border-0 shadow-sm p-4">
-                <h3 class="text-danger">Beispiele</h3>
+                <h2>Beispiele</h2>
                 <ul class="list-unstyled m-0">
                     {% for e in category.examples %}
-                        <li class="text-danger fs-5">{{ e.solution }}</li>
+                        <li class="fs-5">{{ e.solution }}</li>
                     {% endfor %}
                 </ul>
             </div>
