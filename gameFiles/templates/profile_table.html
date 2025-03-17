@@ -10,16 +10,16 @@
         <thead {{ table.attrs.thead.as_html }}>
             <tr>
                 {% for column in table.columns %}
-                <th {{ column.attrs.th.as_html }}>
-                    {% if column.orderable %}
-                        <a class="pagination-link text-decoration-none"
-                           data-url="{% url 'gamefiles:get_profile_table' per_page=table.per_page|default:10 %}{% querystring table.prefixed_order_by_field=column.order_by_alias.next active_table=table.prefix %}">
+                    <th {{ column.attrs.th.as_html }}>
+                        {% if column.orderable %}
+                            <a class="pagination-link text-decoration-none"
+                            data-url="{% url 'gamefiles:get_profile_table' per_page=table.per_page|default:10 %}{% querystring table.prefixed_order_by_field=column.order_by_alias.next active_table=table.prefix %}">
+                                {{ column.header }}
+                            </a>
+                        {% else %}
                             {{ column.header }}
-                        </a>
-                    {% else %}
-                        {{ column.header }}
-                    {% endif %}
-                </th>
+                        {% endif %}
+                    </th>
                 {% endfor %}
             </tr>
         </thead>
