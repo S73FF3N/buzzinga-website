@@ -76,7 +76,7 @@ h5 { color: var(--white); }
   border-bottom: 4px solid var(--accent);
 }
 .navbar-brand img {
-  width: 4vw;
+  width: 8vw;
   height: auto;
 }
 .navbar-custom .navbar-nav li a {
@@ -90,10 +90,6 @@ h5 { color: var(--white); }
 }
 .nav-link {
   color:var(--primary)
-}
-.navbar-logo {
-  height: 90%;
-  width: auto; /* Maintain aspect ratio */
 }
 
 /* Shapes & Cards */
