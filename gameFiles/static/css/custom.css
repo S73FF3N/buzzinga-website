@@ -15,7 +15,7 @@
   color: var(--dark); /* Dark text */
 }
 
-.table-nice th {
+.table-nice th a {
   background-color: var(--white);
   color: var(--primary);
 }
