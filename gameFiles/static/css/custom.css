@@ -91,6 +91,10 @@ h5 { color: var(--white); }
 .nav-link {
   color:var(--primary)
 }
+
+.nav-tabs .nav-link:hover {
+  color:--accent;
+}
 /* Shapes & Cards */
 .shape {
   background: var(--primary);
