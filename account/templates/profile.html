@@ -58,7 +58,7 @@
                 role="tab">
                 {{ label }}
               </a>-->
-              <a class="nav-link {% if forloop.first %}active{% endif %}" 
+              <a class="nav-link" 
                 id="{{ table_name }}-label" 
                 data-bs-toggle="tab"
                 data-bs-target="#{{ table_name }}"
@@ -209,8 +209,6 @@ function fetchTableData(ev, clicked_object, activeTable) {
             $(".tab-pane").removeClass("show active");  // ❌ Remove 'show active' from all
             $(table_id).addClass("show active"); // ✅ Activate the updated tab
 
-            //$(".nav-link").removeClass("active"); // ✅ Ensure tab button updates
-            //$("a[data-bs-target='" + table_id + "']").addClass("show active");
             $(".nav-link").removeClass("active"); 
             $("a[data-bs-target='#" + data["active_table"] + "']").addClass("active");
 
