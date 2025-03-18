@@ -133,14 +133,14 @@ class DownloadView(View):
 
                     json_data = (
                         json.dumps(WhoKnowsMoreSerializer(category_elements, many=True).data, ensure_ascii=False)
-                        if active_table == "whoknowsmore_"
+                        if active_table == "whoknowsmore"
                         else json.dumps(json.loads(serializers.serialize("json", category_elements)), indent=6, ensure_ascii=False)
                     )
 
                     with tempfile.NamedTemporaryFile(mode="w+", delete=False) as tmp_file:
                         tmp_file.write(json_data)
                         tmp_file.flush()
-                        table_name = "who-knows-more" if active_table == "whoknowsmore_" else active_table
+                        table_name = "who-knows-more" if active_table == "whoknowsmore" else active_table
                         zf.write(tmp_file.name, f"{table_name}/{category_name}.json")
 
         zip_buffer.seek(0)
