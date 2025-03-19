@@ -21,7 +21,7 @@ class JsonUploadMixin:
         model_name = self.model._meta.model_name
         custom_urls = [
             path("upload-json/", self.admin_site.admin_view(self.upload_json), name=f"upload-json-{model_name}"),
-            path("confirm-insert/", self.admin_site.admin_view(self.confirm_insert), name=f"confirm-insert-{model_name}"),
+            path("confirm-insert/", self.admin_site.admin_view(self.confirm_insert), name="confirm-insert"),
         ]
         return custom_urls + urls
 
