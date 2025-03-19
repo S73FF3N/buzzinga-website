@@ -127,7 +127,7 @@ $(document).on("click", ".pagination-link", function (e) {
     }
 
     // ✅ Extract the ID of the active tab-pane and convert it to activeTable
-    var activeTable = activePane.attr("id");
+    var activeTable = activePane.attr("id").replace("#", "").replace("_table", "");
     console.log(activeTable);
     if (!activeTable) {
         console.error("❌ ERROR: activeTable is undefined!");
