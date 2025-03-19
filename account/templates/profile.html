@@ -159,8 +159,7 @@ function fetchTableData(ev, clicked_object, activeTable) {
     var ajax_url = "/gameFiles/ajax/get_profile_table/" + per_page + "/?active_table=" + activeTable;
 
   } else {
-    var ajax_url = clicked_object.attr("data-url");
-    console.log(ajax_url);
+    var ajax_url = clicked_object.attr("data-url") + "/?active_table=" + activeTable;
     console.log("Non-tab element clicked, keeping active table:", activeTable);
   }
 
