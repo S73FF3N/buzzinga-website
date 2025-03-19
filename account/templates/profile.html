@@ -160,9 +160,13 @@ function fetchTableData(ev, clicked_object, activeTable) {
 
   } else {
     var ajax_url = clicked_object.attr("data-url");
-    ajax_url += ajax_url.includes("?") ? "&" : "?";
+    if (!ajax_url.includes("?")) {
+        ajax_url += "?";
+    } else if (!ajax_url.endsWith("&")) {
+        ajax_url += "&";
+    }
     ajax_url += "active_table=" + activeTable;
-    // console.log(ajax_url);
+    console.log(ajax_url);
     console.log("Non-tab element clicked, keeping active table:", activeTable);
   }
 
