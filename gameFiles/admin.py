@@ -90,7 +90,7 @@ class HintAdmin(admin.ModelAdmin, JsonUploadMixin):
         """Ensure the upload_url is passed to the template."""
         if extra_context is None:
             extra_context = {}
-        extra_context["upload_url"] = reverse(f"admin:upload-json-{self.model._meta.model_name}")
+        extra_context["upload_url"] = reverse(f"upload-json-{self.model._meta.model_name}")
         return super().changelist_view(request, extra_context=extra_context)
 
 
