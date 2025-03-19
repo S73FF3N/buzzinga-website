@@ -83,7 +83,7 @@ for model in [Tag, GameType, Category, Sound, Image, Question]:
 
 # HintAdmin with JSON upload
 @admin.register(Hints)
-class HintAdmin(admin.ModelAdmin, JsonUploadMixin):
+class HintAdmin(JsonUploadMixin, admin.ModelAdmin):
     change_list_template = "admin/populate_db.html"
     list_display = ['solution']
 
