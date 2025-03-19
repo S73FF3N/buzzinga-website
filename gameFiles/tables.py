@@ -53,6 +53,8 @@ class QuestionTable(BaseTable):
 
 
 class HintTable(BaseTable):
+    def get_table(self, **kwargs):
+        return HintTable(Hints.objects.all(), prefix="hint")
     class Meta(BaseTable.Meta):
         model = Hints
         fields = ('solution', 'category', 'difficulty', 'private_new', 'edit', 'delete')
