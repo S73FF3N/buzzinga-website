@@ -13,7 +13,7 @@
                     <th {{ column.attrs.th.as_html }}>
                         {% if column.orderable %}
                             <a class="pagination-link text-decoration-none"
-                            data-url="{% url 'gamefiles:get_profile_table' per_page=table.per_page|default:10 %}{% querystring table.prefixed_order_by_field=column.order_by_alias.next active_table=table.prefix %}">
+                            data-url="{% url 'gamefiles:get_profile_table' per_page=table.per_page|default:10 %}{% if request.GET %}&{% else %}?{% endif %}{% querystring table.prefixed_order_by_field=column.order_by_alias.next active_table=table.prefix %}">
                                 {{ column.header }}
                             </a>
                         {% else %}
@@ -73,7 +73,7 @@
             {% if table.page.has_previous %}
                 <li class="page-item">
                     <a class="page-link pagination-link" 
-                       data-url="{% url 'gamefiles:get_profile_table' per_page=table.per_page|default:10 %}{% querystring table.prefixed_page_field=table.page.previous_page_number active_table=table.prefix %}">
+                       data-url="{% url 'gamefiles:get_profile_table' per_page=table.per_page|default:10 %}{% if request.GET %}&{% else %}?{% endif %}{% querystring table.prefixed_page_field=table.page.previous_page_number active_table=table.prefix %}">
                         &laquo; {% trans 'previous' %}
                     </a>
                 </li>
@@ -83,7 +83,7 @@
                 <li class="page-item {% if table.page.number == p %}active{% endif %}">
                     <a class="page-link pagination-link" 
                        {% if p != '...' %}
-                       data-url="{% url 'gamefiles:get_profile_table' per_page=table.per_page|default:10 %}{% querystring table.prefixed_page_field=p active_table=table.prefix %}"
+                       data-url="{% url 'gamefiles:get_profile_table' per_page=table.per_page|default:10 %}{% if request.GET %}&{% else %}?{% endif %}{% querystring table.prefixed_page_field=p active_table=table.prefix %}"
                        {% endif %}>
                         {{ p }}
                     </a>
