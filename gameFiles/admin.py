@@ -18,9 +18,10 @@ class JsonUploadMixin:
     
     def get_urls(self):
         urls = super().get_urls()
+        model_name = self.model._meta.model_name
         custom_urls = [
-            path("upload-json/", self.admin_site.admin_view(self.upload_json), name=f"upload-json-{self.model._meta.model_name}"),
-            path("confirm-insert/", self.admin_site.admin_view(self.confirm_insert), name=f"confirm-insert-{self.model._meta.model_name}"),
+            path("upload-json/", self.admin_site.admin_view(self.upload_json), name=f"upload-json-{model_name}"),
+            path("confirm-insert/", self.admin_site.admin_view(self.confirm_insert), name=f"confirm-insert-{model_name}"),
         ]
         return custom_urls + urls
 
@@ -90,7 +91,8 @@ class HintAdmin(admin.ModelAdmin, JsonUploadMixin):
         """Ensure the upload_url is passed to the template."""
         if extra_context is None:
             extra_context = {}
-        extra_context["upload_url"] = reverse(f"upload-json-{self.model._meta.model_name}")
+        model_name = self.model._meta.model_name
+        extra_context["upload_url"] = reverse(f"admin:upload-json-{model_name}")
         return super().changelist_view(request, extra_context=extra_context)
 
 
