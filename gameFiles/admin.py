@@ -86,6 +86,14 @@ class HintAdmin(admin.ModelAdmin, JsonUploadMixin):
     change_list_template = "admin/populate_db.html"
     list_display = ['solution']
 
+    def changelist_view(self, request, extra_context=None):
+        """Ensure the upload_url is passed to the template."""
+        if extra_context is None:
+            extra_context = {}
+        extra_context["upload_url"] = reverse(f"admin:upload-json-{self.model._meta.model_name}")
+        return super().changelist_view(request, extra_context=extra_context)
+
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["upload_url"] = reverse(f"admin:upload-json-{self.model._meta.model_name}")
