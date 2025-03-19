@@ -165,6 +165,7 @@ function fetchTableData(ev, clicked_object, activeTable) {
 
   if (!ajax_url.startsWith("http")) {
       ajax_url = base_url + ajax_url;
+      console.log(ajax_url);
   }
 
   $.ajax({
