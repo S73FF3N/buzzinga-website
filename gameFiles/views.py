@@ -343,6 +343,7 @@ class WhoknowsmoreCreateView(LoginRequiredMixin, ParentCreateView):
             return self.form_invalid(form, formset)
 
     def form_valid(self, form, formset):
+        form.instance.created_by = self.request.user
         self.object = form.save()
         instances = formset.save(commit=False)
 
