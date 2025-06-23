@@ -137,7 +137,6 @@ class WhoKnowsMoreAdmin(JsonUploadMixin, admin.ModelAdmin):
         if extra_context is None:
             extra_context = {}
         model_name = self.model._meta.model_name.lower()
-        print(f"Model name: {model_name}")
         extra_context["upload_url"] = reverse(f"admin:upload-json-{model_name}")
         return super().changelist_view(request, extra_context=extra_context)
 

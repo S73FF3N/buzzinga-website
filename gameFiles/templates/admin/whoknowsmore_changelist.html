@@ -4,7 +4,7 @@
 {% block content %}
 <div class="module">
     <h2>Upload JSON File</h2>
-    <form method="post" enctype="multipart/form-data" action="{% url 'admin:upload_json_whoknowsmore' %}">
+    <form method="post" enctype="multipart/form-data" action="{{ upload_url }}">
         {% csrf_token %}
         <input type="file" name="json_file" accept=".json" required>
         <button type="submit" class="button">Upload</button>
