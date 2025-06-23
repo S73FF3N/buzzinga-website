@@ -208,6 +208,9 @@ class WhoknowsmoreEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
         return HttpResponseRedirect(self.get_success_url())
 
     def form_invalid(self, form, formset):
+        # Add non-form errors (e.g., from formset.clean()) to messages
+        for error in formset.non_form_errors():
+            messages.error(self.request, error)
         return self.render_to_response(self.get_context_data(form=form,
                                                              formset=formset))
 
