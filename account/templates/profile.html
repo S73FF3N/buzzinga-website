@@ -50,14 +50,16 @@
         <ul class="nav nav-tabs card-header-tabs">
           {% for table_name, label in table_names.items %}
             <li style="display: flex; align-items: center;">
-              <a class="nav-link {% if forloop.first %}active{% endif %}" 
+                <a class="nav-link"
                 id="{{ table_name }}-label" 
                 data-bs-toggle="tab"
                 data-bs-target="#{{ table_name }}"
                 href="#{{ table_name }}"
-                role="tab">
+                role="tab"
+                {% if forloop.first %}data-default-tab="true"{% endif %}
+                >
                 {{ label }}
-              </a>
+                </a>
               <a href="{% url 'gamefiles:'|add:table_name|add:'-create' %}" class="btn btn-warning btn-sm ml-5">
                 <i class="fa fa-plus"></i>
               </a>
