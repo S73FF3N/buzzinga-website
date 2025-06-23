@@ -81,23 +81,8 @@ class WhoKnowsMoreElementForm(forms.ModelForm):
         fields = ('id', 'count_id', 'category_element', 'answer')
         widgets = {'count_id': forms.HiddenInput()}
 
-    def clean(self):
-        cleaned_data = super().clean()
-        # Only validate if instance has a parent WhoKnowsMore object
-        parent = self.instance.who_knows_more if hasattr(self.instance, 'who_knows_more') else None
-        if parent:
-            # Count existing elements for this WhoKnowsMore object, excluding the current instance if updating
-            qs = WhoKnowsMoreElement.objects.filter(who_knows_more=parent)
-            if self.instance.pk:
-                qs = qs.exclude(pk=self.instance.pk)
-            total = qs.count() + 1  # +1 for the current form
-            if total > 60:
-                raise forms.ValidationError("Maximal 60 Elemente pro 'Wer weiß mehr?' erlaubt.")
-        return cleaned_data
-
-
-WhoKnowsMoreElementFormSet = inlineformset_factory(WhoKnowsMore, WhoKnowsMoreElement, fields=['answer'], extra=10, can_delete=False, max_num=100, validate_max=True)
-WhoKnowsMoreElementFormSetUpdate = inlineformset_factory(WhoKnowsMore, WhoKnowsMoreElement, fields=['answer'], extra=0, can_delete=True, max_num=100, validate_max=True)
+WhoKnowsMoreElementFormSet = inlineformset_factory(WhoKnowsMore, WhoKnowsMoreElement, fields=['answer'], extra=10, can_delete=False, max_num=60, validate_max=True)
+WhoKnowsMoreElementFormSetUpdate = inlineformset_factory(WhoKnowsMore, WhoKnowsMoreElement, fields=['answer'], extra=0, can_delete=True, max_num=60, validate_max=True)
 
 
 class BaseDownloadForm(forms.ModelForm):
