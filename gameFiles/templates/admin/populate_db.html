@@ -1,11 +1,13 @@
 {% extends "admin/change_list.html" %}
 {% block content %}
-<h2>Upload JSON File</h2>
-<form method="POST" enctype="multipart/form-data" action="{{ upload_url }}">
-    {% csrf_token %}
-    <input type="file" name="json_file" required>
-    <button type="submit">Upload</button>
-</form>
+<div class="module">
+    <h2>Upload JSON File</h2>
+    <form method="post" enctype="multipart/form-data" action="{{ upload_url }}">
+        {% csrf_token %}
+        <input type="file" name="json_file" accept=".json" required>
+        <button type="submit" class="button">Upload</button>
+    </form>
+</div>
 
 {% if messages %}
     <ul class="messages">
