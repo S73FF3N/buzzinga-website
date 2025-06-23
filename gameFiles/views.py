@@ -266,6 +266,11 @@ class ImageCreateView(LoginRequiredMixin, ParentCreateView):
     form_class = ImageForm
     template_name = 'image-edit.html'
 
+    def get_success_url(self):
+        # Preserve the active nav-link by passing 'active_tab' from GET or POST
+        active_tab = self.request.GET.get('active_tab') or self.request.POST.get('active_tab') or 'images'
+        return reverse('account:profile', kwargs={'per_page': 10}) + f'?active_tab={active_tab}'
+
     def form_valid(self, form):
         form.instance.created_by = self.request.user
 
