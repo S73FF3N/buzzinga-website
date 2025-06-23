@@ -18,7 +18,7 @@ class JsonUploadMixin:
     
     def get_urls(self):
         urls = super().get_urls()
-        model_name = self.model._meta.model_name
+        model_name = self.model._meta.model_name.lower()
         custom_urls = [
             path("upload-json/", self.admin_site.admin_view(self.upload_json), name=f"upload-json-{model_name}"),
             path("confirm-insert/", self.admin_site.admin_view(self.confirm_insert), name="confirm-insert"),
@@ -91,14 +91,14 @@ class HintAdmin(JsonUploadMixin, admin.ModelAdmin):
         """Ensure the upload_url is passed to the template."""
         if extra_context is None:
             extra_context = {}
-        model_name = self.model._meta.model_name
+        model_name = self.model._meta.model_name.lower()
         extra_context["upload_url"] = reverse(f"admin:upload-json-{model_name}")
         return super().changelist_view(request, extra_context=extra_context)
 
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["upload_url"] = reverse(f"admin:upload-json-{self.model._meta.model_name}")
+        context["upload_url"] = reverse(f"admin:upload-json-{self.model._meta.model_name.lower()}")
         return context
 
     def process_data(self, data, category, default_user):
@@ -136,12 +136,13 @@ class WhoKnowsMoreAdmin(JsonUploadMixin, admin.ModelAdmin):
         """Ensure the upload_url is passed to the template."""
         if extra_context is None:
             extra_context = {}
-        extra_context["upload_url"] = reverse("admin:upload-json-whoknowsmore")
+        model_name = self.model._meta.model_name.lower()
+        extra_context["upload_url"] = reverse(f"admin:upload-json-{model_name}")
         return super().changelist_view(request, extra_context=extra_context)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["upload_url"] = reverse("admin:upload-json-whoknowsmore")
+        context["upload_url"] = reverse(f"admin:upload-json-{self.model._meta.model_name.lower()}")
         return context
 
     def process_data(self, data, category, default_user):
