@@ -583,16 +583,39 @@ class QuizGameResultCreateView(CreateView):
 def leaderboard_view(request):
     user_points = {}
 
-    for result in QuizGameResult.objects.prefetch_related('team1_users', 'team2_users', 'team3_users', 'team4_users'):
-        for user in result.team1_users.all():
-            user_points[user] = user_points.get(user, 0) + result.team1_points
-        for user in result.team2_users.all():
-            user_points[user] = user_points.get(user, 0) + result.team2_points
-        for user in result.team3_users.all():
-            user_points[user] = user_points.get(user, 0) + result.team3_points
-        for user in result.team4_users.all():
-            user_points[user] = user_points.get(user, 0) + result.team4_points
+    results = QuizGameResult.objects.prefetch_related(
+        'team1_users', 'team2_users', 'team3_users', 'team4_users'
+    )
 
+    for result in results:
+        # Get team scores
+        scores = {
+            'team1': result.team1_points,
+            'team2': result.team2_points,
+            'team3': result.team3_points,
+            'team4': result.team4_points,
+        }
+
+        # Total raw points from all teams
+        total_raw_points = sum(scores.values())
+        if total_raw_points == 0:
+            continue  # avoid division by zero
+
+        # Normalize: compute 10 leaderboard points relative to team scores
+        normalized_scores = {
+            team: (score / total_raw_points) * 10
+            for team, score in scores.items()
+        }
+
+        # Distribute normalized points to users equally within each team
+        for team_key, team_score in normalized_scores.items():
+            team_users = getattr(result, f"{team_key}_users").all()
+            if team_users.exists():
+                points_per_user = team_score / team_users.count()
+                for user in team_users:
+                    user_points[user] = user_points.get(user, 0) + points_per_user
+
+    # Sort users by points descending
     sorted_users = sorted(user_points.items(), key=lambda x: x[1], reverse=True)
 
     return render(request, 'leaderboard.html', {
