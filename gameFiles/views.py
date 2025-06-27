@@ -12,8 +12,8 @@ from django.db.models import Count, OuterRef, Subquery, Q, IntegerField
 from django.db.models.expressions import Value
 from django.db.models.functions import Coalesce
 
-from .models import GameType, Category, CategoryElement, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement
-from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, WhoKnowsMoreForm, WhoKnowsMoreElementFormSet, WhoKnowsMoreElementFormSetUpdate, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm, WhoKnowsMoreDownloadForm, SolutionForm
+from .models import GameType, Category, CategoryElement, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, QuizGameResult
+from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, WhoKnowsMoreForm, WhoKnowsMoreElementFormSet, WhoKnowsMoreElementFormSetUpdate, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm, WhoKnowsMoreDownloadForm, SolutionForm, QuizGameResultForm
 
 from dal import autocomplete
 from itertools import chain
@@ -572,6 +572,12 @@ def solution(request, game_type, category_element):
         solution = solution.show_solution()
 
     return render(request, 'solution.html', {'solution': {"type": solution_type, "qs": solution}})
+
+
+class QuizGameResultCreateView(CreateView):
+    model = QuizGameResult
+    form_class = QuizGameResultForm
+    template_name = 'quiz_form.html'
 
 
 class CategoryAutocomplete(autocomplete.Select2QuerySetView):

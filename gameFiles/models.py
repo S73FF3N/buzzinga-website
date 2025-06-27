@@ -2,6 +2,7 @@ from django.db import models
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from django.dispatch import receiver
+from django.contrib.auth.models import User
 
 import os
 from datetime import date
@@ -221,3 +222,26 @@ def delete_file(sender, instance, *args, **kwargs):
     file_path = getattr(instance, "image_file", None) or getattr(instance, "sound_file", None)
     if file_path and hasattr(file_path, "path"):
         _delete_file(file_path.path)
+
+
+
+class QuizGameResult(models.Model):
+    game_type = models.ForeignKey(GameType, on_delete=models.CASCADE)
+    category = models.CharField(max_length=100)
+
+    quiz_date = models.DateField()  # New field for the date the quiz was played
+
+    team1_users = models.ManyToManyField(User, related_name='team1_games')
+    team2_users = models.ManyToManyField(User, related_name='team2_games')
+    team3_users = models.ManyToManyField(User, related_name='team3_games')
+    team4_users = models.ManyToManyField(User, related_name='team4_games')
+
+    team1_points = models.IntegerField()
+    team2_points = models.IntegerField()
+    team3_points = models.IntegerField()
+    team4_points = models.IntegerField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.game_type.name} - {self.category} on {self.quiz_date}"

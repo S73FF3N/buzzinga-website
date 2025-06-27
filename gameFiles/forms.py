@@ -2,7 +2,7 @@ from dal import autocomplete, forward
 from django import forms
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.forms import inlineformset_factory
-from .models import GameType, Category, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, DIFFICULTY
+from .models import GameType, Category, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, DIFFICULTY, QuizGameResult
 
 
 class CategoryForm(forms.ModelForm):
@@ -143,11 +143,6 @@ class WhoKnowsMoreDownloadForm(BaseDownloadForm):
     class Meta(BaseDownloadForm.Meta):
         model = WhoKnowsMore
 
-
-from django import forms
-from dal import autocomplete
-from .models import GameType, Category
-
 class SolutionForm(forms.Form):
     game_type = forms.ModelChoiceField(
         queryset=GameType.objects.filter(id__in=[3,5]),
@@ -204,3 +199,28 @@ class SolutionForm(forms.Form):
 
             except (ValueError, TypeError, GameType.DoesNotExist):
                 pass  # Ignore invalid IDs
+
+
+class QuizGameResultForm(forms.ModelForm):
+    class Meta:
+        model = QuizGameResult
+        fields = [
+            'game_type', 'category', 'quiz_date',
+            'team1_users', 'team2_users', 'team3_users', 'team4_users',
+            'team1_points', 'team2_points', 'team3_points', 'team4_points'
+        ]
+        widgets = {
+            'quiz_date': forms.DateInput(attrs={'type': 'date'}),
+            'team1_users': autocomplete.ModelSelect2Multiple(
+                url='gamefiles:user-autocomplete', attrs={'data-placeholder': 'Select Team 1 users'}
+            ),
+            'team2_users': autocomplete.ModelSelect2Multiple(
+                url='gamefiles:user-autocomplete', attrs={'data-placeholder': 'Select Team 2 users'}
+            ),
+            'team3_users': autocomplete.ModelSelect2Multiple(
+                url='gamefiles:user-autocomplete', attrs={'data-placeholder': 'Select Team 3 users'}
+            ),
+            'team4_users': autocomplete.ModelSelect2Multiple(
+                url='gamefiles:user-autocomplete', attrs={'data-placeholder': 'Select Team 4 users'}
+            ),
+        }
