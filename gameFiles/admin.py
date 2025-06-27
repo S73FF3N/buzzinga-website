@@ -75,11 +75,15 @@ class JsonUploadMixin:
 
 
 # Registering simple models
-for model in [GameType, Category, Sound, Image, Question, QuizGameResult]:
+for model in [GameType, Category, Sound, Image, Question]:
     @admin.register(model)
     class DefaultAdmin(admin.ModelAdmin):
         list_display = ['name_de'] if hasattr(model, 'name_de') else ['solution']
 
+
+@admin.register(QuizGameResult)
+class QuizGameResultAdmin(admin.ModelAdmin):
+    list_display = ['game_type', 'category', 'quiz_date']
 
 # HintAdmin with JSON upload
 @admin.register(Hints)
