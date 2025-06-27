@@ -230,4 +230,4 @@ class QuizGameResult(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.game_type.name} - {self.category} on {self.quiz_date}"
+        return f"{self.game_type.name_de} - {self.category} on {self.quiz_date}"
