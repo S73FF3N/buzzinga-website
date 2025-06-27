@@ -581,14 +581,13 @@ class QuizGameResultCreateView(CreateView):
 
 
 def leaderboard_view(request):
-    user_points = {}
+    user_stats = {}  # user → {'points': float, 'games': int}
 
     results = QuizGameResult.objects.prefetch_related(
         'team1_users', 'team2_users', 'team3_users', 'team4_users'
     )
 
     for result in results:
-        # Get team scores
         scores = {
             'team1': result.team1_points,
             'team2': result.team2_points,
@@ -596,30 +595,38 @@ def leaderboard_view(request):
             'team4': result.team4_points,
         }
 
-        # Total raw points from all teams
         total_raw_points = sum(scores.values())
         if total_raw_points == 0:
-            continue  # avoid division by zero
+            continue  # Skip games with no scoring
 
-        # Normalize: compute 10 leaderboard points relative to team scores
+        # Normalized team scores (out of 10)
         normalized_scores = {
             team: (score / total_raw_points) * 10
             for team, score in scores.items()
         }
 
-        # Distribute normalized points to users equally within each team
+        # Award full team share to each user (not split)
         for team_key, team_score in normalized_scores.items():
             team_users = getattr(result, f"{team_key}_users").all()
-            if team_users.exists():
-                points_per_user = team_score / team_users.count()
-                for user in team_users:
-                    user_points[user] = user_points.get(user, 0) + points_per_user
+            for user in team_users:
+                if user not in user_stats:
+                    user_stats[user] = {'points': 0.0, 'games': 0}
+                user_stats[user]['points'] += team_score
+                user_stats[user]['games'] += 1
 
-    # Sort users by points descending
-    sorted_users = sorted(user_points.items(), key=lambda x: x[1], reverse=True)
+    # Compute averages
+    leaderboard = [
+        (user, stats['points'] / stats['games'])
+        for user, stats in user_stats.items()
+        if stats['games'] > 0
+    ]
+
+    # Sort by average points descending
+    leaderboard.sort(key=lambda x: x[1], reverse=True)
 
     return render(request, 'leaderboard.html', {
-        'leaderboard': sorted_users
+        'leaderboard': leaderboard,
+        'user_stats': user_stats,
     })
 
 

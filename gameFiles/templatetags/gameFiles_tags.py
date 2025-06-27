@@ -30,3 +30,7 @@ def get_field(form, field_name):
         return form[field_name]
     except (KeyError, TypeError):
         return None
+    
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)

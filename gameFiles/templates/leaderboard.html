@@ -1,7 +1,7 @@
 {% extends "index.html" %}
 {% load static %}
 {% load widget_tweaks %}
-{% load i18n %}
+{% load gameFiles_tags %}
 
 {% block title %}
     Leaderboard
@@ -19,6 +19,7 @@
                         <th scope="col">Platz</th>
                         <th scope="col">Team</th>
                         <th scope="col">Punkte</th>
+                        <th scope="col">Spiele</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -26,7 +27,8 @@
                         <tr>
                             <td>{{ forloop.counter }}</td>
                             <td>{{ user.username }}</td>
-                            <td>{{ points }}</td>
+                            <td>{{ points|floatformat:2 }}</td>
+                            <td>{{ user_stats.user|get_item:"games" }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
