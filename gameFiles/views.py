@@ -580,6 +580,26 @@ class QuizGameResultCreateView(CreateView):
     template_name = 'quiz_result_form.html'
 
 
+def leaderboard_view(request):
+    user_points = {}
+
+    for result in QuizGameResult.objects.prefetch_related('team1_users', 'team2_users', 'team3_users', 'team4_users'):
+        for user in result.team1_users.all():
+            user_points[user] = user_points.get(user, 0) + result.team1_points
+        for user in result.team2_users.all():
+            user_points[user] = user_points.get(user, 0) + result.team2_points
+        for user in result.team3_users.all():
+            user_points[user] = user_points.get(user, 0) + result.team3_points
+        for user in result.team4_users.all():
+            user_points[user] = user_points.get(user, 0) + result.team4_points
+
+    sorted_users = sorted(user_points.items(), key=lambda x: x[1], reverse=True)
+
+    return render(request, 'leaderboard.html', {
+        'leaderboard': sorted_users
+    })
+
+
 class CategoryAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         user_categories = Category.objects.filter(created_by=self.request.user)
