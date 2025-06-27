@@ -28,19 +28,6 @@ GAME_TYPE_FOLDER_MAP = {
     1: "images",
 }
 
-class Tag(models.Model):
-    name_de = models.CharField(max_length=50)
-
-    class Meta:
-        ordering = ['name_de']
-
-    def amount_elements_with_tag(self, category):
-        related_objects = category.get_related_objects()
-        return related_objects.filter(tags__in=[self]).count() if related_objects else 0
-
-    def __str__(self):
-        return self.name_de
-
 
 class GameType(models.Model):
     name_de = models.CharField(max_length=50, verbose_name="Name")
@@ -116,7 +103,6 @@ class CategoryElement(models.Model):
     explicit = models.BooleanField(default=False, verbose_name="Explizit")
     solution = models.CharField(max_length=80, verbose_name="Lösung")
     difficulty = models.PositiveIntegerField(choices=DIFFICULTY, verbose_name="Schwierigkeit")
-    tags = models.ManyToManyField(Tag, blank=True, related_name="categoryelement")
 
     created_on = models.DateTimeField(auto_now_add=True, db_index=True)
     created_by = models.ForeignKey('auth.User', default=1, on_delete=models.SET_DEFAULT)
