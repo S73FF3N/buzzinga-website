@@ -577,7 +577,7 @@ def solution(request, game_type, category_element):
 class QuizGameResultCreateView(CreateView):
     model = QuizGameResult
     form_class = QuizGameResultForm
-    template_name = 'quiz_results_form.html'
+    template_name = 'quiz_result_form.html'
 
 
 class CategoryAutocomplete(autocomplete.Select2QuerySetView):
