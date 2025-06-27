@@ -588,6 +588,7 @@ def leaderboard_view(request):
     )
 
     for result in results:
+        # Raw team scores (can include negatives)
         scores = {
             'team1': result.team1_points,
             'team2': result.team2_points,
@@ -595,15 +596,24 @@ def leaderboard_view(request):
             'team4': result.team4_points,
         }
 
-        total_raw_points = sum(scores.values())
-        if total_raw_points == 0:
-            continue  # avoid division by zero
-
-        normalized_scores = {
-            team: (score / total_raw_points) * 10
+        # Shift scores so the lowest is zero
+        min_score = min(scores.values())
+        shifted_scores = {
+            team: score - min_score
             for team, score in scores.items()
         }
 
+        total_shifted = sum(shifted_scores.values())
+        if total_shifted == 0:
+            continue  # Avoid division by zero (e.g. all scores equal)
+
+        # Normalize to 10 points total
+        normalized_scores = {
+            team: (shifted / total_shifted) * 10
+            for team, shifted in shifted_scores.items()
+        }
+
+        # Award full team share to each user
         for team_key, team_score in normalized_scores.items():
             team_users = getattr(result, f"{team_key}_users").all()
             for user in team_users:
@@ -612,7 +622,7 @@ def leaderboard_view(request):
                 user_stats[user]['points'] += team_score
                 user_stats[user]['games'] += 1
 
-    # Create a flat list of dicts for the template
+    # Flatten the leaderboard for the template
     leaderboard = []
     for user, stats in user_stats.items():
         if stats['games'] > 0:
@@ -628,7 +638,6 @@ def leaderboard_view(request):
     return render(request, 'leaderboard.html', {
         'leaderboard': leaderboard
     })
-
 
 class CategoryAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
