@@ -23,12 +23,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for user, points in leaderboard %}
+                    {% for entry in leaderboard %}
                         <tr>
                             <td>{{ forloop.counter }}</td>
-                            <td>{{ user.username }}</td>
-                            <td>{{ points|floatformat:2 }}</td>
-                            <td>{{ user_stats.user|get_item:"games" }}</td>
+                            <td>{{ entry.user.username }}</td>
+                            <td>{{ entry.avg_points|floatformat:2 }}</td>
+                            <td>{{ entry.games }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>

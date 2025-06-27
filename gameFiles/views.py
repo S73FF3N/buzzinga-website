@@ -597,15 +597,13 @@ def leaderboard_view(request):
 
         total_raw_points = sum(scores.values())
         if total_raw_points == 0:
-            continue  # Skip games with no scoring
+            continue  # avoid division by zero
 
-        # Normalized team scores (out of 10)
         normalized_scores = {
             team: (score / total_raw_points) * 10
             for team, score in scores.items()
         }
 
-        # Award full team share to each user (not split)
         for team_key, team_score in normalized_scores.items():
             team_users = getattr(result, f"{team_key}_users").all()
             for user in team_users:
@@ -614,19 +612,21 @@ def leaderboard_view(request):
                 user_stats[user]['points'] += team_score
                 user_stats[user]['games'] += 1
 
-    # Compute averages
-    leaderboard = [
-        (user, stats['points'] / stats['games'])
-        for user, stats in user_stats.items()
-        if stats['games'] > 0
-    ]
+    # Create a flat list of dicts for the template
+    leaderboard = []
+    for user, stats in user_stats.items():
+        if stats['games'] > 0:
+            avg = stats['points'] / stats['games']
+            leaderboard.append({
+                'user': user,
+                'avg_points': avg,
+                'games': stats['games'],
+            })
 
-    # Sort by average points descending
-    leaderboard.sort(key=lambda x: x[1], reverse=True)
+    leaderboard.sort(key=lambda x: x['avg_points'], reverse=True)
 
     return render(request, 'leaderboard.html', {
-        'leaderboard': leaderboard,
-        'user_stats': user_stats,
+        'leaderboard': leaderboard
     })
 
 
