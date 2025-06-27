@@ -9,7 +9,7 @@ from django.utils.timezone import now
 from django.contrib.auth.models import User
 from .models import (
     GameType, Category, Sound, Image, Question, Hints,
-    WhoKnowsMore, WhoKnowsMoreElement
+    WhoKnowsMore, WhoKnowsMoreElement, QuizGameResult
 )
 
 # Base JSON Upload Mixin
@@ -75,7 +75,7 @@ class JsonUploadMixin:
 
 
 # Registering simple models
-for model in [GameType, Category, Sound, Image, Question]:
+for model in [GameType, Category, Sound, Image, Question, QuizGameResult]:
     @admin.register(model)
     class DefaultAdmin(admin.ModelAdmin):
         list_display = ['name_de'] if hasattr(model, 'name_de') else ['solution']
