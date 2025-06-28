@@ -209,6 +209,19 @@ class QuizGameResultForm(forms.ModelForm):
             'team1_users', 'team2_users', 'team3_users', 'team4_users',
             'team1_points', 'team2_points', 'team3_points', 'team4_points'
         ]
+        labels = {
+            'game_type': 'Spielart',
+            'category': 'Kategorie',
+            'quiz_date': 'Quiz-Datum',
+            'team1_users': 'Team 1',
+            'team2_users': 'Team 2',
+            'team3_users': 'Team 3',
+            'team4_users': 'Team 4',
+            'team1_points': 'Team 1 Punkte',
+            'team2_points': 'Team 2 Punkte',
+            'team3_points': 'Team 3 Punkte',
+            'team4_points': 'Team 4 Punkte'
+        }
         widgets = {
             'quiz_date': forms.DateInput(attrs={'type': 'date'}),
             'team1_users': autocomplete.ModelSelect2Multiple(

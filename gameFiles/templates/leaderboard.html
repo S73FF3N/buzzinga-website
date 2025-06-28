@@ -19,9 +19,9 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
       </div>
       <div class="modal-body">
+        {{ form.media }}
         <form method="post" id="quizForm">
           {% csrf_token %}
-          {{ form.media }}
             <div class="row g-3">
                 <div class="col-12 mb-3">
                     <div class="form-group">
