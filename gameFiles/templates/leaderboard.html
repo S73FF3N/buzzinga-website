@@ -185,4 +185,16 @@
             </table>
         </div>
     </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modal = document.getElementById('quizResultModal');
+
+        modal.addEventListener('shown.bs.modal', function () {
+            if (window.dal && window.dal.widgets) {
+                window.dal.widgets.init();
+            }
+        });
+    });
+</script>
 {% endblock %}
