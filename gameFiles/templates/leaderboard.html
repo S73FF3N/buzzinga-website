@@ -11,10 +11,6 @@
 
 {% block content %}
 <div class="container mt-5">
-<div>
-  Test field outside modal:
-  {% render_field form.team1_users class="form-control" %}
-</div>
 <!-- Modal -->
 <div class="modal fade" id="quizResultModal" tabindex="-1" aria-labelledby="quizResultModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -194,9 +190,11 @@
         const modal = document.getElementById('quizResultModal');
 
         modal.addEventListener('shown.bs.modal', function () {
-            if (window.dal && window.dal.widgets) {
-                window.dal.widgets.init();
-            }
+            setTimeout(function () {
+                if (window.dal && window.dal.widgets) {
+                    window.dal.widgets.init();
+                }
+            }, 100); // slight delay to allow DOM to fully paint
         });
     });
 </script>
