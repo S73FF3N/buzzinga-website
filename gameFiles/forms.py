@@ -2,6 +2,7 @@ from dal import autocomplete, forward
 from django import forms
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.forms import inlineformset_factory
+from django.contrib.auth.models import User
 from .models import GameType, Category, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, DIFFICULTY, QuizGameResult
 
 
@@ -202,6 +203,23 @@ class SolutionForm(forms.Form):
 
 
 class QuizGameResultForm(forms.ModelForm):
+    team1_users = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(url='user-autocomplete')
+    )
+    team2_users = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(url='user-autocomplete')
+    )
+    team3_users = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(url='user-autocomplete')
+    )
+    team4_users = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(url='user-autocomplete')
+    )
+
     class Meta:
         model = QuizGameResult
         fields = [
@@ -221,19 +239,4 @@ class QuizGameResultForm(forms.ModelForm):
             'team2_points': 'Team 2 Punkte',
             'team3_points': 'Team 3 Punkte',
             'team4_points': 'Team 4 Punkte'
-        }
-        widgets = {
-            'quiz_date': forms.DateInput(attrs={'type': 'date'}),
-            'team1_users': autocomplete.ModelSelect2Multiple(
-                url='gamefiles:user-autocomplete', attrs={'data-placeholder': 'Select Team 1 users'}
-            ),
-            'team2_users': autocomplete.ModelSelect2Multiple(
-                url='gamefiles:user-autocomplete', attrs={'data-placeholder': 'Select Team 2 users'}
-            ),
-            'team3_users': autocomplete.ModelSelect2Multiple(
-                url='gamefiles:user-autocomplete', attrs={'data-placeholder': 'Select Team 3 users'}
-            ),
-            'team4_users': autocomplete.ModelSelect2Multiple(
-                url='gamefiles:user-autocomplete', attrs={'data-placeholder': 'Select Team 4 users'}
-            ),
         }
