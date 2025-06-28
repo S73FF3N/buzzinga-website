@@ -8,8 +8,9 @@
 {% endblock %}
 
 {% block content %}
+<div class="container mt-5">
 
-<!-- Modal -->
+    <!-- Modal -->
 <div class="modal fade" id="quizResultModal" tabindex="-1" aria-labelledby="quizResultModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
@@ -18,7 +19,6 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
       </div>
       <div class="modal-body">
-        <div class="container mt-5">
         <form method="post" id="quizForm">
           {% csrf_token %}
           {{ form.media }}
@@ -145,14 +145,15 @@
                     </div>
                 </div>
             </div>
-            <button class="btn btn-sm btn-warning" type="submit">Speichern</button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                <button type="submit" class="btn btn-warning">Speichern</button>
+            </div>
         </form>
-      </div>
     </div>
   </div>
 </div>
 
-<div class="container mt-5">
     <h2>Leaderboard</h2>
     <button type="button" class="btn btn-primary my-3" data-bs-toggle="modal" data-bs-target="#quizResultModal">
         Neue Quiz-Ergebnisse hinzufügen
