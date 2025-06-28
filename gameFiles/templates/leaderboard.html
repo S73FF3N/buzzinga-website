@@ -10,7 +10,7 @@
 {% block content %}
 
 <!-- Modal -->
-<!--<div class="modal fade" id="quizResultModal" tabindex="-1" aria-labelledby="quizResultModalLabel" aria-hidden="true">
+<div class="modal fade" id="quizResultModal" tabindex="-1" aria-labelledby="quizResultModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
@@ -19,9 +19,9 @@
       </div>
       <div class="modal-body">
         <div class="container mt-5">
-        {{ form.media }}
-        <form method="post">
-            {% csrf_token %}
+        <form method="post" id="quizForm">
+          {% csrf_token %}
+          {{ form.media }}
             <div class="row g-3">
                 <div class="col-12 mb-3">
                     <div class="form-group">
@@ -150,7 +150,7 @@
       </div>
     </div>
   </div>
-</div>-->
+</div>
 
 <div class="container mt-5">
     <h2>Leaderboard</h2>
