@@ -8,8 +8,155 @@
 {% endblock %}
 
 {% block content %}
+
+<!-- Modal -->
+<div class="modal fade" id="quizResultModal" tabindex="-1" aria-labelledby="quizResultModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="quizResultModalLabel">Quiz Ergebnis hinzufügen</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+      </div>
+      <div class="modal-body">
+        <div class="container mt-5">
+        {{ form.media }}
+        <form method="post">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-12 mb-3">
+                    <div class="form-group">
+                        {{ form.game_type.label_tag }}
+                        {% render_field form.game_type class="form-control" %}
+                        {% if form.game_type.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.game_type.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-12 mb-3">
+                    <div class="form-group">
+                        {{ form.category.label_tag }}
+                        {% render_field form.category class="form-control" %}
+                        {% if form.category.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.category.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-12 mb-3">
+                    <div class="form-group">
+                        {{ form.quiz_date.label_tag }}
+                        {% render_field form.quiz_date class="form-control" %}
+                        {% if form.quiz_date.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.quiz_date.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-12 mb-3">
+                    <div class="form-group">
+                        {{ form.team1_users.label_tag }}
+                        {% render_field form.team1_users class="form-control" %}
+                        {% if form.team1_users.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.team1_users.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-12 mb-3">
+                    <div class="form-group">
+                        {{ form.team2_users.label_tag }}
+                        {% render_field form.team2_users class="form-control" %}
+                        {% if form.team2_users.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.team2_users.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-12 mb-3">
+                    <div class="form-group">
+                        {{ form.team3_users.label_tag }}
+                        {% render_field form.team3_users class="form-control" %}
+                        {% if form.team3_users.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.team3_users.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-12 mb-3">
+                    <div class="form-group">
+                        {{ form.team4_users.label_tag }}
+                        {% render_field form.team4_users class="form-control" %}
+                        {% if form.team4_users.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.team4_users.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-6 mb-3">
+                    <div class="form-group">
+                        {{ form.team1_points.label_tag }}
+                        {% render_field form.team1_points class="form-control" %}
+                        {% if form.team1_points.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.team1_points.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-6 mb-3">
+                    <div class="form-group">
+                        {{ form.team2_points.label_tag }}
+                        {% render_field form.team2_points class="form-control" %}
+                        {% if form.team2_points.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.team2_points.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-6 mb-3">
+                    <div class="form-group">
+                        {{ form.team3_points.label_tag }}
+                        {% render_field form.team3_points class="form-control" %}
+                        {% if form.team3_points.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.team3_points.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-6 mb-3">
+                    <div class="form-group">
+                        {{ form.team4_points.label_tag }}
+                        {% render_field form.team4_points class="form-control" %}
+                        {% if form.team4_points.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.team4_points.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-warning" type="submit">Speichern</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="container mt-5">
     <h2>Leaderboard</h2>
+    <button type="button" class="btn btn-primary my-3" data-bs-toggle="modal" data-bs-target="#quizResultModal">
+        Neue Quiz-Ergebnisse hinzufügen
+        </button>
 
     <div class="row">
         <div class="col-12">

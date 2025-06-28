@@ -581,6 +581,14 @@ class QuizGameResultCreateView(CreateView):
 
 
 def leaderboard_view(request):
+    if request.method == "POST":
+        form = QuizGameResultForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("leaderboard")  # or reverse("your_leaderboard_url_name")
+    else:
+        form = QuizGameResultForm()
+
     user_stats = {}  # user → {'points': float, 'games': int}
 
     results = QuizGameResult.objects.prefetch_related(
@@ -636,7 +644,8 @@ def leaderboard_view(request):
     leaderboard.sort(key=lambda x: x['avg_points'], reverse=True)
 
     return render(request, 'leaderboard.html', {
-        'leaderboard': leaderboard
+        'leaderboard': leaderboard,
+        'form': form,
     })
 
 class CategoryAutocomplete(autocomplete.Select2QuerySetView):
