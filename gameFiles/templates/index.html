@@ -86,3 +86,26 @@
         crossorigin="anonymous"></script>
 </body>
 </html>
+{% block scripts %}
+    <script>
+        $(document).ready(function() {
+            // Initialize the modal for quiz results
+            $('#quizResultModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget); // Button that triggered the modal
+                var modal = $(this);
+                modal.find('.modal-title').text('Quiz Ergebnis hinzufügen');
+            });
+
+            // Handle form submission via AJAX
+            $('#quizForm').ajaxForm({
+                success: function(response) {
+                    $('#quizResultModal').modal('hide');
+                    location.reload(); // Reload the page to see the new result
+                },
+                error: function(xhr) {
+                    alert('Fehler beim Speichern des Ergebnisses: ' + xhr.responseText);
+                }
+            });
+        });
+    </script>
+{% endblock %}
