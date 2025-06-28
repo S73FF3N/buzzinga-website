@@ -1,8 +1,12 @@
 {% extends "index.html" %}
+{% load static %}
 {% load widget_tweaks %}
 
 {% block title %}
     Leaderboard
+{% endblock %}
+{% block head %}
+    {{ form.media }}
 {% endblock %}
 
 {% block content %}
@@ -17,7 +21,6 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
       </div>
       <div class="modal-body">
-        {{ form.media }}
         <form method="post" id="quizForm">
           {% csrf_token %}
             <div class="row g-3">
