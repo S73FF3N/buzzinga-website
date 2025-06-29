@@ -12,8 +12,8 @@ from django.db.models import Count, OuterRef, Subquery, Q, IntegerField
 from django.db.models.expressions import Value
 from django.db.models.functions import Coalesce
 
-from .models import GameType, Category, CategoryElement, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement
-from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, WhoKnowsMoreForm, WhoKnowsMoreElementFormSet, WhoKnowsMoreElementFormSetUpdate, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm, WhoKnowsMoreDownloadForm, SolutionForm
+from .models import GameType, Category, CategoryElement, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, QuizGameResult
+from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, WhoKnowsMoreForm, WhoKnowsMoreElementFormSet, WhoKnowsMoreElementFormSetUpdate, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm, WhoKnowsMoreDownloadForm, SolutionForm, QuizGameResultForm
 
 from dal import autocomplete
 from itertools import chain
@@ -574,6 +574,80 @@ def solution(request, game_type, category_element):
     return render(request, 'solution.html', {'solution': {"type": solution_type, "qs": solution}})
 
 
+class QuizGameResultCreateView(CreateView):
+    model = QuizGameResult
+    form_class = QuizGameResultForm
+    template_name = 'quiz_result_form.html'
+
+
+def leaderboard_view(request):
+    if request.method == "POST":
+        form = QuizGameResultForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("gamefiles:leaderboard")  # or reverse("your_leaderboard_url_name")
+    else:
+        form = QuizGameResultForm()
+
+    user_stats = {}  # user → {'points': float, 'games': int}
+
+    results = QuizGameResult.objects.prefetch_related(
+        'team1_users', 'team2_users', 'team3_users', 'team4_users'
+    )
+
+    for result in results:
+        # Raw team scores (can include negatives)
+        scores = {
+            'team1': result.team1_points,
+            'team2': result.team2_points,
+            'team3': result.team3_points,
+            'team4': result.team4_points,
+        }
+
+        # Shift scores so the lowest is zero
+        min_score = min(scores.values())
+        shifted_scores = {
+            team: score - min_score
+            for team, score in scores.items()
+        }
+
+        total_shifted = sum(shifted_scores.values())
+        if total_shifted == 0:
+            continue  # Avoid division by zero (e.g. all scores equal)
+
+        # Normalize to 10 points total
+        normalized_scores = {
+            team: (shifted / total_shifted) * 10
+            for team, shifted in shifted_scores.items()
+        }
+
+        # Award full team share to each user
+        for team_key, team_score in normalized_scores.items():
+            team_users = getattr(result, f"{team_key}_users").all()
+            for user in team_users:
+                if user not in user_stats:
+                    user_stats[user] = {'points': 0.0, 'games': 0}
+                user_stats[user]['points'] += team_score
+                user_stats[user]['games'] += 1
+
+    # Flatten the leaderboard for the template
+    leaderboard = []
+    for user, stats in user_stats.items():
+        if stats['games'] > 0:
+            avg = stats['points'] / stats['games']
+            leaderboard.append({
+                'user': user,
+                'avg_points': avg,
+                'games': stats['games'],
+            })
+
+    leaderboard.sort(key=lambda x: x['avg_points'], reverse=True)
+
+    return render(request, 'leaderboard.html', {
+        'leaderboard': leaderboard,
+        'form': form,
+    })
+
 class CategoryAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         user_categories = Category.objects.filter(created_by=self.request.user)
@@ -620,5 +694,5 @@ class UserAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         qs = User.objects.all()
         if self.q:
-            qs = qs.filter(name_de__icontains=self.q)
+            qs = qs.filter(username__icontains=self.q)
         return qs

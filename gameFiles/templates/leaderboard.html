@@ -1,0 +1,321 @@
+{% extends "index.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}
+    Leaderboard
+{% endblock %}
+{% block head %}
+    {{ form.media }}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+<!-- Modal -->
+<div class="modal fade" id="quizResultModal" tabindex="-1" aria-labelledby="quizResultModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="quizResultModalLabel">Quiz Ergebnis hinzufügen</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+      </div>
+      <div class="modal-body">
+        <form method="post" id="quizForm">
+          {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-12 mb-3">
+                    <div class="form-group">
+                        {{ form.game_type.label_tag }}
+                        {% render_field form.game_type class="form-control" %}
+                        {% if form.game_type.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.game_type.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-12 mb-3">
+                    <div class="form-group">
+                        {{ form.category.label_tag }}
+                        {% render_field form.category class="form-control" %}
+                        {% if form.category.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.category.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-12 mb-3">
+                    <div class="form-group">
+                        {{ form.quiz_date.label_tag }}
+                        {% render_field form.quiz_date class="form-control" %}
+                        {% if form.quiz_date.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.quiz_date.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-12 mb-3">
+                    <div class="form-group">
+                        {{ form.team1_users.label_tag }}
+                        {% render_field form.team1_users class="form-control" %}
+                        {% if form.team1_users.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.team1_users.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-12 mb-3">
+                    <div class="form-group">
+                        {{ form.team2_users.label_tag }}
+                        {% render_field form.team2_users class="form-control" %}
+                        {% if form.team2_users.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.team2_users.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-12 mb-3">
+                    <div class="form-group">
+                        {{ form.team3_users.label_tag }}
+                        {% render_field form.team3_users class="form-control" %}
+                        {% if form.team3_users.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.team3_users.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-12 mb-3">
+                    <div class="form-group">
+                        {{ form.team4_users.label_tag }}
+                        {% render_field form.team4_users class="form-control" %}
+                        {% if form.team4_users.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.team4_users.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-6 mb-3">
+                    <div class="form-group">
+                        {{ form.team1_points.label_tag }}
+                        {% render_field form.team1_points class="form-control" %}
+                        {% if form.team1_points.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.team1_points.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-6 mb-3">
+                    <div class="form-group">
+                        {{ form.team2_points.label_tag }}
+                        {% render_field form.team2_points class="form-control" %}
+                        {% if form.team2_points.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.team2_points.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-6 mb-3">
+                    <div class="form-group">
+                        {{ form.team3_points.label_tag }}
+                        {% render_field form.team3_points class="form-control" %}
+                        {% if form.team3_points.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.team3_points.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-6 mb-3">
+                    <div class="form-group">
+                        {{ form.team4_points.label_tag }}
+                        {% render_field form.team4_points class="form-control" %}
+                        {% if form.team4_points.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.team4_points.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                <button type="submit" class="btn btn-warning">Speichern</button>
+            </div>
+        </form>
+        </div>
+    </div>
+  </div>
+</div>
+
+    <h2>Leaderboard</h2>
+    <button type="button" class="btn btn-primary my-3" data-bs-toggle="modal" data-bs-target="#quizResultModal">
+        Neue Quiz-Ergebnisse hinzufügen
+    </button>
+
+    <div class="row">
+        <div class="col-12">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Platz</th>
+                        <th scope="col">Team</th>
+                        <th scope="col">Punkte</th>
+                        <th scope="col">Spiele</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in leaderboard %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ entry.user.username }}</td>
+                            <td>{{ entry.avg_points|floatformat:2 }}</td>
+                            <td>{{ entry.games }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('quizResultModal');
+    
+    // Debug function to check what's available
+    function debugAutocomplete() {
+        console.log('=== Autocomplete Debug ===');
+        console.log('window.dal:', typeof window.dal);
+        console.log('jQuery available:', typeof $ !== 'undefined');
+        console.log('Select2 available:', typeof $ !== 'undefined' && $.fn.select2);
+        
+        // Check for autocomplete elements
+        const autocompleteElements = modal.querySelectorAll('select[data-autocomplete-light-url], select[data-autocomplete-light-function]');
+        console.log('Autocomplete elements found:', autocompleteElements.length);
+        autocompleteElements.forEach((el, index) => {
+            console.log(`Element ${index}:`, {
+                id: el.id,
+                name: el.name,
+                'data-autocomplete-light-url': el.getAttribute('data-autocomplete-light-url'),
+                'data-autocomplete-light-function': el.getAttribute('data-autocomplete-light-function')
+            });
+        });
+        console.log('=== End Debug ===');
+    }
+    
+    // Function to initialize/reinitialize autocomplete widgets
+    function initializeAutocomplete() {
+        console.log('Initializing autocomplete widgets...');
+        debugAutocomplete();
+        
+        // Method 1: Standard DAL initialization
+        if (typeof window.dal !== 'undefined' && window.dal.widgets) {
+            console.log('Using DAL widgets init');
+            window.dal.widgets.init();
+        }
+        
+        // Method 2: Manual Select2 initialization for DAL widgets
+        if (typeof $ !== 'undefined' && $.fn.select2) {
+            // Find all autocomplete selects in the modal
+            const $modal = $(modal);
+            const $autocompleteSelects = $modal.find('select[data-autocomplete-light-url]');
+            
+            console.log('Found autocomplete selects:', $autocompleteSelects.length);
+            
+            $autocompleteSelects.each(function() {
+                const $select = $(this);
+                const url = $select.data('autocomplete-light-url');
+                
+                console.log('Initializing select:', this.name, 'with URL:', url);
+                
+                // Destroy existing Select2 if present
+                if ($select.hasClass('select2-hidden-accessible')) {
+                    $select.select2('destroy');
+                }
+                
+                // Initialize Select2 with AJAX
+                $select.select2({
+                    ajax: {
+                        url: url,
+                        dataType: 'json',
+                        delay: 250,
+                        data: function (params) {
+                            return {
+                                q: params.term, // search term
+                                page: params.page
+                            };
+                        },
+                        processResults: function (data, params) {
+                            params.page = params.page || 1;
+                            return {
+                                results: data.results,
+                                pagination: {
+                                    more: data.pagination ? data.pagination.more : false
+                                }
+                            };
+                        },
+                        cache: true
+                    },
+                    escapeMarkup: function (markup) {
+                        return markup;
+                    },
+                    minimumInputLength: 0,
+                    templateResult: function(repo) {
+                        return repo.text;
+                    },
+                    templateSelection: function(repo) {
+                        return repo.text;
+                    }
+                });
+            });
+        }
+        
+        // Method 3: Force DAL initialization on specific elements
+        if (typeof window.dal !== 'undefined') {
+            const autocompleteElements = modal.querySelectorAll('select[data-autocomplete-light-function]');
+            autocompleteElements.forEach(function(element) {
+                const functionName = element.getAttribute('data-autocomplete-light-function');
+                if (functionName && window.dal[functionName]) {
+                    console.log('Calling DAL function:', functionName);
+                    window.dal[functionName](element);
+                }
+            });
+        }
+    }
+    
+    // Initialize when modal is shown (before animation starts)
+    modal.addEventListener('show.bs.modal', function () {
+        console.log('Modal show event');
+        setTimeout(initializeAutocomplete, 100);
+    });
+    
+    // Initialize when modal is fully shown
+    modal.addEventListener('shown.bs.modal', function () {
+        console.log('Modal shown event');
+        setTimeout(initializeAutocomplete, 300);
+    });
+    
+    // Clean up when modal is hidden
+    modal.addEventListener('hidden.bs.modal', function () {
+        console.log('Modal hidden event');
+        if (typeof $ !== 'undefined' && $.fn.select2) {
+            $(modal).find('select').each(function() {
+                if ($(this).hasClass('select2-hidden-accessible')) {
+                    $(this).select2('destroy');
+                }
+            });
+        }
+    });
+    
+    // Initial debug on page load
+    setTimeout(debugAutocomplete, 1000);
+});
+</script>
+{% endblock %}

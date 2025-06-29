@@ -9,6 +9,8 @@ urlpatterns = [
     path('<int:game_type>/<int:id>/', views.category_detail, name='category_detail'),
     path('solution-form/', views.solution_form_view, name='solution_form'),
     path('solution/<int:game_type>/<int:category_element>/', views.solution, name='solution'),
+    path('quiz-result-form/', views.QuizGameResultCreateView.as_view(), name='quiz-result-form'),
+    path('leaderboard/', views.leaderboard_view, name='leaderboard'),
 
     # Category Views
     path('category-create', views.CategoryCreateView.as_view(), name='category-create'),

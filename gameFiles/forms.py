@@ -2,7 +2,8 @@ from dal import autocomplete, forward
 from django import forms
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.forms import inlineformset_factory
-from .models import GameType, Category, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, DIFFICULTY
+from django.contrib.auth.models import User
+from .models import GameType, Category, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, DIFFICULTY, QuizGameResult
 
 
 class CategoryForm(forms.ModelForm):
@@ -143,11 +144,6 @@ class WhoKnowsMoreDownloadForm(BaseDownloadForm):
     class Meta(BaseDownloadForm.Meta):
         model = WhoKnowsMore
 
-
-from django import forms
-from dal import autocomplete
-from .models import GameType, Category
-
 class SolutionForm(forms.Form):
     game_type = forms.ModelChoiceField(
         queryset=GameType.objects.filter(id__in=[3,5]),
@@ -204,3 +200,53 @@ class SolutionForm(forms.Form):
 
             except (ValueError, TypeError, GameType.DoesNotExist):
                 pass  # Ignore invalid IDs
+
+
+class QuizGameResultForm(forms.ModelForm):
+    team1_users = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='gamefiles:user-autocomplete'  # This should match your URL name
+        )
+    )
+    team2_users = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='gamefiles:user-autocomplete'  # This should match your URL name
+        )
+    )
+    team3_users = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='gamefiles:user-autocomplete'  # This should match your URL name
+        )
+    )
+    team4_users = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='gamefiles:user-autocomplete'  # This should match your URL name
+        )
+    )
+    class Meta:
+        model = QuizGameResult
+        fields = [
+            'game_type', 'category', 'quiz_date',
+            'team1_users', 'team2_users', 'team3_users', 'team4_users',
+            'team1_points', 'team2_points', 'team3_points', 'team4_points'
+        ]
+        labels = {
+            'game_type': 'Spielart',
+            'category': 'Kategorie',
+            'quiz_date': 'Quiz-Datum',
+            'team1_users': 'Team 1',
+            'team2_users': 'Team 2',
+            'team3_users': 'Team 3',
+            'team4_users': 'Team 4',
+            'team1_points': 'Team 1 Punkte',
+            'team2_points': 'Team 2 Punkte',
+            'team3_points': 'Team 3 Punkte',
+            'team4_points': 'Team 4 Punkte'
+        }
+        widgets = {
+            'quiz_date': forms.DateInput(attrs={'type': 'date'}),
+        }

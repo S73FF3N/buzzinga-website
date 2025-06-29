@@ -2,6 +2,7 @@ from django.db import models
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from django.dispatch import receiver
+from django.contrib.auth.models import User
 
 import os
 from datetime import date
@@ -26,19 +27,6 @@ GAME_TYPE_FOLDER_MAP = {
     2: "sounds",
     1: "images",
 }
-
-class Tag(models.Model):
-    name_de = models.CharField(max_length=50)
-
-    class Meta:
-        ordering = ['name_de']
-
-    def amount_elements_with_tag(self, category):
-        related_objects = category.get_related_objects()
-        return related_objects.filter(tags__in=[self]).count() if related_objects else 0
-
-    def __str__(self):
-        return self.name_de
 
 
 class GameType(models.Model):
@@ -115,7 +103,6 @@ class CategoryElement(models.Model):
     explicit = models.BooleanField(default=False, verbose_name="Explizit")
     solution = models.CharField(max_length=80, verbose_name="Lösung")
     difficulty = models.PositiveIntegerField(choices=DIFFICULTY, verbose_name="Schwierigkeit")
-    tags = models.ManyToManyField(Tag, blank=True, related_name="categoryelement")
 
     created_on = models.DateTimeField(auto_now_add=True, db_index=True)
     created_by = models.ForeignKey('auth.User', default=1, on_delete=models.SET_DEFAULT)
@@ -221,3 +208,26 @@ def delete_file(sender, instance, *args, **kwargs):
     file_path = getattr(instance, "image_file", None) or getattr(instance, "sound_file", None)
     if file_path and hasattr(file_path, "path"):
         _delete_file(file_path.path)
+
+
+
+class QuizGameResult(models.Model):
+    game_type = models.ForeignKey(GameType, on_delete=models.CASCADE)
+    category = models.CharField(max_length=100)
+
+    quiz_date = models.DateField()  # New field for the date the quiz was played
+
+    team1_users = models.ManyToManyField(User, related_name='team1_games')
+    team2_users = models.ManyToManyField(User, related_name='team2_games')
+    team3_users = models.ManyToManyField(User, related_name='team3_games')
+    team4_users = models.ManyToManyField(User, related_name='team4_games')
+
+    team1_points = models.IntegerField()
+    team2_points = models.IntegerField()
+    team3_points = models.IntegerField()
+    team4_points = models.IntegerField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.game_type.name_de} - {self.category} on {self.quiz_date}"

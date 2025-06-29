@@ -8,8 +8,8 @@ from django.contrib.auth import get_user_model
 from django.utils.timezone import now
 from django.contrib.auth.models import User
 from .models import (
-    Tag, GameType, Category, Sound, Image, Question, Hints,
-    WhoKnowsMore, WhoKnowsMoreElement
+    GameType, Category, Sound, Image, Question, Hints,
+    WhoKnowsMore, WhoKnowsMoreElement, QuizGameResult
 )
 
 # Base JSON Upload Mixin
@@ -75,11 +75,15 @@ class JsonUploadMixin:
 
 
 # Registering simple models
-for model in [Tag, GameType, Category, Sound, Image, Question]:
+for model in [GameType, Category, Sound, Image, Question]:
     @admin.register(model)
     class DefaultAdmin(admin.ModelAdmin):
         list_display = ['name_de'] if hasattr(model, 'name_de') else ['solution']
 
+
+@admin.register(QuizGameResult)
+class QuizGameResultAdmin(admin.ModelAdmin):
+    list_display = ['game_type', 'category', 'quiz_date']
 
 # HintAdmin with JSON upload
 @admin.register(Hints)

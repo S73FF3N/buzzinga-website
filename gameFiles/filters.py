@@ -1,6 +1,6 @@
 import django_filters
 from dal import autocomplete
-from .models import Tag, Image, Sound, Question, Category, Hints, WhoKnowsMore
+from .models import Image, Sound, Question, Category, Hints, WhoKnowsMore
 
 
 class BaseFilter(django_filters.FilterSet):
