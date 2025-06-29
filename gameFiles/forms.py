@@ -203,6 +203,30 @@ class SolutionForm(forms.Form):
 
 
 class QuizGameResultForm(forms.ModelForm):
+    team1_users = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='gamefiles:user-autocomplete'  # This should match your URL name
+        )
+    )
+    team2_users = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='gamefiles:user-autocomplete'  # This should match your URL name
+        )
+    )
+    team3_users = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='gamefiles:user-autocomplete'  # This should match your URL name
+        )
+    )
+    team4_users = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='gamefiles:user-autocomplete'  # This should match your URL name
+        )
+    )
     class Meta:
         model = QuizGameResult
         fields = [
@@ -225,16 +249,4 @@ class QuizGameResultForm(forms.ModelForm):
         }
         widgets = {
             'quiz_date': forms.DateInput(attrs={'type': 'date'}),
-            'team1_users': autocomplete.ModelSelect2Multiple(
-                url='gamefiles:user-autocomplete', attrs={'data-placeholder': 'Select Team 1 users'}
-            ),
-            'team2_users': autocomplete.ModelSelect2Multiple(
-                url='gamefiles:user-autocomplete', attrs={'data-placeholder': 'Select Team 2 users'}
-            ),
-            'team3_users': autocomplete.ModelSelect2Multiple(
-                url='gamefiles:user-autocomplete', attrs={'data-placeholder': 'Select Team 3 users'}
-            ),
-            'team4_users': autocomplete.ModelSelect2Multiple(
-                url='gamefiles:user-autocomplete', attrs={'data-placeholder': 'Select Team 4 users'}
-            ),
         }
