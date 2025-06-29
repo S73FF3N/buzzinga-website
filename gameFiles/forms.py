@@ -203,23 +203,6 @@ class SolutionForm(forms.Form):
 
 
 class QuizGameResultForm(forms.ModelForm):
-    team1_users = forms.ModelMultipleChoiceField(
-        queryset=User.objects.all(),
-        widget=autocomplete.ModelSelect2Multiple(url='user-autocomplete')
-    )
-    team2_users = forms.ModelMultipleChoiceField(
-        queryset=User.objects.all(),
-        widget=autocomplete.ModelSelect2Multiple(url='user-autocomplete')
-    )
-    team3_users = forms.ModelMultipleChoiceField(
-        queryset=User.objects.all(),
-        widget=autocomplete.ModelSelect2Multiple(url='user-autocomplete')
-    )
-    team4_users = forms.ModelMultipleChoiceField(
-        queryset=User.objects.all(),
-        widget=autocomplete.ModelSelect2Multiple(url='user-autocomplete')
-    )
-
     class Meta:
         model = QuizGameResult
         fields = [
