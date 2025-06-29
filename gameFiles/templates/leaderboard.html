@@ -186,16 +186,55 @@
     </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const modal = document.getElementById('quizResultModal');
-
-        modal.addEventListener('shown.bs.modal', function () {
-            setTimeout(function () {
-                if (window.dal && window.dal.widgets) {
-                    window.dal.widgets.init();
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('quizResultModal');
+    
+    // Function to initialize/reinitialize autocomplete widgets
+    function initializeAutocomplete() {
+        // Method 1: Try the standard DAL initialization
+        if (typeof window.dal !== 'undefined' && window.dal.widgets) {
+            window.dal.widgets.init();
+        }
+        
+        // Method 2: Alternative approach - manually trigger Select2 initialization
+        // This handles cases where DAL widgets use Select2 under the hood
+        const modalBody = modal.querySelector('.modal-body');
+        if (modalBody && typeof $ !== 'undefined' && $.fn.select2) {
+            $(modalBody).find('select[data-autocomplete-light-function="select2"]').each(function() {
+                if (!$(this).hasClass('select2-hidden-accessible')) {
+                    $(this).select2();
                 }
-            }, 100); // slight delay to allow DOM to fully paint
-        });
+            });
+        }
+        
+        // Method 3: Force re-initialization of any existing Select2 widgets in the modal
+        if (typeof $ !== 'undefined' && $.fn.select2) {
+            $(modal).find('.select2-container').remove();
+            $(modal).find('select').select2();
+        }
+    }
+    
+    // Initialize when modal is fully shown
+    modal.addEventListener('shown.bs.modal', function () {
+        // Use a longer delay to ensure modal animation is complete
+        setTimeout(function () {
+            initializeAutocomplete();
+        }, 300);
     });
+    
+    // Clean up when modal is hidden to prevent memory leaks
+    modal.addEventListener('hidden.bs.modal', function () {
+        if (typeof $ !== 'undefined' && $.fn.select2) {
+            $(modal).find('select').select2('destroy');
+        }
+    });
+    
+    // Also try to initialize on modal show (before animation completes)
+    modal.addEventListener('show.bs.modal', function () {
+        setTimeout(function () {
+            initializeAutocomplete();
+        }, 50);
+    });
+});
 </script>
 {% endblock %}
