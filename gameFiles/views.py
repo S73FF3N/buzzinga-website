@@ -585,7 +585,7 @@ def leaderboard_view(request):
         form = QuizGameResultForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect("leaderboard")  # or reverse("your_leaderboard_url_name")
+            return redirect("gamefiles:leaderboard")  # or reverse("your_leaderboard_url_name")
     else:
         form = QuizGameResultForm()
 
