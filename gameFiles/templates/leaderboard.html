@@ -155,37 +155,45 @@
   </div>
 </div>
 
-    <h2>Leaderboard</h2>
-    <button type="button" class="btn btn-primary my-3" data-bs-toggle="modal" data-bs-target="#quizResultModal">
-        Neue Quiz-Ergebnisse hinzufügen
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Leaderboard</h2>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#quizResultModal">
+        <i class="fa-solid fa-square-plus"></i> <i class="fa-solid fa-square-poll-vertical"></i>
     </button>
+</div>
 
-    <div class="row">
-        <div class="col-12">
-            <table class="table table-striped">
-                <thead>
+{% with max_wins=leaderboard|default_if_none:""|dictsortreversed:"wins"|first.wins %}
+<div class="row">
+    <div class="col-12">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Platz</th>
+                    <th scope="col">Team</th>
+                    <th scope="col">Punkte</th>
+                    <th scope="col">Spiele</th>
+                    <th scope="col">Siege</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in leaderboard %}
                     <tr>
-                        <th scope="col">Platz</th>
-                        <th scope="col">Team</th>
-                        <th scope="col">Punkte</th>
-                        <th scope="col">Spiele</th>
-                        <th scope="col">Siege</th>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ entry.user.username }}</td>
+                        <td>{{ entry.avg_points|floatformat:2 }}</td>
+                        <td>{{ entry.games }}</td>
+                        <td>
+                            {{ entry.wins }}
+                            {% if entry.wins == max_wins and max_wins > 0 %}
+                                <i class="fa-solid fa-crown text-warning ms-1" title="Most Wins"></i>
+                            {% endif %}
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    {% for entry in leaderboard %}
-                        <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td>{{ entry.user.username }}</td>
-                            <td>{{ entry.avg_points|floatformat:2 }}</td>
-                            <td>{{ entry.games }}</td>
-                            <td>{{ entry.wins }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
