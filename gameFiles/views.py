@@ -694,7 +694,7 @@ class CategoryElementAutocomplete(autocomplete.Select2QuerySetView):
 
 class UserAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        qs = User.objects.all()
+        qs = User.objects.filter(active=True)
         if self.q:
             qs = qs.filter(username__icontains=self.q)
         return qs
