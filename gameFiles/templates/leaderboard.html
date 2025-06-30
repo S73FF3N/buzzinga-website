@@ -162,7 +162,6 @@
     </button>
 </div>
 
-{% with max_wins=leaderboard|default_if_none:""|dictsortreversed:"wins"|first.wins %}
 <div class="row">
     <div class="col-12">
         <table class="table table-striped">
@@ -183,6 +182,7 @@
                         <td>{{ entry.avg_points|floatformat:2 }}</td>
                         <td>{{ entry.games }}</td>
                         <td>
+                            {{ entry.wins }}
                             {{ entry.wins }}
                             {% if entry.wins == max_wins and max_wins > 0 %}
                                 <i class="fa-solid fa-crown text-warning ms-1" title="Most Wins"></i>

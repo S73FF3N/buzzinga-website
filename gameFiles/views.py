@@ -640,11 +640,14 @@ def leaderboard_view(request):
                 'wins': stats['wins'],
             })
 
+    max_wins = max((entry['wins'] for entry in leaderboard), default=0)
+
     leaderboard.sort(key=lambda x: (-x['avg_points'], -x['wins']))
 
     return render(request, 'leaderboard.html', {
         'leaderboard': leaderboard,
         'form': form,
+        'max_wins': max_wins,
     })
 
 class CategoryAutocomplete(autocomplete.Select2QuerySetView):
