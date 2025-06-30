@@ -603,6 +603,21 @@ def leaderboard_view(request):
             'team3': result.team3_points,
             'team4': result.team4_points,
         }
+        teams = [
+            (result.team1_users.all(), result.team1_points),
+            (result.team2_users.all(), result.team2_points),
+            (result.team3_users.all(), result.team3_points),
+            (result.team4_users.all(), result.team4_points),
+        ]
+
+        max_points = max([points for users, points in teams if users])
+
+        for users, points in teams:
+            for user in users:
+                user_stats[user]['points'] += points
+                user_stats[user]['games'] += 1
+                if points == max_points:
+                    user_stats[user]['wins'] += 1
 
         # Shift scores so the lowest is zero
         min_score = min(scores.values())
@@ -639,6 +654,7 @@ def leaderboard_view(request):
                 'user': user,
                 'avg_points': avg,
                 'games': stats['games'],
+                'wins': stats['wins'],
             })
 
     leaderboard.sort(key=lambda x: x['avg_points'], reverse=True)

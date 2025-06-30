@@ -169,6 +169,7 @@
                         <th scope="col">Team</th>
                         <th scope="col">Punkte</th>
                         <th scope="col">Spiele</th>
+                        <th scope="col">Siege</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -178,6 +179,7 @@
                             <td>{{ entry.user.username }}</td>
                             <td>{{ entry.avg_points|floatformat:2 }}</td>
                             <td>{{ entry.games }}</td>
+                            <td>{{ entry.wins }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
