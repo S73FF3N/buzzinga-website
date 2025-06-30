@@ -574,90 +574,72 @@ def solution(request, game_type, category_element):
     return render(request, 'solution.html', {'solution': {"type": solution_type, "qs": solution}})
 
 
-class QuizGameResultCreateView(CreateView):
-    model = QuizGameResult
-    form_class = QuizGameResultForm
-    template_name = 'quiz_result_form.html'
-
-
 def leaderboard_view(request):
     if request.method == "POST":
         form = QuizGameResultForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect("gamefiles:leaderboard")  # or reverse("your_leaderboard_url_name")
+            return redirect("gamefiles:leaderboard")
     else:
         form = QuizGameResultForm()
 
-    user_stats = {}  # user → {'points': float, 'games': int}
+    # user → {'points': float, 'games': int, 'wins': int}
+    user_stats = defaultdict(lambda: {'points': 0.0, 'games': 0, 'wins': 0})
 
     results = QuizGameResult.objects.prefetch_related(
         'team1_users', 'team2_users', 'team3_users', 'team4_users'
     )
 
     for result in results:
-        # Raw team scores (can include negatives)
         scores = {
             'team1': result.team1_points,
             'team2': result.team2_points,
             'team3': result.team3_points,
             'team4': result.team4_points,
         }
-        teams = [
-            (result.team1_users.all(), result.team1_points),
-            (result.team2_users.all(), result.team2_points),
-            (result.team3_users.all(), result.team3_points),
-            (result.team4_users.all(), result.team4_points),
-        ]
 
-        max_points = max([points for users, points in teams if users])
+        # --- Track wins (raw score, unnormalized) ---
+        max_score = max(scores.values())
+        winning_teams = [team for team, score in scores.items() if score == max_score]
 
-        for users, points in teams:
+        for team_key in winning_teams:
+            users = getattr(result, f"{team_key}_users").all()
             for user in users:
-                user_stats[user]['points'] += points
-                user_stats[user]['games'] += 1
-                if points == max_points:
-                    user_stats[user]['wins'] += 1
+                user_stats[user]['wins'] += 1
 
-        # Shift scores so the lowest is zero
+        # --- Normalize scores ---
         min_score = min(scores.values())
         shifted_scores = {
-            team: score - min_score
-            for team, score in scores.items()
+            team: score - min_score for team, score in scores.items()
         }
 
         total_shifted = sum(shifted_scores.values())
         if total_shifted == 0:
-            continue  # Avoid division by zero (e.g. all scores equal)
+            continue  # Avoid division by zero (e.g., all scores equal)
 
-        # Normalize to 10 points total
         normalized_scores = {
             team: (shifted / total_shifted) * 10
             for team, shifted in shifted_scores.items()
         }
 
-        # Award full team share to each user
         for team_key, team_score in normalized_scores.items():
             team_users = getattr(result, f"{team_key}_users").all()
             for user in team_users:
-                if user not in user_stats:
-                    user_stats[user] = {'points': 0.0, 'games': 0}
                 user_stats[user]['points'] += team_score
                 user_stats[user]['games'] += 1
 
-    # Flatten the leaderboard for the template
+    # Build leaderboard
     leaderboard = []
     for user, stats in user_stats.items():
         if stats['games'] > 0:
-            avg = stats['points'] / stats['games']
             leaderboard.append({
                 'user': user,
-                'avg_points': avg,
+                'avg_points': stats['points'] / stats['games'],
                 'games': stats['games'],
                 'wins': stats['wins'],
             })
 
-    leaderboard.sort(key=lambda x: x['avg_points'], reverse=True)
+    leaderboard.sort(key=lambda x: (-x['avg_points'], -x['wins']))
 
     return render(request, 'leaderboard.html', {
         'leaderboard': leaderboard,
