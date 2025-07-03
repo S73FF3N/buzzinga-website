@@ -282,10 +282,24 @@ class RandomTeamAssignmentForm(forms.Form):
         required=True
     )
 
+    FUNNY_TEAM_NAMES = [
+        "Die Quizzraketen", "Die Besserwisser", "Die Ratefüchse", "Die Klugscheißer",
+        "Die Denkmaschinen", "Die Wissensgiganten", "Die Antworthelden", "Die Gehirnakrobaten",
+        "Die Ratekönige", "Die Schlauberger", "Die Quiztastischen", "Die Superhirne",
+        "Die Rätselmeister", "Die Wissensjäger", "Die Denkchampions", "Die Ratebande",
+        "Die Tüfteltruppe", "Die Synapsensprinter", "Die Wissenswölfe", "Die Rätselratten",
+        "Die Denksportler", "Die Quizonauten", "Die Antwortalpakas", "Die Ratehasen",
+        "Die Klugschmiede", "Die Wissenswunder", "Die Quizpiraten", "Die Denkdetektive",
+        "Die Rategeister", "Die Quizkamele", "Die Wissenswichte", "Die Rätselrobben",
+        "Die Antwortadler", "Die Quizquallen", "Die Denkdrache", "Die Synapsensurfer",
+        "Die Wissenswiesel", "Die Ratepandas", "Die Quizkobolde", "Die Antworteulen"
+    ]
+
     def assign_teams(self):
         users = list(self.cleaned_data['users'])
         random.shuffle(users)
-        teams = {f"team{i+1}": [] for i in range(4)}
+        team_names = random.sample(self.FUNNY_TEAM_NAMES, 4)
+        teams = {team_names[i]: [] for i in range(4)}
         for idx, user in enumerate(users):
-            teams[f"team{(idx % 4) + 1}"].append(user)
+            teams[team_names[idx % 4]].append(user)
         return teams
