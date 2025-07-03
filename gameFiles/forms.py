@@ -1,7 +1,7 @@
 from dal import autocomplete, forward
 from django import forms
-from django.core.exceptions import NON_FIELD_ERRORS
-from django.forms import inlineformset_factory
+from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
+from django.forms import inlineformset_factory, BaseInlineFormSet
 from django.contrib.auth.models import User
 from .models import GameType, Category, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, DIFFICULTY, QuizGameResult
 
@@ -82,8 +82,27 @@ class WhoKnowsMoreElementForm(forms.ModelForm):
         fields = ('id', 'count_id', 'category_element', 'answer')
         widgets = {'count_id': forms.HiddenInput()}
 
-WhoKnowsMoreElementFormSet = inlineformset_factory(WhoKnowsMore, WhoKnowsMoreElement, fields=['answer'], extra=10, can_delete=False, max_num=60, validate_max=True)
-WhoKnowsMoreElementFormSetUpdate = inlineformset_factory(WhoKnowsMore, WhoKnowsMoreElement, fields=['answer'], extra=0, can_delete=True, max_num=60, validate_max=True)
+class BaseWhoKnowsMoreElementFormSet(BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+        answers = []
+        for form in self.forms:
+            if form.cleaned_data.get('DELETE', False):
+                continue
+            answer = form.cleaned_data.get('answer')
+            if answer:
+                if answer in answers:
+                    raise ValidationError('Es dürfen keine identischen Antworten eingegeben werden.')
+                answers.append(answer)
+
+WhoKnowsMoreElementFormSet = inlineformset_factory(
+    WhoKnowsMore, WhoKnowsMoreElement, fields=['answer'], extra=10, can_delete=False, max_num=60, validate_max=True,
+    formset=BaseWhoKnowsMoreElementFormSet
+)
+WhoKnowsMoreElementFormSetUpdate = inlineformset_factory(
+    WhoKnowsMore, WhoKnowsMoreElement, fields=['answer'], extra=0, can_delete=True, max_num=60, validate_max=True,
+    formset=BaseWhoKnowsMoreElementFormSet
+)
 
 
 class BaseDownloadForm(forms.ModelForm):
