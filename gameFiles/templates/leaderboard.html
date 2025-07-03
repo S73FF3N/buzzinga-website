@@ -194,6 +194,45 @@
     </div>
 </div>
 
+<hr class="mt-5 mb-4">
+<div class="container mt-5">
+    <h3>Teamgenerator</h3>
+    <form method="post">
+        {% csrf_token %}
+        {{ team_form.media }}
+        <div class="mb-3">
+            {{ team_form.users.label_tag }}
+            {% render_field team_form.users class="form-control" %}
+            {% if team_form.users.errors %}
+                <div class="invalid-feedback d-block">{{ team_form.users.errors }}</div>
+            {% endif %}
+        </div>
+        <button type="submit" name="assign_teams" class="btn btn-primary">Teams zufällig einteilen</button>
+    </form>
+
+    {% if team_assignment_result %}
+        <div class="mt-4">
+            <h4>Team-Zuordnung:</h4>
+            <div class="row">
+                {% for team, users in team_assignment_result.items %}
+                    <div class="col-md-3 col-6">
+                        <div class="card mb-3">
+                            <div class="card-header">{{ team|title }}</div>
+                            <ul class="list-group list-group-flush">
+                                {% for user in users %}
+                                    <li class="list-group-item">{{ user.get_full_name|default:user.username }}</li>
+                                {% empty %}
+                                    <li class="list-group-item text-muted">(kein Benutzer)</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const modal = document.getElementById('quizResultModal');

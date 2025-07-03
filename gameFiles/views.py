@@ -13,7 +13,7 @@ from django.db.models.expressions import Value
 from django.db.models.functions import Coalesce
 
 from .models import GameType, Category, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, QuizGameResult
-from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, WhoKnowsMoreForm, WhoKnowsMoreElementFormSet, WhoKnowsMoreElementFormSetUpdate, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm, WhoKnowsMoreDownloadForm, SolutionForm, QuizGameResultForm
+from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, WhoKnowsMoreForm, WhoKnowsMoreElementFormSet, WhoKnowsMoreElementFormSetUpdate, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm, WhoKnowsMoreDownloadForm, SolutionForm, QuizGameResultForm, RandomTeamAssignmentForm
 
 from dal import autocomplete
 from collections import defaultdict
@@ -576,13 +576,22 @@ def solution(request, game_type, category_element):
 
 
 def leaderboard_view(request):
+    team_assignment_result = None
     if request.method == "POST":
-        form = QuizGameResultForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("gamefiles:leaderboard")
+        if 'assign_teams' in request.POST:
+            team_form = RandomTeamAssignmentForm(request.POST)
+            form = QuizGameResultForm()  # keep the other form empty
+            if team_form.is_valid():
+                team_assignment_result = team_form.assign_teams()
+        else:
+            form = QuizGameResultForm(request.POST)
+            team_form = RandomTeamAssignmentForm()
+            if form.is_valid():
+                form.save()
+                return redirect("gamefiles:leaderboard")
     else:
         form = QuizGameResultForm()
+        team_form = RandomTeamAssignmentForm()
 
     # user → {'points': float, 'games': int, 'wins': int}
     user_stats = defaultdict(lambda: {'points': 0.0, 'games': 0, 'wins': 0})
@@ -647,6 +656,8 @@ def leaderboard_view(request):
     return render(request, 'leaderboard.html', {
         'leaderboard': leaderboard,
         'form': form,
+        'team_form': team_form,
+        'team_assignment_result': team_assignment_result,
         'max_wins': max_wins,
     })
 

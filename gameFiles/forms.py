@@ -4,6 +4,7 @@ from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.forms import inlineformset_factory, BaseInlineFormSet
 from django.contrib.auth.models import User
 from .models import GameType, Category, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, DIFFICULTY, QuizGameResult
+import random
 
 
 class CategoryForm(forms.ModelForm):
@@ -269,3 +270,22 @@ class QuizGameResultForm(forms.ModelForm):
         widgets = {
             'quiz_date': forms.DateInput(attrs={'type': 'date'}),
         }
+
+
+class RandomTeamAssignmentForm(forms.Form):
+    users = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='gamefiles:user-autocomplete',
+        ),
+        label="Benutzer (Mehrfachauswahl)",
+        required=True
+    )
+
+    def assign_teams(self):
+        users = list(self.cleaned_data['users'])
+        random.shuffle(users)
+        teams = {f"team{i+1}": [] for i in range(4)}
+        for idx, user in enumerate(users):
+            teams[f"team{(idx % 4) + 1}"].append(user)
+        return teams
