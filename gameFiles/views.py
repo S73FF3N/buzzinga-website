@@ -653,9 +653,18 @@ def leaderboard_view(request):
     for entry in leaderboard:
         entry['win_percentage'] = (entry['wins'] / entry['games'] * 100) if entry['games'] > 0 else 0.0
 
+    # Restore max_wins logic
     if leaderboard:
+        max_wins_value = max(entry['wins'] for entry in leaderboard)
+        min_games_for_max_wins = min(
+            entry['games'] for entry in leaderboard if entry['wins'] == max_wins_value
+        )
+        max_wins = max(
+            entry['wins'] for entry in leaderboard if entry['wins'] == max_wins_value and entry['games'] == min_games_for_max_wins
+        )
         max_win_percentage = max(entry['win_percentage'] for entry in leaderboard)
     else:
+        max_wins = 0
         max_win_percentage = 0.0
 
     leaderboard.sort(key=lambda x: (-x['avg_points'], -x['wins']))
