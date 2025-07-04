@@ -178,11 +178,11 @@
             <tbody>
                 {% for entry in leaderboard %}
                     {% if forloop.counter == 1 %}
-                        <tr style="background: linear-gradient(90deg, #fffbe6 0%, #ffe066 100%); font-weight: bold;">
+                        <tr class="leaderboard-gold" style="font-weight: bold;">
                     {% elif forloop.counter == 2 %}
-                        <tr style="background: linear-gradient(90deg, #f8f9fa 0%, #c0c0c0 100%); font-weight: bold;">
+                        <tr class="leaderboard-silver" style="font-weight: bold;">
                     {% elif forloop.counter == 3 %}
-                        <tr style="background: linear-gradient(90deg, #fff4e6 0%, #cd7f32 100%); font-weight: bold;">
+                        <tr class="leaderboard-bronze" style="font-weight: bold;">
                     {% else %}
                         <tr>
                     {% endif %}
@@ -192,7 +192,7 @@
                         <td>{{ entry.games }}</td>
                         <td>
                             {{ entry.wins }}
-                            {% if entry.wins == max_wins and entry.games > 0 and entry.games == min_games_for_max_wins %}
+                            {% if entry.award_crown %}
                                 <i class="fa-solid fa-crown text-warning ms-1" title="Most Wins"></i>
                             {% endif %}
                         </td>

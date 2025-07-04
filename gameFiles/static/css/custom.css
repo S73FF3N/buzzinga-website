@@ -177,3 +177,14 @@ input:focus, textarea:focus {
 .select2-dropdown {
     z-index: 9999 !important;
 }
+
+/* Leaderboard Styles */
+.leaderboard-gold {
+  background: linear-gradient(90deg, #fffbe6 0%, #ffe066 100%) !important;
+}
+.leaderboard-silver {
+  background: linear-gradient(90deg, #f8f9fa 0%, #c0c0c0 100%) !important;
+}
+.leaderboard-bronze {
+  background: linear-gradient(90deg, #fff4e6 0%, #cd7f32 100%) !important;
+}
