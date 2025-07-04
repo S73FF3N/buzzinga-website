@@ -188,3 +188,12 @@ input:focus, textarea:focus {
 .leaderboard-bronze {
   background: linear-gradient(90deg, #fff4e6 0%, #cd7f32 100%) !important;
 }
+.table-striped .leaderboard-gold {
+  background: linear-gradient(90deg, #fffbe6 0%, #ffe066 100%) !important;
+}
+.table-striped .leaderboard-silver {
+  background: linear-gradient(90deg, #f8f9fa 0%, #c0c0c0 100%) !important;
+}
+.table-striped .leaderboard-bronze {
+  background: linear-gradient(90deg, #fff4e6 0%, #cd7f32 100%) !important;
+}
