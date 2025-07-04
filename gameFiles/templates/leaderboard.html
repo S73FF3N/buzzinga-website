@@ -172,11 +172,16 @@
                     <th scope="col">Punkte</th>
                     <th scope="col">Spiele</th>
                     <th scope="col">Siege</th>
+                    <th scope="col">Win-%</th>
                 </tr>
             </thead>
             <tbody>
                 {% for entry in leaderboard %}
-                    <tr>
+                    <tr
+                        {% if forloop.counter == 1 %}style="background-color: #ffd70033;"{% endif %}
+                        {% if forloop.counter == 2 %}style="background-color: #c0c0c033;"{% endif %}
+                        {% if forloop.counter == 3 %}style="background-color: #cd7f3233;"{% endif %}
+                    >
                         <td>{{ forloop.counter }}</td>
                         <td>{{ entry.user.username }}</td>
                         <td>{{ entry.avg_points|floatformat:2 }}</td>
@@ -185,6 +190,12 @@
                             {{ entry.wins }}
                             {% if entry.wins == max_wins and max_wins > 0 %}
                                 <i class="fa-solid fa-crown text-warning ms-1" title="Most Wins"></i>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ entry.win_percentage|floatformat:2 }}%
+                            {% if entry.win_percentage == max_win_percentage and entry.games > 0 %}
+                                <i class="fa-solid fa-medal text-warning ms-1" title="Beste Win-Rate"></i>
                             {% endif %}
                         </td>
                     </tr>

@@ -649,7 +649,14 @@ def leaderboard_view(request):
                 'wins': stats['wins'],
             })
 
-    max_wins = max((entry['wins'] for entry in leaderboard), default=0)
+    # Calculate win percentages and find the max
+    for entry in leaderboard:
+        entry['win_percentage'] = (entry['wins'] / entry['games'] * 100) if entry['games'] > 0 else 0.0
+
+    if leaderboard:
+        max_win_percentage = max(entry['win_percentage'] for entry in leaderboard)
+    else:
+        max_win_percentage = 0.0
 
     leaderboard.sort(key=lambda x: (-x['avg_points'], -x['wins']))
 
@@ -659,6 +666,7 @@ def leaderboard_view(request):
         'team_form': team_form,
         'team_assignment_result': team_assignment_result,
         'max_wins': max_wins,
+        'max_win_percentage': max_win_percentage,
     })
 
 class CategoryAutocomplete(autocomplete.Select2QuerySetView):
