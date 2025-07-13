@@ -44,7 +44,7 @@
                     <li class="nav-item"><a class="nav-link" href="{% url 'gameFiles:solution_form' %}">Lösungen</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'gameFiles:leaderboard' %}">noxt!</a></li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ MEDIA_URL }}installer/buzzinga_game_installer.exe" download>
+                        <a class="nav-link" href="{{ MEDIA_URL }}{% if not MEDIA_URL.endswith('/') %}/{% endif %}installer/buzzinga_game_installer.exe" download>
                             Buzzinga Installer
                         </a>
                     </li>
