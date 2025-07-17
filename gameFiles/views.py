@@ -168,11 +168,21 @@ class ImageEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
     form_class = ImageEditForm
     template_name = 'image-edit.html'
 
+    def get_form(self, form_class=None):
+        if form_class is None:
+            form_class = self.get_form_class()
+        return form_class(user=self.request.user, **self.get_form_kwargs())
+
 
 class SoundEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
     model = Sound
     form_class = SoundForm
     template_name = 'sound-edit.html'
+
+    def get_form(self, form_class=None):
+        if form_class is None:
+            form_class = self.get_form_class()
+        return form_class(user=self.request.user, **self.get_form_kwargs())
 
 
 class QuestionEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
@@ -180,11 +190,21 @@ class QuestionEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
     form_class = QuestionForm
     template_name = 'question-edit.html'
 
+    def get_form(self, form_class=None):
+        if form_class is None:
+            form_class = self.get_form_class()
+        return form_class(user=self.request.user, **self.get_form_kwargs())
+
 
 class HintEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
     model = Hints
     form_class = HintForm
     template_name = 'hint-edit.html'
+
+    def get_form(self, form_class=None):
+        if form_class is None:
+            form_class = self.get_form_class()
+        return form_class(user=self.request.user, **self.get_form_kwargs())
 
 
 class WhoknowsmoreEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
@@ -192,6 +212,11 @@ class WhoknowsmoreEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
     form_class = WhoKnowsMoreForm
     template_name = 'who-knows-more-edit.html'
     object = None
+
+    def get_form(self, form_class=None):
+        if form_class is None:
+            form_class = self.get_form_class()
+        return form_class(user=self.request.user, **self.get_form_kwargs())
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
