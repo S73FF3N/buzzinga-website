@@ -1,9 +1,10 @@
 from dal import autocomplete, forward
 from django import forms
-from django.core.exceptions import NON_FIELD_ERRORS
-from django.forms import inlineformset_factory
+from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
+from django.forms import inlineformset_factory, BaseInlineFormSet
 from django.contrib.auth.models import User
 from .models import GameType, Category, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, DIFFICULTY, QuizGameResult
+import random
 
 
 class CategoryForm(forms.ModelForm):
@@ -13,9 +14,20 @@ class CategoryForm(forms.ModelForm):
         form_tag = False
         fields = ('name_de', 'game_type', 'description_de', 'logo', 'private')
 
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user is None or not user.has_perm('gameFiles.can_change_private'):
+            self.fields.pop('private', None)
+
 
 class BaseMediaForm(forms.ModelForm):
     """Base form for Image, Sound, Question, Hint, and WhoKnowsMore models."""
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if 'private_new' in self.fields and (user is None or not user.has_perm('gameFiles.can_change_private')):
+            self.fields.pop('private_new', None)
     class Meta:
         abstract = True
         widgets = {
@@ -82,8 +94,27 @@ class WhoKnowsMoreElementForm(forms.ModelForm):
         fields = ('id', 'count_id', 'category_element', 'answer')
         widgets = {'count_id': forms.HiddenInput()}
 
-WhoKnowsMoreElementFormSet = inlineformset_factory(WhoKnowsMore, WhoKnowsMoreElement, fields=['answer'], extra=10, can_delete=False, max_num=60, validate_max=True)
-WhoKnowsMoreElementFormSetUpdate = inlineformset_factory(WhoKnowsMore, WhoKnowsMoreElement, fields=['answer'], extra=0, can_delete=True, max_num=60, validate_max=True)
+class BaseWhoKnowsMoreElementFormSet(BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+        answers = []
+        for form in self.forms:
+            if form.cleaned_data.get('DELETE', False):
+                continue
+            answer = form.cleaned_data.get('answer')
+            if answer:
+                if answer in answers:
+                    raise ValidationError('Es dürfen keine identischen Antworten eingegeben werden.')
+                answers.append(answer)
+
+WhoKnowsMoreElementFormSet = inlineformset_factory(
+    WhoKnowsMore, WhoKnowsMoreElement, fields=['answer'], extra=10, can_delete=False, max_num=60, validate_max=True,
+    formset=BaseWhoKnowsMoreElementFormSet
+)
+WhoKnowsMoreElementFormSetUpdate = inlineformset_factory(
+    WhoKnowsMore, WhoKnowsMoreElement, fields=['answer'], extra=0, can_delete=True, max_num=60, validate_max=True,
+    formset=BaseWhoKnowsMoreElementFormSet
+)
 
 
 class BaseDownloadForm(forms.ModelForm):
@@ -250,3 +281,36 @@ class QuizGameResultForm(forms.ModelForm):
         widgets = {
             'quiz_date': forms.DateInput(attrs={'type': 'date'}),
         }
+
+
+class RandomTeamAssignmentForm(forms.Form):
+    users = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='gamefiles:user-autocomplete',
+        ),
+        label="Benutzer (Mehrfachauswahl)",
+        required=True
+    )
+
+    FUNNY_TEAM_NAMES = [
+        "Die Quizzraketen", "Die Besserwisser", "Die Ratefüchse", "Die Klugscheißer",
+        "Die Denkmaschinen", "Die Wissensgiganten", "Die Antworthelden", "Die Gehirnakrobaten",
+        "Die Ratekönige", "Die Schlauberger", "Die Quiztastischen", "Die Superhirne",
+        "Die Rätselmeister", "Die Wissensjäger", "Die Denkchampions", "Die Ratebande",
+        "Die Tüfteltruppe", "Die Synapsensprinter", "Die Wissenswölfe", "Die Rätselratten",
+        "Die Denksportler", "Die Quizonauten", "Die Antwortalpakas", "Die Ratehasen",
+        "Die Klugschmiede", "Die Wissenswunder", "Die Quizpiraten", "Die Denkdetektive",
+        "Die Rategeister", "Die Quizkamele", "Die Wissenswichte", "Die Rätselrobben",
+        "Die Antwortadler", "Die Quizquallen", "Die Denkdrache", "Die Synapsensurfer",
+        "Die Wissenswiesel", "Die Ratepandas", "Die Quizkobolde", "Die Antworteulen"
+    ]
+
+    def assign_teams(self):
+        users = list(self.cleaned_data['users'])
+        random.shuffle(users)
+        team_names = random.sample(self.FUNNY_TEAM_NAMES, 4)
+        teams = {team_names[i]: [] for i in range(4)}
+        for idx, user in enumerate(users):
+            teams[team_names[idx % 4]].append(user)
+        return teams

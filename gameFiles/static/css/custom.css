@@ -177,3 +177,32 @@ input:focus, textarea:focus {
 .select2-dropdown {
     z-index: 9999 !important;
 }
+
+/* Leaderboard Styles */
+.leaderboard-gold {
+  background: #ffe066 !important;
+}
+.leaderboard-silver {
+  background: #c0c0c0 !important;
+}
+.leaderboard-bronze {
+  background: #cd7f32 !important;
+}
+.table-striped .leaderboard-gold {
+  background: #ffe066 !important;
+}
+.table-striped .leaderboard-silver {
+  background: #c0c0c0 !important;
+}
+.table-striped .leaderboard-bronze {
+  background: #cd7f32 !important;
+}
+.table-striped .leaderboard-gold > td {
+  background: #ffe066 !important;
+}
+.table-striped .leaderboard-silver > td {
+  background: #c0c0c0 !important;
+}
+.table-striped .leaderboard-bronze > td {
+  background: #cd7f32 !important;
+}

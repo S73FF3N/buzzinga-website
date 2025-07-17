@@ -155,35 +155,98 @@
   </div>
 </div>
 
-    <h2>Leaderboard</h2>
-    <button type="button" class="btn btn-primary my-3" data-bs-toggle="modal" data-bs-target="#quizResultModal">
-        Neue Quiz-Ergebnisse hinzufügen
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Leaderboard</h2>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#quizResultModal">
+        <i class="fa-solid fa-square-plus"></i> <i class="fa-solid fa-square-poll-vertical"></i>
     </button>
+</div>
 
-    <div class="row">
-        <div class="col-12">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th scope="col">Platz</th>
-                        <th scope="col">Team</th>
-                        <th scope="col">Punkte</th>
-                        <th scope="col">Spiele</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for entry in leaderboard %}
+<div class="row">
+    <div class="col-12">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Platz</th>
+                    <th scope="col">Team</th>
+                    <th scope="col">Punkte</th>
+                    <th scope="col">Spiele</th>
+                    <th scope="col">Siege</th>
+                    <th scope="col">Siege [%]</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in leaderboard %}
+                    {% if forloop.counter == 1 %}
+                        <tr class="leaderboard-gold" style="font-weight: bold;">
+                    {% elif forloop.counter == 2 %}
+                        <tr class="leaderboard-silver" style="font-weight: bold;">
+                    {% elif forloop.counter == 3 %}
+                        <tr class="leaderboard-bronze" style="font-weight: bold;">
+                    {% else %}
                         <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td>{{ entry.user.username }}</td>
-                            <td>{{ entry.avg_points|floatformat:2 }}</td>
-                            <td>{{ entry.games }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                    {% endif %}
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ entry.user.username }}</td>
+                        <td>{{ entry.avg_points|floatformat:2 }}</td>
+                        <td>{{ entry.games }}</td>
+                        <td>
+                            {{ entry.wins }}
+                            {% if entry.award_crown %}
+                                <i class="fa-solid fa-crown text-warning ms-1" title="Most Wins"></i>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ entry.win_percentage|floatformat:2 }}%
+                            {% if entry.win_percentage == max_win_percentage and entry.games > 0 %}
+                                <i class="fa-solid fa-medal text-warning ms-1" title="Beste Win-Rate"></i>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
+</div>
+
+<hr class="mt-5 mb-4">
+<div class="container mt-5">
+    <h3>Teamgenerator</h3>
+    <form method="post">
+        {% csrf_token %}
+        {{ team_form.media }}
+        <div class="mb-3">
+            {{ team_form.users.label_tag }}
+            {% render_field team_form.users class="form-control" %}
+            {% if team_form.users.errors %}
+                <div class="invalid-feedback d-block">{{ team_form.users.errors }}</div>
+            {% endif %}
+        </div>
+        <button type="submit" name="assign_teams" class="btn btn-primary">Teams zufällig einteilen</button>
+    </form>
+
+    {% if team_assignment_result %}
+        <div class="mt-4">
+            <h3>Team-Zuordnung:</h3>
+            <div class="row">
+                {% for team, users in team_assignment_result.items %}
+                    <div class="col-md-3 col-6">
+                        <div class="card mb-3">
+                            <div class="card-header">{{ team|title }}</div>
+                            <ul class="list-group list-group-flush">
+                                {% for user in users %}
+                                    <li class="list-group-item">{{ user.get_full_name|default:user.username }}</li>
+                                {% empty %}
+                                    <li class="list-group-item text-muted">(kein Benutzer)</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {

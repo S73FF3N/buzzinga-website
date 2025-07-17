@@ -12,10 +12,11 @@ from django.db.models import Count, OuterRef, Subquery, Q, IntegerField
 from django.db.models.expressions import Value
 from django.db.models.functions import Coalesce
 
-from .models import GameType, Category, CategoryElement, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, QuizGameResult
-from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, WhoKnowsMoreForm, WhoKnowsMoreElementFormSet, WhoKnowsMoreElementFormSetUpdate, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm, WhoKnowsMoreDownloadForm, SolutionForm, QuizGameResultForm
+from .models import GameType, Category, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, QuizGameResult
+from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, WhoKnowsMoreForm, WhoKnowsMoreElementFormSet, WhoKnowsMoreElementFormSetUpdate, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm, WhoKnowsMoreDownloadForm, SolutionForm, QuizGameResultForm, RandomTeamAssignmentForm
 
 from dal import autocomplete
+from collections import defaultdict
 from itertools import chain
 from io import BytesIO
 import zipfile
@@ -145,11 +146,21 @@ class CategoryCreateView(LoginRequiredMixin, SuccessUrlMixin, CreateView):
         self.object = form.save()
         return super().form_valid(form)
 
+    def get_form(self, form_class=None):
+        if form_class is None:
+            form_class = self.get_form_class()
+        return form_class(user=self.request.user, **self.get_form_kwargs())
+
 
 class CategoryEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
     model = Category
     form_class = CategoryForm
     template_name = 'category-edit.html'
+
+    def get_form(self, form_class=None):
+        if form_class is None:
+            form_class = self.get_form_class()
+        return form_class(user=self.request.user, **self.get_form_kwargs())
 
 
 class ImageEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
@@ -157,11 +168,21 @@ class ImageEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
     form_class = ImageEditForm
     template_name = 'image-edit.html'
 
+    def get_form(self, form_class=None):
+        if form_class is None:
+            form_class = self.get_form_class()
+        return form_class(user=self.request.user, **self.get_form_kwargs())
+
 
 class SoundEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
     model = Sound
     form_class = SoundForm
     template_name = 'sound-edit.html'
+
+    def get_form(self, form_class=None):
+        if form_class is None:
+            form_class = self.get_form_class()
+        return form_class(user=self.request.user, **self.get_form_kwargs())
 
 
 class QuestionEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
@@ -169,11 +190,21 @@ class QuestionEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
     form_class = QuestionForm
     template_name = 'question-edit.html'
 
+    def get_form(self, form_class=None):
+        if form_class is None:
+            form_class = self.get_form_class()
+        return form_class(user=self.request.user, **self.get_form_kwargs())
+
 
 class HintEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
     model = Hints
     form_class = HintForm
     template_name = 'hint-edit.html'
+
+    def get_form(self, form_class=None):
+        if form_class is None:
+            form_class = self.get_form_class()
+        return form_class(user=self.request.user, **self.get_form_kwargs())
 
 
 class WhoknowsmoreEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
@@ -181,6 +212,11 @@ class WhoknowsmoreEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
     form_class = WhoKnowsMoreForm
     template_name = 'who-knows-more-edit.html'
     object = None
+
+    def get_form(self, form_class=None):
+        if form_class is None:
+            form_class = self.get_form_class()
+        return form_class(user=self.request.user, **self.get_form_kwargs())
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -574,29 +610,32 @@ def solution(request, game_type, category_element):
     return render(request, 'solution.html', {'solution': {"type": solution_type, "qs": solution}})
 
 
-class QuizGameResultCreateView(CreateView):
-    model = QuizGameResult
-    form_class = QuizGameResultForm
-    template_name = 'quiz_result_form.html'
-
-
 def leaderboard_view(request):
+    team_assignment_result = None
     if request.method == "POST":
-        form = QuizGameResultForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("gamefiles:leaderboard")  # or reverse("your_leaderboard_url_name")
+        if 'assign_teams' in request.POST:
+            team_form = RandomTeamAssignmentForm(request.POST)
+            form = QuizGameResultForm()  # keep the other form empty
+            if team_form.is_valid():
+                team_assignment_result = team_form.assign_teams()
+        else:
+            form = QuizGameResultForm(request.POST)
+            team_form = RandomTeamAssignmentForm()
+            if form.is_valid():
+                form.save()
+                return redirect("gamefiles:leaderboard")
     else:
         form = QuizGameResultForm()
+        team_form = RandomTeamAssignmentForm()
 
-    user_stats = {}  # user → {'points': float, 'games': int}
+    # user → {'points': float, 'games': int, 'wins': int}
+    user_stats = defaultdict(lambda: {'points': 0.0, 'games': 0, 'wins': 0})
 
     results = QuizGameResult.objects.prefetch_related(
         'team1_users', 'team2_users', 'team3_users', 'team4_users'
     )
 
     for result in results:
-        # Raw team scores (can include negatives)
         scores = {
             'team1': result.team1_points,
             'team2': result.team2_points,
@@ -604,48 +643,79 @@ def leaderboard_view(request):
             'team4': result.team4_points,
         }
 
-        # Shift scores so the lowest is zero
+        # --- Track wins (raw score, unnormalized) ---
+        max_score = max(scores.values())
+        winning_teams = [team for team, score in scores.items() if score == max_score]
+
+        for team_key in winning_teams:
+            users = getattr(result, f"{team_key}_users").all()
+            for user in users:
+                user_stats[user]['wins'] += 1
+
+        # --- Normalize scores ---
         min_score = min(scores.values())
         shifted_scores = {
-            team: score - min_score
-            for team, score in scores.items()
+            team: score - min_score for team, score in scores.items()
         }
 
         total_shifted = sum(shifted_scores.values())
         if total_shifted == 0:
-            continue  # Avoid division by zero (e.g. all scores equal)
+            continue  # Avoid division by zero (e.g., all scores equal)
 
-        # Normalize to 10 points total
         normalized_scores = {
             team: (shifted / total_shifted) * 10
             for team, shifted in shifted_scores.items()
         }
 
-        # Award full team share to each user
         for team_key, team_score in normalized_scores.items():
             team_users = getattr(result, f"{team_key}_users").all()
             for user in team_users:
-                if user not in user_stats:
-                    user_stats[user] = {'points': 0.0, 'games': 0}
                 user_stats[user]['points'] += team_score
                 user_stats[user]['games'] += 1
 
-    # Flatten the leaderboard for the template
+    # Build leaderboard
     leaderboard = []
     for user, stats in user_stats.items():
         if stats['games'] > 0:
-            avg = stats['points'] / stats['games']
             leaderboard.append({
                 'user': user,
-                'avg_points': avg,
+                'avg_points': stats['points'] / stats['games'],
                 'games': stats['games'],
+                'wins': stats['wins'],
             })
 
-    leaderboard.sort(key=lambda x: x['avg_points'], reverse=True)
+    # Calculate win percentages and find the max
+    for entry in leaderboard:
+        entry['win_percentage'] = (entry['wins'] / entry['games'] * 100) if entry['games'] > 0 else 0.0
+
+    # Find users with the most wins, and among them, those with the fewest games
+    if leaderboard:
+        max_wins_value = max(entry['wins'] for entry in leaderboard)
+        min_games_for_max_wins = min(
+            entry['games'] for entry in leaderboard if entry['wins'] == max_wins_value
+        )
+        # Mark crown for users with max_wins and min_games_for_max_wins
+        for entry in leaderboard:
+            entry['award_crown'] = (
+                entry['wins'] == max_wins_value and entry['games'] == min_games_for_max_wins
+            )
+        max_wins = max_wins_value
+        max_win_percentage = max(entry['win_percentage'] for entry in leaderboard)
+    else:
+        max_wins = 0
+        max_win_percentage = 0.0
+        for entry in leaderboard:
+            entry['award_crown'] = False
+
+    leaderboard.sort(key=lambda x: (-x['avg_points'], -x['wins']))
 
     return render(request, 'leaderboard.html', {
         'leaderboard': leaderboard,
         'form': form,
+        'team_form': team_form,
+        'team_assignment_result': team_assignment_result,
+        'max_wins': max_wins,
+        'max_win_percentage': max_win_percentage,
     })
 
 class CategoryAutocomplete(autocomplete.Select2QuerySetView):
@@ -692,7 +762,7 @@ class CategoryElementAutocomplete(autocomplete.Select2QuerySetView):
 
 class UserAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        qs = User.objects.all()
+        qs = User.objects.filter(is_active=True)
         if self.q:
             qs = qs.filter(username__icontains=self.q)
         return qs
