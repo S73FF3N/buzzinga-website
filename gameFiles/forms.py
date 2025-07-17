@@ -14,9 +14,20 @@ class CategoryForm(forms.ModelForm):
         form_tag = False
         fields = ('name_de', 'game_type', 'description_de', 'logo', 'private')
 
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user is None or not user.has_perm('gameFiles.can_change_private'):
+            self.fields.pop('private', None)
+
 
 class BaseMediaForm(forms.ModelForm):
     """Base form for Image, Sound, Question, Hint, and WhoKnowsMore models."""
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if 'private_new' in self.fields and (user is None or not user.has_perm('gameFiles.can_change_private')):
+            self.fields.pop('private_new', None)
     class Meta:
         abstract = True
         widgets = {

@@ -53,7 +53,7 @@ class Category(models.Model):
     name_de = models.CharField(max_length=50, verbose_name="Name")
     game_type = models.ForeignKey(GameType, default=1, on_delete=models.CASCADE, verbose_name="Spielart", related_name="categories")
     description_de = models.TextField(verbose_name="Beschreibung")
-    private = models.BooleanField(default=False, verbose_name="Privat")
+    private = models.BooleanField(default=True, verbose_name="Privat")
     logo = models.CharField(max_length=20, blank=True)
 
     created_on = models.DateTimeField(auto_now_add=True, db_index=True)
@@ -96,10 +96,15 @@ class Category(models.Model):
     def __str__(self):
         return self.name_de
 
+    class Meta:
+        permissions = [
+            ("can_change_private", "Can change private status of categories and elements"),
+        ]
+
 
 class CategoryElement(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name="Kategorie")
-    private_new = models.BooleanField(default=False, verbose_name="Privat")
+    private_new = models.BooleanField(default=True, verbose_name="Privat")
     explicit = models.BooleanField(default=False, verbose_name="Explizit")
     solution = models.CharField(max_length=80, verbose_name="Lösung")
     difficulty = models.PositiveIntegerField(choices=DIFFICULTY, verbose_name="Schwierigkeit")

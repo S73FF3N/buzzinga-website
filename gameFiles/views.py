@@ -146,11 +146,21 @@ class CategoryCreateView(LoginRequiredMixin, SuccessUrlMixin, CreateView):
         self.object = form.save()
         return super().form_valid(form)
 
+    def get_form(self, form_class=None):
+        if form_class is None:
+            form_class = self.get_form_class()
+        return form_class(user=self.request.user, **self.get_form_kwargs())
+
 
 class CategoryEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
     model = Category
     form_class = CategoryForm
     template_name = 'category-edit.html'
+
+    def get_form(self, form_class=None):
+        if form_class is None:
+            form_class = self.get_form_class()
+        return form_class(user=self.request.user, **self.get_form_kwargs())
 
 
 class ImageEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
