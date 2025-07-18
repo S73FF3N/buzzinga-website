@@ -77,7 +77,7 @@ class GameTypeView(ListView):
     template_name = "game_type_list.html"
 
     def get_queryset(self):
-        self.qs = super().get_queryset().all()
+        self.qs = super().get_queryset().filter(available=True)
         return self.qs
 
     def get_context_data(self):

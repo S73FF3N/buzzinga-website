@@ -19,8 +19,8 @@ from gameFiles.models import Category, Image, Sound, Question, Hints, WhoKnowsMo
 from gameFiles.views import WhoKnowsMoreSerializer
 
 TABLE_MAPPING = {
-    "image": (Image, ImageFilter, ImageTable),
-    "sound": (Sound, SoundFilter, SoundTable),
+    #"image": (Image, ImageFilter, ImageTable),
+    #"sound": (Sound, SoundFilter, SoundTable),
     "question": (Question, QuestionFilter, QuestionTable),
     "hint": (Hints, HintFilter, HintTable),
     "whoknowsmore": (WhoKnowsMore, WhoKnowsMoreFilter, WhoKnowsMoreTable),
@@ -29,8 +29,8 @@ TABLE_MAPPING = {
 
 TABLE_NAMES = {
             "category": "Kategorien",
-            "image": "Bilder",
-            "sound": "Sounds",
+            #"image": "Bilder",
+            #"sound": "Sounds",
             "question": "Fragen",
             "hint": "Hinweise",
             "whoknowsmore": "Wer weiß mehr?"
