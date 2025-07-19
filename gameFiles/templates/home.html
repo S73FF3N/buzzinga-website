@@ -65,4 +65,9 @@
         {% endfor %}
     </div>
 </div>
+{% block scripts %}
+    <script>
+        introJs().setOption("dontShowAgain", true).start();
+    </script>
+{% endblock %}
 {% endblock %}

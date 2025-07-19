@@ -60,7 +60,7 @@
                 >
                 {{ label }}
                 </a>
-              <a href="{% url 'gamefiles:'|add:table_name|add:'-create' %}" class="btn btn-warning btn-sm ml-5"{% if forloop.first %} data-intro='Erstelle zuerst eine Kategorie!' {% endif %}>
+              <a href="{% url 'gamefiles:'|add:table_name|add:'-create' %}" class="btn btn-warning btn-sm ml-5"{% if forloop.first %} data-title="Kategorie erstellen" data-intro='Erstelle zuerst eine Kategorie!' {% endif %}>
                 <i class="fa fa-plus"></i>
               </a>
             </li>
@@ -276,4 +276,9 @@ $("#download_elements").click(function(ev) {
     $("input[name='select']").prop('checked', source.checked);
   }
 </script>
+{% block scripts %}
+    <script>
+        introJs().setOption("dontShowAgain", true).start();
+    </script>
+{% endblock %}
 {% endblock %}
