@@ -285,6 +285,26 @@ $("#download_elements").click(function(ev) {
               title: 'Kategorie erstellen',
               intro: 'Erstelle zuerst eine Kategorie!'
             },
+            {
+              element: document.querySelector('#add_hint'),
+              title: 'Quiz-Elemente erstellen',
+              intro: 'Erstelle anschließend mehrere Quiz-Elemente für die zuvor erstellte Kategorie!'
+            },
+            {
+              element: document.querySelector('#hint-label'),
+              title: 'Quiz-Elemente aufrufen',
+              intro: 'Rufe anschließend die Liste der erstellten Quiz-Elemente auf!'
+            },
+            {
+              element: document.querySelector('#checkbox_1'),
+              title: 'Markiere Quiz-Elemente für Download',
+              intro: 'Markiere die Quiz-Elemente, die du herunterladen möchtest!'
+            },
+            {
+              element: document.querySelector('#download_elements'),
+              title: 'Download',
+              intro: 'Lade die markierten Quiz-Elemente herunter und kopiere sie in den zugehörigen Ordner, um sie in Buzzinga nutzen zu können!'
+            },
           ]
         }).setOption("dontShowAgain", true).start();
     </script>
