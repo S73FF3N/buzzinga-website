@@ -74,7 +74,30 @@
 </div>
 {% block scripts %}
     <script>
-        introJs().setOption("dontShowAgain", true).start();
+        introJs().setOptions({
+          steps: [
+            {
+              element: document.querySelector('#buzzinga-installer'),
+              title: 'Buzzinga Installer',
+              intro: 'Lade den Buzzinga Installer herunter, um Buzzinga zu installieren!'
+            },
+            {
+              element: document.querySelector('#game-type-list'),
+              title: 'Quizzes herunterladen',
+              intro: 'Lade dir fertige Quizzes herunter, die von anderen Nutzern erstellt wurden. Du kannst sie in Buzzinga nutzen!'
+            },
+            {
+              element: document.querySelector('#account-profile'),
+              title: 'Individuelle Quizzes',
+              intro: 'Erstelle hier eigene Quizzes!'
+            },
+            {
+              element: document.querySelector('#solution-form'),
+              title: 'Lösungen',
+              intro: 'Als Spielleiter kannst du hier die Lösungen der Quizzes einsehen.'
+            },
+          ]
+        }).setOption("dontShowAgain", true).start();
     </script>
 {% endblock %}
 {% endblock %}
