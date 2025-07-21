@@ -31,6 +31,7 @@ GAME_TYPE_FOLDER_MAP = {
 
 class GameType(models.Model):
     name_de = models.CharField(max_length=50, verbose_name="Name")
+    description = models.TextField(verbose_name="Beschreibung", blank=True, null=True)
     logo = models.CharField(max_length=20, blank=True)
     available = models.BooleanField(default=True)
 

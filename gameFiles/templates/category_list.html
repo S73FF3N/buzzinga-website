@@ -16,6 +16,11 @@
                     {{ game_type }}
                 </p>
             </div>
+            {% if game_type.description %}
+            <div class="col-12">
+                <p>{{ game_type.description }}</p>
+            </div>
+            {% endif %}
         </div>
         
         <div class="row no-gutters">
