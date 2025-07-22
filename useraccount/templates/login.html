@@ -25,5 +25,16 @@
     </form>
 
     <p><a href="{% url 'useraccount:password_reset' %}">Passwort vergessen?</a></p>
-    </div>
+</div>
+<div>
+  {% providers_media_js %}
+  {% if socialaccount_providers %}
+      <h3>Sign in with:</h3>
+      <ul>
+        {% for provider in socialaccount_providers.values %}
+          <li><a href="{% provider_login_url provider.id %}">{{ provider.name }}</a></li>
+        {% endfor %}
+      </ul>
+  {% endif %}
+</div>
 {% endblock %}
