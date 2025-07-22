@@ -8,7 +8,7 @@
     <p>Username und Passwort passen nicht zusammen. Versuch's noch 'mal!</p>
     {% endif %}
 
-    <form method="post" action="{% url 'useraccount:login' %}">
+    <form method="post" action="{% url 'accounts:login' %}">
         {% csrf_token %}
         <div class="row">
             <div class="col-12 form-group">
@@ -25,7 +25,7 @@
         <input type="hidden" name="next" value="{{ next }}">
     </form>
 
-    <p><a href="{% url 'useraccount:password_reset' %}">Passwort vergessen?</a></p>
+    <p><a href="{% url 'accounts:password_reset' %}">Passwort vergessen?</a></p>
 </div>
 <div>
   {% providers_media_js %}
