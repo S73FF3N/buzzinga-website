@@ -11,7 +11,6 @@ urlpatterns = [
     path('', views.home, name="home"),
     path('useraccount/', include(('useraccount.urls', 'useraccount'), namespace='useraccount')),
     path('gameFiles/', include(('gameFiles.urls', 'gameFiles'), namespace='gamefiles')),
-    path("accounts/", include("allauth.urls")),
 ]
 
 urlpatterns += staticfiles_urlpatterns()
