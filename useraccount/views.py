@@ -90,9 +90,9 @@ def create_profile_table(request, table_name, per_page): # Ensure this maps corr
 
     qs_created_by_user = ModelClass.objects.filter(created_by=user)
     qs_public = ModelClass.objects.filter(category__private=False, private_new=False) if table_name != "category" else ModelClass.objects.filter(private=False)
-    
-    # Custom permission: 'account.can_view_public_elements'
-    if user.has_perm("account.can_view_public_elements"):
+
+    # Custom permission: 'useraccount.can_view_public_elements'
+    if user.has_perm("useraccount.can_view_public_elements"):
         elements = qs_created_by_user | qs_public
     else:
         elements = qs_created_by_user

@@ -133,7 +133,7 @@ def category_detail(request, game_type, id):
 
 class SuccessUrlMixin:
     def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page': 10})
+        return reverse('useraccount:profile', kwargs={'per_page': 10})
     
 
 class CategoryCreateView(LoginRequiredMixin, SuccessUrlMixin, CreateView):
@@ -289,7 +289,7 @@ class WhoknowsmoreDeleteView(BaseDeleteView, LoginRequiredMixin):
 
 class ParentCreateView(SuccessUrlMixin, CreateView):
     def get_success_url(self):
-        return reverse('account:profile', kwargs={'per_page': 10})
+        return reverse('useraccount:profile', kwargs={'per_page': 10})
     
     def form_valid(self, form):
         form.instance.created_by = self.request.user

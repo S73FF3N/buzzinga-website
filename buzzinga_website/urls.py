@@ -9,7 +9,7 @@ from gameFiles import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name="home"),
-    path('account/', include(('account.urls', 'account'), namespace='account')),
+    path('useraccount/', include(('useraccount.urls', 'useraccount'), namespace='useraccount')),
     path('gameFiles/', include(('gameFiles.urls', 'gameFiles'), namespace='gamefiles')),
     path("accounts/", include("allauth.urls")),
 ]
