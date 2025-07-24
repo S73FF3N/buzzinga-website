@@ -76,8 +76,8 @@ h5 { color: var(--white); }
   border-bottom: 4px solid var(--accent);
 }
 .navbar-brand img {
-  width: 15vw;
-  height: auto;
+  width: auto;
+  height: 40px;
 }
 .navbar-custom .navbar-nav li a {
   color: var(--white);
