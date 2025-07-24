@@ -46,6 +46,7 @@ h5 {
 .navbar-brand>img {
   width: 4vw;
   height: auto;
+  max-height: 40px;
   padding: 0;
 }
 @media (max-width: 575px) {
