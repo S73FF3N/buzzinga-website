@@ -19,8 +19,8 @@ from gameFiles.models import Category, Image, Sound, Question, Hints, WhoKnowsMo
 from gameFiles.views import WhoKnowsMoreSerializer
 
 TABLE_MAPPING = {
-    "image": (Image, ImageFilter, ImageTable),
-    "sound": (Sound, SoundFilter, SoundTable),
+    #"image": (Image, ImageFilter, ImageTable),
+    #"sound": (Sound, SoundFilter, SoundTable),
     "question": (Question, QuestionFilter, QuestionTable),
     "hint": (Hints, HintFilter, HintTable),
     "whoknowsmore": (WhoKnowsMore, WhoKnowsMoreFilter, WhoKnowsMoreTable),
@@ -29,8 +29,8 @@ TABLE_MAPPING = {
 
 TABLE_NAMES = {
             "category": "Kategorien",
-            "image": "Bilder",
-            "sound": "Sounds",
+            #"image": "Bilder",
+            #"sound": "Sounds",
             "question": "Fragen",
             "hint": "Hinweise",
             "whoknowsmore": "Wer weiß mehr?"
@@ -90,7 +90,12 @@ def create_profile_table(request, table_name, per_page): # Ensure this maps corr
 
     qs_created_by_user = ModelClass.objects.filter(created_by=user)
     qs_public = ModelClass.objects.filter(category__private=False, private_new=False) if table_name != "category" else ModelClass.objects.filter(private=False)
-    elements = qs_created_by_user | qs_public
+
+    # Custom permission: 'accounts.can_view_public_elements'
+    if user.has_perm("accounts.can_view_public_elements"):
+        elements = qs_created_by_user | qs_public
+    else:
+        elements = qs_created_by_user
 
     filter_obj = FilterClass(request.GET, queryset=elements, prefix="profile")
     table = TableClass(filter_obj.qs, prefix=table_name)

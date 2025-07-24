@@ -60,7 +60,7 @@
                 >
                 {{ label }}
                 </a>
-              <a href="{% url 'gamefiles:'|add:table_name|add:'-create' %}" class="btn btn-warning btn-sm ml-5">
+              <a href="{% url 'gamefiles:'|add:table_name|add:'-create' %}" class="btn btn-warning btn-sm ml-5" id="add_{{ table_name }}">
                 <i class="fa fa-plus"></i>
               </a>
             </li>
@@ -68,7 +68,7 @@
         </ul>
         <div class="btn-group text-end">
           <a id="profile-filter-show" class="btn btn-warning btn-sm" data-bs-toggle="offcanvas" href="#offcanvasExample" role="button" aria-controls="offcanvasExample"><i class="fa fa-filter"></i> Filter</a>
-          <a href="{% url 'account:download_all' active_table='images_' %}" id="download_elements" role="button" class="btn btn-danger btn-sm">
+          <a href="{% url 'accounts:download_all' active_table='images_' %}" id="download_elements" role="button" class="btn btn-danger btn-sm">
             <i class="fa fa-download"></i> Download
           </a>
         </div>
@@ -259,9 +259,9 @@ $("#download_elements").click(function(ev) {
 
   if ($(selected_ids).length) {
     selected_ids = selected_ids.join("+");
-    window.location.href = base_url + "/account/download/" + active_table + "/" + selected_ids;
+    window.location.href = base_url + "/accounts/download/" + active_table + "/" + selected_ids;
   } else {
-    window.location.href = base_url + "/account/download/" + active_table + "/all/";
+    window.location.href = base_url + "/accounts/download/" + active_table + "/all/";
   }
 });
 
@@ -276,4 +276,32 @@ $("#download_elements").click(function(ev) {
     $("input[name='select']").prop('checked', source.checked);
   }
 </script>
+{% block scripts %}
+    <script>
+        introJs().setOptions({
+          steps: [
+            {
+              element: document.querySelector('#add_category'),
+              title: 'Kategorie erstellen',
+              intro: 'Erstelle zuerst eine Kategorie!'
+            },
+            {
+              element: document.querySelector('#add_hint'),
+              title: 'Quiz-Elemente erstellen',
+              intro: 'Erstelle anschließend mehrere Quiz-Elemente für die zuvor erstellte Kategorie!'
+            },
+            {
+              element: document.querySelector('#hint-label'),
+              title: 'Quiz-Elemente aufrufen',
+              intro: 'Rufe anschließend die Liste der erstellten Quiz-Elemente auf!'
+            },
+            {
+              element: document.querySelector('#download_elements'),
+              title: 'Download',
+              intro: 'Markiere die Quiz-Elemente, die du herunterladen möchtest über die Checkboxen am rechten Rand und lade sie herunter. Kopiere sie anschließend in den zugehörigen Ordner, um sie in Buzzinga nutzen zu können!'
+            },
+          ]
+        }).setOption("dontShowAgain", true).start();
+    </script>
+{% endblock %}
 {% endblock %}

@@ -31,6 +31,7 @@ GAME_TYPE_FOLDER_MAP = {
 
 class GameType(models.Model):
     name_de = models.CharField(max_length=50, verbose_name="Name")
+    description = models.TextField(verbose_name="Beschreibung", blank=True, null=True)
     logo = models.CharField(max_length=20, blank=True)
     available = models.BooleanField(default=True)
 
@@ -99,6 +100,7 @@ class Category(models.Model):
     class Meta:
         permissions = [
             ("can_change_private", "Can change private status of categories and elements"),
+            ("can_view_public_elements", "Can view public elements in profile table"),
         ]
 
 

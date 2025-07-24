@@ -7,6 +7,13 @@
 <div class="container mt-5">
     <h1 class="mb-4">Buzzinga Quizzes</h1>
 
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>Individualisierbare Multiplayer-Quizze.</h2>
+            <p>Erstelle und spiele deine eigenen Quizzes mit Freunden. Folge der Tour und erfahre mehr!</p>
+        </div>
+    </div>
+
     <!-- Embedded YouTube Videos -->
     <div class="row mb-5">
         <div class="col-md-6">
@@ -65,4 +72,32 @@
         {% endfor %}
     </div>
 </div>
+{% block scripts %}
+    <script>
+        introJs().setOptions({
+          steps: [
+            {
+              element: document.querySelector('#buzzinga-installer'),
+              title: 'Buzzinga Installer',
+              intro: 'Lade den Buzzinga Installer herunter, um Buzzinga zu installieren!'
+            },
+            {
+              element: document.querySelector('#game-type-list'),
+              title: 'Quizzes herunterladen',
+              intro: 'Lade dir fertige Quizzes herunter, die von anderen Nutzern erstellt wurden. Du kannst sie in Buzzinga nutzen!'
+            },
+            {
+              element: document.querySelector('#account-profile'),
+              title: 'Individuelle Quizzes',
+              intro: 'Erstelle hier eigene Quizzes!'
+            },
+            {
+              element: document.querySelector('#solution-form'),
+              title: 'Lösungen',
+              intro: 'Als Spielleiter kannst du hier die Lösungen der Quizzes einsehen.'
+            },
+          ]
+        }).setOption("dontShowAgain", true).start();
+    </script>
+{% endblock %}
 {% endblock %}
