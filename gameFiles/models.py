@@ -101,6 +101,7 @@ class Category(models.Model):
         permissions = [
             ("can_change_private", "Can change private status of categories and elements"),
             ("can_view_public_elements", "Can view public elements in profile table"),
+            ("can_view_noxt_menu", "Can view the Noxt menu"),
         ]
 
 
