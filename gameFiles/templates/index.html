@@ -13,14 +13,14 @@
       integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" 
       crossorigin="anonymous">
     
-    <!-- Custom CSS -->
-    <link href="{% static 'css/custom.css' %}" rel="stylesheet">
-    
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <!-- Intro JS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/8.3.2/introjs.css" integrity="sha512-YAfU5JMSgKNxNvnntWpFlrL0EQcFyMTLuKJ1VLDyJQ5qB/2h0mYyfCWuAUDbozKeK0wA5iMpQkgMkPwqlYhF4g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <!-- Custom CSS -->
+    <link href="{% static 'css/custom.css' %}" rel="stylesheet">
     
     <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js" integrity="sha512-pumBsjNRGGqkPzKHndZMaAG+bir374sORyzM3uulLV14lN5LyykqNk8eEeUlUkB3U0M4FApyaHraT65ihJhDpQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -45,7 +45,7 @@
                     <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
                     <li class="nav-item"><a class="nav-link" id="game-type-list" href="{% url 'gameFiles:game_type_list' %}">Spiele</a></li>
                     <li class="nav-item"><a class="nav-link" id="solution-form" href="{% url 'gameFiles:solution_form' %}">Lösungen</a></li>
-                    {% if request.user.has_perm("accounts.can_view_noxt_menu") %}
+                    {% if perms.accounts.can_view_noxt_menu %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'gameFiles:leaderboard' %}">noxt!</a></li>
                     {% endif %}
                     <li class="nav-item">

@@ -300,8 +300,9 @@ $("#download_elements").click(function(ev) {
               title: 'Download',
               intro: 'Markiere die Quiz-Elemente, die du herunterladen möchtest über die Checkboxen am rechten Rand und lade sie herunter. Kopiere sie anschließend in den zugehörigen Ordner, um sie in Buzzinga nutzen zu können!'
             },
-          ]
-        }).setOption("dontShowAgain", true).start();
+          ],
+          dontShowAgain: true,
+        }).start();
     </script>
 {% endblock %}
 {% endblock %}
