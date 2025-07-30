@@ -206,3 +206,11 @@ input:focus, textarea:focus {
 .table-striped .leaderboard-bronze > td {
   background: #cd7f32 !important;
 }
+
+.introjs-tooltip {
+  background: var(--bg) !important;
+}
+/*.custom-introjs .introjs-tooltip {
+  background: var(--dark);
+  color: var(--white);
+}*/
