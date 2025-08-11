@@ -47,11 +47,33 @@
                 </div>
                 <div class="col-12 mb-3">
                     <div class="form-group">
+                        {{ form.quiz_group.label_tag }}
+                        {% render_field form.quiz_group class="form-control" %}
+                        {% if form.quiz_group.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.quiz_group.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-12 mb-3">
+                    <div class="form-group">
                         {{ form.quiz_date.label_tag }}
                         {% render_field form.quiz_date class="form-control" %}
                         {% if form.quiz_date.errors %}
                             <div class="invalid-feedback d-block">
                                 {{ form.quiz_date.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-12 mb-3">
+                    <div class="form-group">
+                        {{ form.quizmaster.label_tag }}
+                        {% render_field form.quizmaster class="form-control" %}
+                        {% if form.quizmaster.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.quizmaster.errors }}
                             </div>
                         {% endif %}
                     </div>
