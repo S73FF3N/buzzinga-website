@@ -224,6 +224,8 @@ class QuizGameResult(models.Model):
     category = models.CharField(max_length=100)
 
     quiz_date = models.DateField()  # New field for the date the quiz was played
+    quiz_group = models.ForeignKey('auth.Group', on_delete=models.CASCADE, related_name='quiz_games')
+    quizmaster = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quizmaster_games')
 
     team1_users = models.ManyToManyField(User, related_name='team1_games')
     team2_users = models.ManyToManyField(User, related_name='team2_games')

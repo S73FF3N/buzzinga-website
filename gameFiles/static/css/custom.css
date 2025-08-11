@@ -37,6 +37,11 @@ body {
   padding-top: var(--navbar-height);
 }
 
+a {
+  text-decoration: none;
+  color: var(--accent);
+}
+
 h1, h2, h3, h4, h5 {
   text-transform: uppercase;
   text-shadow: 2px 2px 0 var(--dark);
@@ -209,4 +214,88 @@ input:focus, textarea:focus {
 
 .introjs-tooltip {
   background: var(--bg) !important;
+}
+
+.info-card {
+    background: var(--primary);
+    color: var(--white);
+    border: 4px solid var(--accent);
+    border-radius: 12px;
+    box-shadow: 4px 4px 0 var(--dark);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    position: relative;
+    padding: 2rem 1rem;
+    text-shadow: 2px 2px 0 var(--dark);
+}
+
+.info-card i {
+    display: block;
+    margin-bottom: 1rem;
+    color: var(--accent);
+    text-shadow: 2px 2px 0 var(--dark);
+}
+
+.info-card.active i {
+  color: #007bff !important;
+  transition: color 0.3s ease;
+}
+
+.info-card h4 {
+    color: var(--white);
+    margin-bottom: 0.5rem;
+}
+
+.info-card p {
+    font-size: 14px;
+    color: var(--text-light);
+}
+
+.info-card:hover,
+.info-card.active {
+    transform: translateY(-5px);
+    box-shadow: 6px 6px 0 var(--dark);
+    border-color: var(--white);
+}
+
+.info-card.active {
+  position: relative; /* needed for absolute arrow positioning */
+}
+
+/* Arrow below active card */
+.info-card.active::after {
+  content: "";
+  position: absolute;
+  bottom: -12px; /* adjust vertical position */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0; 
+  height: 0; 
+  border-left: 16px solid transparent;  /* doubled from 8px */
+  border-right: 16px solid transparent; /* doubled from 8px */
+  border-top: 20px solid #007bff;       /* doubled from 10px */
+  pointer-events: none; /* so arrow doesn't interfere with clicks */
+  z-index: 10;
+}
+
+.tab-pane {
+    background: var(--secondary);
+    color: var(--text-light);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 4px solid var(--accent);
+    box-shadow: 4px 4px 0 var(--dark);
+    margin-top: 0rem;
+    text-align: center;
+
+    opacity: 0;
+    transform: translateX(20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    display: none; 
+}
+
+.tab-pane.show {
+  opacity: 1;
+  transform: translateX(0);
+  display: block;
 }

@@ -763,6 +763,9 @@ class CategoryElementAutocomplete(autocomplete.Select2QuerySetView):
 class UserAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         qs = User.objects.filter(is_active=True)
+        group_id = self.forwarded.get('quiz_group', None)
+        if group_id:
+            qs = qs.filter(groups__id=group_id)
         if self.q:
             qs = qs.filter(username__icontains=self.q)
         return qs

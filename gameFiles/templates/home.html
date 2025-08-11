@@ -14,6 +14,54 @@
         </div>
     </div>
 
+    <!-- Interactive Info Cards Section -->
+    <div class="row mb-4 gx-3 gy-3">
+        <div class="col-12 col-md-4">
+            <div class="info-card text-center p-4" data-target="#multiplayer-info">
+                <i class="fas fa-users fa-3x mb-3"></i>
+                <h4>Multiplayer Game</h4>
+                <p>Ein Quizmaster und bis zu vier Spieler/Teams</p>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="info-card text-center p-4" data-target="#spielarten-info">
+                <i class="fas fa-gamepad fa-3x mb-3"></i>
+                <h4>Spielarten</h4>
+                <p>Wer weiß mehr? - Bilderquiz - Audioquiz - Multiple Choice Quiz - 10 Hinweise</p>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="info-card text-center p-4" data-target="#custom-quiz-info">
+                <i class="fas fa-pencil-alt fa-3x mb-3"></i>
+                <h4>Erstelle individuelle Quizzes</h4>
+                <p>Nutze unser Interface, um eigene Quizzes zu erstellen.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Content Sections -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="tab-content-area">
+                <div id="multiplayer-info" class="tab-pane">
+                    <p>Veranstalte einen Quizabend mit deinen Freunden. Außer Freunden brauchst du nur <a href="https://de.wikipedia.org/wiki/Buzz!">buzz! Controller</a> und etwas Kreativität.</p>
+                    <p>Bedien dich in der Auswahl an Quizzes oder erstelle deine eigenen.</p>
+                    <p>Hier findest du eine Anleitung!</p>
+                </div>
+                <div id="spielarten-info" class="tab-pane">
+                    <p>Wer ist das? - Wer kennt mehr Hauptstädte Europas oder Marvel Charaktere?</p>
+                    <p>Bilderquiz? - Erkennst du den Promis anhand seiner Augen? Zu welcher Marke gehört dieses Logo?</p>
+                    <p>Audioquiz? - Erkennst du den Song anhand der ersten 3 Sekunden? Oder erkennst du das Tier anhand seiner Geräusches?</p>
+                    <p>Multiple Choice Quiz? - Wer hat das beste Allgemeinwissen? Wer kennt sich besser mit den Olympischen Spielen aus?</p>
+                    <p>10 Hinweise? - Wer erkennt den Interpret anhand seiner Songs? Wer erkennt die Nation anhand seiner Staatsangehörigen?</p>
+                </div>
+                <div id="custom-quiz-info" class="tab-pane">
+                    <p>Registrier dich und nutze unser Interface, um eigene Quizzes zu erstellen.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Embedded YouTube Videos -->
     <div class="row mb-5">
         <div class="col-md-6">
@@ -44,18 +92,18 @@
     <h2 class="mb-3">Neueste Spielkategorien</h2>
     <div class="row g-4">
         {% for c in newest_categories %}
-            <div class="col-12 col-md-3">
-                <a href="{% url 'gamefiles:category_detail' game_type=c.game_type.pk id=c.pk %}" class="text-decoration-none text-white">
-                    <div class="shape text-center p-3">
-                        <h2>{{ c.name_de }}</h2>
-                        {% if c.logo %}
-                            <i class="fa fa-{{ c.logo }} fa-3x fa-fw"></i>
-                        {% endif %}
-                        <h5>{{ c.game_type }}</h5>
-                        <p>{{ c.amount_files }} Dateien</p>
-                    </div>
-                </a>
-            </div>
+        <div class="col-12 col-md-3">
+            <a href="{% url 'gamefiles:category_detail' game_type=c.game_type.pk id=c.pk %}" class="text-decoration-none text-white">
+                <div class="shape text-center p-3">
+                    <h2>{{ c.name_de }}</h2>
+                    {% if c.logo %}
+                    <i class="fa fa-{{ c.logo }} fa-3x fa-fw"></i>
+                    {% endif %}
+                    <h5>{{ c.game_type }}</h5>
+                    <p>{{ c.amount_files }} Dateien</p>
+                </div>
+            </a>
+        </div>
         {% endfor %}
     </div>
 
@@ -63,42 +111,59 @@
     <h2 class="mt-5 mb-3">Letzte Änderungen</h2>
     <div class="row g-4">
         {% for d in latest_create_dates %}
-            <div class="col-12 col-md-3">
-                <div class="shape text-center p-3">
-                    <h2>{{ d.category_name }}</h2>
-                    <p>+ {{ d.amount_elements }} Elemente am {{ d.latest_create_date|date:'d.m.Y' }}</p>
-                </div>
+        <div class="col-12 col-md-3">
+            <div class="shape text-center p-3">
+                <h2>{{ d.category_name }}</h2>
+                <p>+ {{ d.amount_elements }} Elemente am {{ d.latest_create_date|date:'d.m.Y' }}</p>
             </div>
+        </div>
         {% endfor %}
     </div>
 </div>
+
 {% block scripts %}
-    <script>
-        introJs().setOptions({
-          steps: [
-            {
-              element: document.querySelector('#buzzinga-installer'),
-              title: 'Buzzinga Installer',
-              intro: 'Lade den Buzzinga Installer herunter, um Buzzinga zu installieren!'
-            },
-            {
-              element: document.querySelector('#game-type-list'),
-              title: 'Quizzes herunterladen',
-              intro: 'Lade dir fertige Quizzes herunter, die von anderen Nutzern erstellt wurden. Du kannst sie in Buzzinga nutzen!'
-            },
-            {
-              element: document.querySelector('#account-profile'),
-              title: 'Individuelle Quizzes',
-              intro: 'Erstelle hier eigene Quizzes!'
-            },
-            {
-              element: document.querySelector('#solution-form'),
-              title: 'Lösungen',
-              intro: 'Als Spielleiter kannst du hier die Lösungen der Quizzes einsehen.'
-            },
-          ],
-          dontShowAgain: true,
-        }).start();
-    </script>
+<script>
+introJs().setOptions({
+    steps: [
+        { element: document.querySelector('#buzzinga-installer'), title: 'Buzzinga Installer', intro: 'Lade den Buzzinga Installer herunter, um Buzzinga zu installieren!' },
+        { element: document.querySelector('#game-type-list'), title: 'Quizzes herunterladen', intro: 'Lade dir fertige Quizzes herunter, die von anderen Nutzern erstellt wurden. Du kannst sie in Buzzinga nutzen!' },
+        { element: document.querySelector('#account-profile'), title: 'Individuelle Quizzes', intro: 'Erstelle hier eigene Quizzes!' },
+        { element: document.querySelector('#solution-form'), title: 'Lösungen', intro: 'Als Spielleiter kannst du hier die Lösungen der Quizzes einsehen.' },
+    ],
+    dontShowAgain: true,
+}).start();
+
+document.addEventListener('DOMContentLoaded', function () {
+    const cards = document.querySelectorAll('.info-card');
+    const panes = document.querySelectorAll('.tab-pane');
+
+    cards.forEach(card => {
+        card.addEventListener('click', function () {
+            // Remove active from all cards
+            cards.forEach(c => c.classList.remove('active'));
+            // Hide all panes
+            panes.forEach(p => {
+                p.classList.remove('show');
+                p.style.display = 'none';
+            });
+
+            // Activate clicked card
+            card.classList.add('active');
+
+            const target = document.querySelector(card.dataset.target);
+            if (target) {
+                target.style.display = 'block';
+                void target.offsetWidth; // reflow for animation
+                target.classList.add('show');
+            }
+        });
+    });
+
+    // Activate first tab by default
+    if (cards[0]) {
+        cards[0].click();
+    }
+});
+</script>
 {% endblock %}
 {% endblock %}

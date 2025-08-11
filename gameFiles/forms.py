@@ -2,7 +2,7 @@ from dal import autocomplete, forward
 from django import forms
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.forms import inlineformset_factory, BaseInlineFormSet
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from .models import GameType, Category, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, DIFFICULTY, QuizGameResult
 import random
 
@@ -234,34 +234,55 @@ class SolutionForm(forms.Form):
 
 
 class QuizGameResultForm(forms.ModelForm):
+    quiz_group = forms.ModelChoiceField(
+        queryset=Group.objects.all(),
+        label="Quiz-Gruppe",
+    )
+    quizmaster = forms.ModelChoiceField(
+        queryset=User.objects.all(),
+        widget=autocomplete.ModelSelect2(
+            url='gamefiles:user-autocomplete',
+            attrs={'data-placeholder': 'Wähle einen Quizmaster...'},
+            forward=('quiz_group',)  # Forward as a tuple
+        ),
+        label="Quizmaster",
+    )
     team1_users = forms.ModelMultipleChoiceField(
         queryset=User.objects.all(),
         widget=autocomplete.ModelSelect2Multiple(
-            url='gamefiles:user-autocomplete'  # This should match your URL name
+            url='gamefiles:user-autocomplete',
+            attrs={'data-placeholder': 'Wähle Team 1 Spieler...'},
+            forward=('quiz_group',)  # Forward as a tuple
         )
     )
     team2_users = forms.ModelMultipleChoiceField(
         queryset=User.objects.all(),
         widget=autocomplete.ModelSelect2Multiple(
-            url='gamefiles:user-autocomplete'  # This should match your URL name
+            url='gamefiles:user-autocomplete',
+            attrs={'data-placeholder': 'Wähle Team 2 Spieler...'},
+            forward=('quiz_group',)  # Forward as a tuple
         )
     )
     team3_users = forms.ModelMultipleChoiceField(
         queryset=User.objects.all(),
         widget=autocomplete.ModelSelect2Multiple(
-            url='gamefiles:user-autocomplete'  # This should match your URL name
+            url='gamefiles:user-autocomplete',
+            attrs={'data-placeholder': 'Wähle Team 3 Spieler...'},
+            forward=('quiz_group',)  # Forward as a tuple
         )
     )
     team4_users = forms.ModelMultipleChoiceField(
         queryset=User.objects.all(),
         widget=autocomplete.ModelSelect2Multiple(
-            url='gamefiles:user-autocomplete'  # This should match your URL name
+            url='gamefiles:user-autocomplete',
+            attrs={'data-placeholder': 'Wähle Team 4 Spieler...'},
+            forward=('quiz_group',)  # Forward as a tuple
         )
     )
     class Meta:
         model = QuizGameResult
         fields = [
-            'game_type', 'category', 'quiz_date',
+            'game_type', 'category', 'quiz_group', 'quiz_date', 'quizmaster',
             'team1_users', 'team2_users', 'team3_users', 'team4_users',
             'team1_points', 'team2_points', 'team3_points', 'team4_points'
         ]
