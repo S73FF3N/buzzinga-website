@@ -718,6 +718,11 @@ def leaderboard_view(request):
         'max_win_percentage': max_win_percentage,
     })
 
+
+def instructions_view(request):
+    return render(request, 'instructions.html')
+
+
 class CategoryAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         user_categories = Category.objects.filter(created_by=self.request.user)
