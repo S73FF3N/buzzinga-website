@@ -233,6 +233,22 @@
             </div>
         </div>
 
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingThirteen">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThirteen" aria-expanded="false" aria-controls="collapseThirteen">
+                    <i class="fas fa-music me-2 text-danger"></i> Audioquiz
+                </button>
+            </h2>
+            <div id="collapseThirteen" class="accordion-collapse collapse" aria-labelledby="headingThirteen" data-bs-parent="#createQuizzesAccordion">
+                <div class="accordion-body">
+                    Audioquizzes werden offline im Ordner <i>sounds</i> erstellt. Lege dort einen Ordner an, der den Namen der Quizkategorie trägt.
+                    <br>In diesem Ordner werden die Audiodateien für das Quiz abgelegt. Der Dateiname definiert die Lösung. Es werden .mp3 und .wav unterstützt.
+                    <br>Soll mit der Lösung eine Lösungs-Audiodatei abgespielt werden, muss diese den gleichen Dateinamen wie die zugehörige Audiodatei haben, jedoch die Endung <i>_solution</i> besitzen.
+                    <br>Möchtest du ein Beispiel am Anfang des Quizzes abspielen, lege dafür eine Audiodatei im Ordner ab, welche auf <i>_example</i> endet.
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 {% endblock %}
