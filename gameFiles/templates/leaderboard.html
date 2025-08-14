@@ -209,19 +209,28 @@
                         <tr>
                     {% endif %}
                         <td>{{ forloop.counter }}</td>
-                        <td>{{ entry.user.username }}</td>
+                        <td>
+                            {{ entry.user.username }}
+                            {% if entry.host_award %}
+                                <i class="fa-solid fa-person-chalkboard text-danger ms-1" title="Most Hosts"></i>
+                            {% else %}
+                                {% if entry.hosting %}
+                                    <i class="fa-solid fa-person-chalkboard text-success ms-1" title="Host"></i>
+                                {% endif %}
+                            {% endif %}
+                        </td>
                         <td>{{ entry.avg_points|floatformat:2 }}</td>
                         <td>{{ entry.games }}</td>
                         <td>
                             {{ entry.wins }}
                             {% if entry.award_crown %}
-                                <i class="fa-solid fa-crown text-warning ms-1" title="Most Wins"></i>
+                                <i class="fa-solid fa-crown text-danger ms-1" title="Most Wins"></i>
                             {% endif %}
                         </td>
                         <td>
                             {{ entry.win_percentage|floatformat:2 }}%
                             {% if entry.win_percentage == max_win_percentage and entry.games > 0 %}
-                                <i class="fa-solid fa-medal text-warning ms-1" title="Beste Win-Rate"></i>
+                                <i class="fa-solid fa-medal text-danger ms-1" title="Beste Win-Rate"></i>
                             {% endif %}
                         </td>
                     </tr>

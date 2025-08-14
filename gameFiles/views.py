@@ -629,10 +629,10 @@ def leaderboard_view(request):
         team_form = RandomTeamAssignmentForm()
 
     # user → {'points': float, 'games': int, 'wins': int}
-    user_stats = defaultdict(lambda: {'points': 0.0, 'games': 0, 'wins': 0})
+    user_stats = defaultdict(lambda: {'points': 0.0, 'games': 0, 'wins': 0, 'hosts': 0})
 
     results = QuizGameResult.objects.prefetch_related(
-        'team1_users', 'team2_users', 'team3_users', 'team4_users'
+        'team1_users', 'team2_users', 'team3_users', 'team4_users', 
     )
 
     for result in results:
@@ -642,6 +642,8 @@ def leaderboard_view(request):
             'team3': result.team3_points,
             'team4': result.team4_points,
         }
+
+        user_stats[result.quizmaster]['hosts'] += 1  # Track hosts
 
         # --- Track wins (raw score, unnormalized) ---
         max_score = max(scores.values())
@@ -682,6 +684,7 @@ def leaderboard_view(request):
                 'avg_points': stats['points'] / stats['games'],
                 'games': stats['games'],
                 'wins': stats['wins'],
+                'hosts': stats['hosts'],
             })
 
     # Calculate win percentages and find the max
@@ -694,10 +697,17 @@ def leaderboard_view(request):
         min_games_for_max_wins = min(
             entry['games'] for entry in leaderboard if entry['wins'] == max_wins_value
         )
+        max_hosts_value = max(entry['hosts'] for entry in leaderboard)
         # Mark crown for users with max_wins and min_games_for_max_wins
         for entry in leaderboard:
             entry['award_crown'] = (
                 entry['wins'] == max_wins_value and entry['games'] == min_games_for_max_wins
+            )
+            entry['host_award'] = (
+                entry['hosts'] == max_hosts_value and entry['hosts'] > 0
+            )
+            entry['hosting'] = (
+                entry['hosts'] > 0
             )
         max_wins = max_wins_value
         max_win_percentage = max(entry['win_percentage'] for entry in leaderboard)
@@ -706,6 +716,8 @@ def leaderboard_view(request):
         max_win_percentage = 0.0
         for entry in leaderboard:
             entry['award_crown'] = False
+            entry['host_award'] = False
+            entry['hosting'] = False
 
     leaderboard.sort(key=lambda x: (-x['avg_points'], -x['wins']))
 
