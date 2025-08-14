@@ -200,11 +200,11 @@
             <tbody>
                 {% for entry in leaderboard %}
                     {% if forloop.counter == 1 %}
-                        <tr class="leaderboard-gold" style="font-weight: bold;">
+                        <tr class="leaderboard-gold">
                     {% elif forloop.counter == 2 %}
-                        <tr class="leaderboard-silver" style="font-weight: bold;">
+                        <tr class="leaderboard-silver">
                     {% elif forloop.counter == 3 %}
-                        <tr class="leaderboard-bronze" style="font-weight: bold;">
+                        <tr class="leaderboard-bronze">
                     {% else %}
                         <tr>
                     {% endif %}
