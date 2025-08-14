@@ -193,7 +193,7 @@
                     <i class="fas fa-user-plus me-2 text-danger"></i> Account
                 </button>
             </h2>
-            <div id="collapseTen" class="accordion-collapse collapse" aria-labelledby="headingTen" data-bs-parent="#createQuizzesAccordion">
+            <div id="collapseNine" class="accordion-collapse collapse" aria-labelledby="headingTen" data-bs-parent="#createQuizzesAccordion">
                 <div class="accordion-body">
                     Es wird ein eigener Acoount benötigt.
                     <br>Die Möglichkeit zur Registrierung via Google, Microsoft und Apple ist aktuell in der Umsetzung.
@@ -229,6 +229,79 @@
                     <br>In diesem Ordner werden die Bilder für das Quiz abgelegt. Der Dateiname definiert die Lösung. Es werden .jpg, .jpeg und .png unterstützt.
                     <br>Soll mit der Lösung ein Lösungsbild eingeblendet werden, muss dieses den gleichen Dateinamen wie das zugehörige Bild haben, jedoch die Endung <i>_solution</i> besitzen.
                     <br>Möchtest du ein Beispiel am Anfang des Quizzes einblenden, lege dafür ein Bild im Ordner ab, welches auf <i>_example</i> endet.
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingThirteen">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThirteen" aria-expanded="false" aria-controls="collapseThirteen">
+                    <i class="fas fa-music me-2 text-danger"></i> Audioquiz
+                </button>
+            </h2>
+            <div id="collapseThirteen" class="accordion-collapse collapse" aria-labelledby="headingThirteen" data-bs-parent="#createQuizzesAccordion">
+                <div class="accordion-body">
+                    Audioquizzes werden offline im Ordner <i>sounds</i> erstellt. Lege dort einen Ordner an, der den Namen der Quizkategorie trägt.
+                    <br>In diesem Ordner werden die Audiodateien für das Quiz abgelegt. Der Dateiname definiert die Lösung. Es werden .mp3 und .wav unterstützt.
+                    <br>Soll mit der Lösung eine Lösungs-Audiodatei abgespielt werden, muss diese den gleichen Dateinamen wie die zugehörige Audiodatei haben, jedoch die Endung <i>_solution</i> besitzen.
+                    <br>Möchtest du ein Beispiel am Anfang des Quizzes abspielen, lege dafür eine Audiodatei im Ordner ab, welche auf <i>_example</i> endet.
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingFourteen">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFourteen" aria-expanded="false" aria-controls="collapseFourteen">
+                    <i class="fas fa-comment-dots me-2 text-danger"></i> Wer weiß mehr?
+                </button>
+            </h2>
+            <div id="collapseFourteen" class="accordion-collapse collapse" aria-labelledby="headingFourteen" data-bs-parent="#createQuizzesAccordion">
+                <div class="accordion-body">
+                    Wer weiß mehr?-Quizzes werden online erstellt. Gehe hierfür auf den +Button neben <i>Wer weiß mehr?</i> und erstelle mithilfe des Formulars ein Wer weiß mehr?-Element.
+                    <br>Die Frage definiert die die eindeutig die möglichen Lösungen. Ein gutes Wer weiß mehr?-Element besitzt zwischen 20 und 50 Lösungen.
+                    <br>Wähle die Quizkategorie aus, die du zuvor erstellt hast.
+                    <br>Füge so viele Formularfelder für Lösungen hinzu, wie du benötigst und trage die Lösungen ein. Zuletzt speicherst du das Wer weiß mehr?-Element ab.
+                    <br>Anschließend taucht das Element in der Wer weiß mehr?-Übersicht auf.
+                    <br>Markiere, nachdem du alle Elemente erstellt hast, diejenigen, die du im Spiel nutzen möchtest über die Checkboxen am rechten Rand. Anschließend klicke <i>Download</i>.
+                    <br>Es wird eine .zip-Datei heruntergeladen, die du entpacken kannst. Die .json-Datei mit dem Namen deiner Quizkategorie legst du im Ordner <i>who-knows-more</i> ab.
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingFiveteen">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFiveteen" aria-expanded="false" aria-controls="collapseFiveteen">
+                    <i class="fas fa-list me-2 text-danger"></i> 10 Hinweise
+                </button>
+            </h2>
+            <div id="collapseFiveteen" class="accordion-collapse collapse" aria-labelledby="headingFiveteen" data-bs-parent="#createQuizzesAccordion">
+                <div class="accordion-body">
+                    10 Hinweise-Quizzes werden online erstellt. Gehe hierfür auf den +Button neben <i>Hinweise</i> und erstelle mithilfe des Formulars ein 10 Hinweise-Element.
+                    <br>Die Lösung definiert die richtige Antwort.
+                    <br>Wähle die Quizkategorie aus, die du zuvor erstellt hast.
+                    <br>Es werden exakt 10 Hinweise benötigt. Hinweis 1 wird im Spiel als erster Hinweis eingeblendet, Hinweis 10 als letzter.
+                    <br>Nach dem Speichern taucht das Element in der 10 Hinweise-Übersicht auf.
+                    <br>Markiere, nachdem du alle Elemente erstellt hast, diejenigen, die du im Spiel nutzen möchtest über die Checkboxen am rechten Rand. Anschließend klicke <i>Download</i>.
+                    <br>Es wird eine .zip-Datei heruntergeladen, die du entpacken kannst. Die .json-Datei mit dem Namen deiner Quizkategorie legst du im Ordner <i>hints</i> ab.
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingSixteen">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSixteen" aria-expanded="false" aria-controls="collapseSixteen">
+                    <i class="fas fa-question me-2 text-danger"></i> Multiple Choice
+                </button>
+            </h2>
+            <div id="collapseSixteen" class="accordion-collapse collapse" aria-labelledby="headingSixteen" data-bs-parent="#createQuizzesAccordion">
+                <div class="accordion-body">
+                    Multiple Choice-Quizzes werden online erstellt. Gehe hierfür auf den +Button neben <i>Multiple Choice</i> und erstelle mithilfe des Formulars ein Multiple Choice-Element.
+                    <br>Die Frage definiert die Fragestellung und die Lösung definiert die richtige Antwort.
+                    <br>Wähle die Quizkategorie aus, die du zuvor erstellt hast.
+                    <br>Es werden zusätzlich drei (falsche) Antwortmöglichkeiten (Option 1 bis 3) benötigt.
+                    <br>Nach dem Speichern taucht das Element in der Multiple Choice-Übersicht auf.
+                    <br>Markiere, nachdem du alle Elemente erstellt hast, diejenigen, die du im Spiel nutzen möchtest über die Checkboxen am rechten Rand. Anschließend klicke <i>Download</i>.
+                    <br>Es wird eine .zip-Datei heruntergeladen, die du entpacken kannst. Die .json-Datei mit dem Namen deiner Quizkategorie legst du im Ordner <i>questions</i> ab.
                 </div>
             </div>
         </div>
