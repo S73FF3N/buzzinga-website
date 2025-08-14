@@ -205,7 +205,7 @@
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingEleven">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEleven" aria-expanded="false" aria-controls="collapseEleven">
-                    <i class="fas fa-folder-quiz me-2 text-danger"></i> Quizkategorie erstellen
+                    <i class="fas fa-folder-plus me-2 text-danger"></i> Quizkategorie erstellen
                 </button>
             </h2>
             <div id="collapseEleven" class="accordion-collapse collapse" aria-labelledby="headingEleven" data-bs-parent="#createQuizzesAccordion">
@@ -220,13 +220,15 @@
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingTwelve">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwelve" aria-expanded="false" aria-controls="collapseTwelve">
-                    <i class="fas fa-comment-dots me-2 text-danger"></i> Wer weiß mehr?
+                    <i class="fas fa-image me-2 text-danger"></i> Bilderquiz
                 </button>
             </h2>
             <div id="collapseTwelve" class="accordion-collapse collapse" aria-labelledby="headingTwelve" data-bs-parent="#createQuizzesAccordion">
                 <div class="accordion-body">
-                    Bei <i>Wer weiß mehr?</i> wird nicht gebuzzert. Die Spieler geben ihre Antwort innerhalb der runterlaufenden 30 Sekunden mündlich ab.
-                    <br>Nachdem eine richtige Antwort eingeblendet wurde oder der Quizmaster die Antwort als falsch bewertet hat, starten automatisch die 30 Sekunden für den nächsten Spieler.
+                    Bilderquizzes werden offline im Ordner <i>images</i> erstellt. Lege dort einen Ordner an, der den Namen der Quizkategorie trägt.
+                    <br>In diesem Ordner werden die Bilder für das Quiz abgelegt. Der Dateiname definiert die Lösung. Es werden .jpg, .jpeg und .png unterstützt.
+                    <br>Soll mit der Lösung ein Lösungsbild eingeblendet werden, muss dieses den gleichen Dateinamen wie das zugehörige Bild haben, jedoch die Endung <i>_solution</i> besitzen.
+                    <br>Möchtest du ein Beispiel am Anfang des Quizzes einblenden, lege dafür ein Bild im Ordner ab, welches auf <i>_example</i> endet.
                 </div>
             </div>
         </div>
