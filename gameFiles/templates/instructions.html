@@ -48,7 +48,7 @@
                     <br>Der Name der Ordner/Dateien definiert den Namen des Quizzes.
                     <br>Die einfachste Möglichkeit, Quizmaterial einzubinden, besteht darin, existierende Quizzes herunterzuladen und entsprechend abzulegen.
                     <br>Existierendes Quizmaterial findest du <a href="{% url 'gameFiles:game_type_list' %}">hier</a>. Wähle dein favorisiertes Quiz aus und klicke <i>Download</i>.
-                    <br>Wie du eigenes Quizmaterial erstellst, erfährst du im Abschnitt <i>Eigene Quiz erstellen</i> weiter unten.
+                    <br>Wie du eigenes Quizmaterial erstellst, erfährst du im Abschnitt <i>Eigene Quizzes erstellen</i> weiter unten.
                 </div>
             </div>
         </div>
@@ -175,6 +175,55 @@
                 </button>
             </h2>
             <div id="collapseEight" class="accordion-collapse collapse" aria-labelledby="headingEight" data-bs-parent="#playerAccordion">
+                <div class="accordion-body">
+                    Bei <i>Wer weiß mehr?</i> wird nicht gebuzzert. Die Spieler geben ihre Antwort innerhalb der runterlaufenden 30 Sekunden mündlich ab.
+                    <br>Nachdem eine richtige Antwort eingeblendet wurde oder der Quizmaster die Antwort als falsch bewertet hat, starten automatisch die 30 Sekunden für den nächsten Spieler.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <h2 class="text-left">Eigene Quizzes erstellen</h2>
+    <div class="accordion text-left mb-4" id="createQuizzesAccordion">
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingNine">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNine" aria-expanded="false" aria-controls="collapseNine">
+                    <i class="fas fa-user-plus me-2 text-danger"></i> Account
+                </button>
+            </h2>
+            <div id="collapseTen" class="accordion-collapse collapse" aria-labelledby="headingTen" data-bs-parent="#createQuizzesAccordion">
+                <div class="accordion-body">
+                    Es wird ein eigener Acoount benötigt.
+                    <br>Die Möglichkeit zur Registrierung via Google, Microsoft und Apple ist aktuell in der Umsetzung.
+                    <br>Nach der Registrierung kannst du dich einloggen und deine Quizzes erstellen.
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingEleven">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEleven" aria-expanded="false" aria-controls="collapseEleven">
+                    <i class="fas fa-folder-quiz me-2 text-danger"></i> Quizkategorie erstellen
+                </button>
+            </h2>
+            <div id="collapseEleven" class="accordion-collapse collapse" aria-labelledby="headingEleven" data-bs-parent="#createQuizzesAccordion">
+                <div class="accordion-body">
+                    Bevor du einzelne Fragen/Inhalte generieren kannst, musst du eine Quizkategorie erstellen.
+                    <br>Gehe hierfür auf den +Button neben <i>Kategorien</i> und erstelle mithilfe des Formulars eine Quizkategorie.
+                    <br>Eine Quizkategorie wird immer einer Spieleart zugeordnet.
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingTwelve">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwelve" aria-expanded="false" aria-controls="collapseTwelve">
+                    <i class="fas fa-comment-dots me-2 text-danger"></i> Wer weiß mehr?
+                </button>
+            </h2>
+            <div id="collapseTwelve" class="accordion-collapse collapse" aria-labelledby="headingTwelve" data-bs-parent="#createQuizzesAccordion">
                 <div class="accordion-body">
                     Bei <i>Wer weiß mehr?</i> wird nicht gebuzzert. Die Spieler geben ihre Antwort innerhalb der runterlaufenden 30 Sekunden mündlich ab.
                     <br>Nachdem eine richtige Antwort eingeblendet wurde oder der Quizmaster die Antwort als falsch bewertet hat, starten automatisch die 30 Sekunden für den nächsten Spieler.
