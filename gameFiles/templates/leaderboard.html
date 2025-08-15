@@ -240,6 +240,42 @@
     </div>
 </div>
 
+<h2 class="text-left">Ergebnisse</h2>
+<div class="position-relative">
+  <button id="quizNavLeft"
+          class="btn btn-light position-absolute top-50 start-0 translate-middle-y rounded-circle shadow"
+          type="button" aria-label="Scroll left" style="z-index: 10;">
+    &lsaquo;
+  </button>
+
+  <div id="quizResultsContainer"
+       class="d-flex overflow-auto gap-3 px-5"
+       role="region"
+       aria-label="Recent quiz results"
+       tabindex="0"
+       style="scroll-snap-type: x mandatory; scroll-padding: 1rem; -webkit-overflow-scrolling: touch;">
+    <!-- cards inserted here -->
+  </div>
+
+  <button id="quizNavRight"
+          class="btn btn-light position-absolute top-50 end-0 translate-middle-y rounded-circle shadow"
+          type="button" aria-label="Scroll right">
+    &rsaquo;
+  </button>
+</div>
+
+<style>
+  /* Card sizing + snap */
+  #quizResultsContainer .quiz-card {
+    min-width: 320px;     /* tweak as you like */
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+  @media (max-width: 576px) {
+    #quizResultsContainer .quiz-card { min-width: 85vw; }
+  }
+</style>
+
 <hr class="mt-5 mb-4">
 <div class="container mt-5">
     <h3>Teamgenerator</h3>
@@ -408,8 +444,148 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
     
-    // Initial debug on page load
-    setTimeout(debugAutocomplete, 1000);
 });
+
+
+const quizResultsApiUrl = "{% url 'gameFiles:quiz_results_api' %}";
+
+(() => {
+  const container = document.getElementById('quizResultsContainer');
+  const leftBtn = document.getElementById('quizNavLeft');
+  const rightBtn = document.getElementById('quizNavRight');
+
+  // sentinel to observe when we're near the end
+  const sentinel = document.createElement('div');
+  sentinel.id = 'quizSentinel';
+  sentinel.className = 'flex-shrink-0';
+  sentinel.style.width = '1px';
+  container.appendChild(sentinel);
+
+  let offset = 0;
+  const limit = 3;             // show 3 initially, then lazy-load
+  let loading = false;
+  let hasMore = true;
+
+  async function loadMore() {
+    if (loading || !hasMore) return;
+    loading = true;
+    try {
+      const res = await fetch(`${quizResultsApiUrl}?offset=${offset}&limit=${limit}`);
+      if (!res.ok) throw new Error('Network error');
+      const data = await res.json();
+
+      if (!Array.isArray(data.results) || data.results.length === 0) {
+        hasMore = false;
+        io?.disconnect?.();
+        return;
+      }
+
+      appendResults(data.results);
+      offset += data.results.length;
+      hasMore = data.results.length === limit;
+
+      // keep sentinel as the last child
+      container.appendChild(sentinel);
+
+      // If content still doesn't overflow (e.g., big screens), preload next page
+      if (container.scrollWidth <= container.clientWidth && hasMore) {
+        setTimeout(loadMore, 0);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      loading = false;
+    }
+  }
+
+  function appendResults(results) {
+    for (const result of results) {
+      const card = document.createElement('div');
+      card.className = 'card quiz-card info-card shadow-sm';
+      card.innerHTML = `
+        <div class="card-body">
+          <h5 class="card-title mb-1">${escapeHtml(result.game_type)} - ${escapeHtml(result.category)}</h5>
+          <h6 class="text-muted small mb-2">
+            ${escapeHtml(result.quiz_date)} · Quizmaster: ${escapeHtml(result.quizmaster)}
+          </h6>
+
+          <table class="table table-striped mb-0">
+            <thead>
+              <tr>
+                <th>Team</th>
+                <th>Users</th>
+                <th class="text-end">Points</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${result.teams.map((team, i) => `
+                <tr>
+                  <td>Team ${i + 1}</td>
+                  <td>${team.users.map(escapeHtml).join(', ')}</td>
+                  <td class="text-end">${team.points}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>`;
+      container.insertBefore(card, sentinel);
+    }
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  // Lazy-load trigger (no scroll listener needed)
+  let io = null;
+  if ('IntersectionObserver' in window) {
+    io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) loadMore();
+      });
+    }, {
+      root: container,                // observe within the horizontal scroller
+      rootMargin: '0px 200px 0px 0px',// prefetch before reaching the end
+      threshold: 0
+    });
+    io.observe(sentinel);
+  }
+
+  // Arrow buttons (smooth, card-by-card)
+    function snapAmount() {
+    const first = container.querySelector('.quiz-card');
+    const gap = parseFloat(getComputedStyle(container).gap || 16);
+    return first
+        ? Math.round(first.getBoundingClientRect().width + gap)
+        : Math.round(container.clientWidth * 0.9);
+    }
+
+    leftBtn.addEventListener('click', () => {
+    container.scrollBy({ left: -snapAmount(), behavior: 'smooth' });
+    });
+
+    rightBtn.addEventListener('click', () => {
+    container.scrollBy({ left: snapAmount(), behavior: 'smooth' });
+
+    // If near the end, request more
+    if (container.scrollLeft + container.clientWidth >= container.scrollWidth - snapAmount()) {
+        loadMore();
+    }
+    });
+
+  // Optional keyboard support
+  container.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') rightBtn.click();
+    if (e.key === 'ArrowLeft') leftBtn.click();
+  });
+
+  // Initial load (first 3)
+  loadMore();
+})();
+
 </script>
 {% endblock %}

@@ -8,7 +8,7 @@ from django.core.serializers import serialize
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.base import ContentFile
 from django.contrib import messages
-from django.db.models import Count, OuterRef, Subquery, Q, IntegerField
+from django.db.models import Count, OuterRef, Subquery, IntegerField
 from django.db.models.expressions import Value
 from django.db.models.functions import Coalesce
 
@@ -608,6 +608,31 @@ def solution(request, game_type, category_element):
         solution = solution.show_solution()
 
     return render(request, 'solution.html', {'solution': {"type": solution_type, "qs": solution}})
+
+
+def quiz_results_api(request):
+    offset = int(request.GET.get('offset', 0))
+    limit = int(request.GET.get('limit', 3))
+    
+    results = QuizGameResult.objects.order_by('-quiz_date')[offset:offset+limit]
+    
+    data = []
+    for result in results:
+        data.append({
+            'id': result.id,
+            'game_type': result.game_type.name_de,
+            'category': result.category,
+            'quiz_date': result.quiz_date.strftime('%d.%m.%Y'),
+            'quizmaster': result.quizmaster.username,
+            'teams': [
+                {'users': [u.username for u in result.team1_users.all()], 'points': result.team1_points},
+                {'users': [u.username for u in result.team2_users.all()], 'points': result.team2_points},
+                {'users': [u.username for u in result.team3_users.all()], 'points': result.team3_points},
+                {'users': [u.username for u in result.team4_users.all()], 'points': result.team4_points},
+            ]
+        })
+    
+    return JsonResponse({'results': data})
 
 
 def leaderboard_view(request):
