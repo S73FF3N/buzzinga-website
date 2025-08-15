@@ -11,6 +11,7 @@ urlpatterns = [
     path('solution/<int:game_type>/<int:category_element>/', views.solution, name='solution'),
     path('leaderboard/', views.leaderboard_view, name='leaderboard'),
     path('instructions/', views.instructions_view, name='instructions'),
+    path('api/quiz-results/', views.quiz_results_api, name='quiz_results_api'),
 
     # Category Views
     path('category-create', views.CategoryCreateView.as_view(), name='category-create'),
