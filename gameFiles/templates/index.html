@@ -45,7 +45,7 @@
                     <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
                     <li class="nav-item"><a class="nav-link" id="game-type-list" href="{% url 'gameFiles:game_type_list' %}">Spiele</a></li>
                     <li class="nav-item"><a class="nav-link" id="solution-form" href="{% url 'gameFiles:solution_form' %}">Lösungen</a></li>
-                    {% if perms.accounts.can_view_noxt_menu %}
+                    {% if perms.gameFiles.can_view_noxt_menu %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'gameFiles:leaderboard' %}">noxt!</a></li>
                     {% endif %}
                     <li class="nav-item">
