@@ -1,6 +1,7 @@
 import django_filters
+from django import forms
 from dal import autocomplete
-from .models import Image, Sound, Question, Category, Hints, WhoKnowsMore
+from .models import Image, Sound, Question, Category, Hints, WhoKnowsMore, QuizGameResult
 
 
 class BaseFilter(django_filters.FilterSet):
@@ -44,3 +45,22 @@ class CategoryFilter(django_filters.FilterSet):
         model = Category
         fields = ['private']
         order_by = ['pk']
+
+
+class QuizGameResultFilter(django_filters.FilterSet):
+    # Optional: range filter for dates
+    quiz_date__gte = django_filters.DateFilter(
+        field_name="quiz_date", lookup_expr="gte", label="Datum (von)", widget=forms.DateInput(attrs={"type": "date", "class": "form-control"})
+    )
+    quiz_date__lte = django_filters.DateFilter(
+        field_name="quiz_date", lookup_expr="lte", label="Datum (bis)", widget=forms.DateInput(attrs={"type": "date", "class": "form-control"})
+    )
+
+    class Meta:
+        model = QuizGameResult
+        fields = ["game_type", "quiz_group", "quizmaster"]
+        labels = {
+            "game_type": "Spieltyp",
+            "quiz_group": "Quizgruppe",
+            "quizmaster": "Quizmaster",
+        }

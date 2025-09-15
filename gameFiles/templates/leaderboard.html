@@ -184,6 +184,83 @@
     </button>
 </div>
 
+<div class="row mb-3">
+    <form method="get" id="filterForm">
+        <div class="row g-3">
+            <h3 class="text-left">Filter</h3>
+            <!-- Game Type -->
+            <div class="col-md-4 mb-3">
+                <div class="form-group">
+                    {{ filterset.form.game_type.label_tag }}
+                    {% render_field filterset.form.game_type class="form-control" %}
+                    {% if filterset.form.game_type.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ filterset.form.game_type.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- From Date -->
+            <div class="col-md-4 mb-3">
+                <div class="form-group">
+                    {{ filterset.form.quiz_date__gte.label_tag }}
+                    {% render_field filterset.form.quiz_date__gte class="form-control" %}
+                    {% if filterset.form.quiz_date__gte.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ filterset.form.quiz_date__gte.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- To Date -->
+            <div class="col-md-4 mb-3">
+                <div class="form-group">
+                    {{ filterset.form.quiz_date__lte.label_tag }}
+                    {% render_field filterset.form.quiz_date__lte class="form-control" %}
+                    {% if filterset.form.quiz_date__lte.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ filterset.form.quiz_date__lte.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quiz Group -->
+            <div class="col-md-4 mb-3">
+                <div class="form-group">
+                    {{ filterset.form.quiz_group.label_tag }}
+                    {% render_field filterset.form.quiz_group class="form-control" %}
+                    {% if filterset.form.quiz_group.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ filterset.form.quiz_group.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quizmaster -->
+            <div class="col-md-4 mb-3">
+                <div class="form-group">
+                    {{ filterset.form.quizmaster.label_tag }}
+                    {% render_field filterset.form.quizmaster class="form-control" %}
+                    {% if filterset.form.quizmaster.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ filterset.form.quizmaster.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="col-md-4  mb-3">
+                <button type="submit" class="btn btn-warning"><i class="fa-solid fa-filter"></i></button>
+            </div>
+        </div>
+    </form>
+</div>
+
 <div class="row">
     <div class="col-12">
         <table class="table table-striped">
