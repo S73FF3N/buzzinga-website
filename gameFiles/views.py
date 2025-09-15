@@ -14,6 +14,7 @@ from django.db.models.functions import Coalesce
 
 from .models import GameType, Category, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, QuizGameResult
 from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, WhoKnowsMoreForm, WhoKnowsMoreElementFormSet, WhoKnowsMoreElementFormSetUpdate, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm, WhoKnowsMoreDownloadForm, SolutionForm, QuizGameResultForm, RandomTeamAssignmentForm
+from .filters import QuizGameResultFilter
 
 from dal import autocomplete
 from collections import defaultdict
@@ -656,9 +657,11 @@ def leaderboard_view(request):
     # user → {'points': float, 'games': int, 'wins': int}
     user_stats = defaultdict(lambda: {'points': 0.0, 'games': 0, 'wins': 0, 'hosts': 0})
 
-    results = QuizGameResult.objects.prefetch_related(
-        'team1_users', 'team2_users', 'team3_users', 'team4_users', 
+    results_qs = QuizGameResult.objects.prefetch_related(
+        'team1_users', 'team2_users', 'team3_users', 'team4_users',
     )
+    filterset = QuizGameResultFilter(request.GET, queryset=results_qs)
+    results = filterset.qs   # apply filters automatically
 
     for result in results:
         scores = {
@@ -753,6 +756,7 @@ def leaderboard_view(request):
         'team_assignment_result': team_assignment_result,
         'max_wins': max_wins,
         'max_win_percentage': max_win_percentage,
+        'filterset': filterset,
     })
 
 
