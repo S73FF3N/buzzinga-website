@@ -303,6 +303,9 @@
                             {% if entry.award_crown %}
                                 <i class="fa-solid fa-crown text-danger ms-1" title="Most Wins"></i>
                             {% endif %}
+                            {% if entry.streak_award %}
+                                <i class="fa-solid fa-ranking-star text-danger ms-1" title="Longest Winning Streak"></i>
+                            {% endif %}
                         </td>
                         <td>
                             {{ entry.win_percentage|floatformat:2 }}%
