@@ -637,6 +637,8 @@ def quiz_results_api(request):
     return JsonResponse({'results': data})
 
 
+from collections import defaultdict
+
 def leaderboard_view(request):
     team_assignment_result = None
     if request.method == "POST":
@@ -661,9 +663,9 @@ def leaderboard_view(request):
         'games': 0,
         'wins': 0,
         'hosts': 0,
-        'streak': 0,                   # current win streak
-        'max_streak': 0,               # best win streak
-        'participation_streak': 0,     # current participation streak
+        'streak': 0,                   # current win streak (counts only participant wins)
+        'max_streak': 0,               # best win streak (participant-only)
+        'participation_streak': 0,     # current participation streak (player or quizmaster)
         'max_participation_streak': 0, # best participation streak
     })
 
@@ -671,9 +673,11 @@ def leaderboard_view(request):
         'team1_users', 'team2_users', 'team3_users', 'team4_users',
     )
     filterset = QuizGameResultFilter(request.GET, queryset=results_qs)
-    results = filterset.qs.order_by("quiz_date")  # make sure ordering is correct
+    # IMPORTANT: chronological order
+    results = filterset.qs.order_by("quiz_date")  # change field name if needed
 
     for result in results:
+        # collect scores
         scores = {
             'team1': result.team1_points,
             'team2': result.team2_points,
@@ -681,72 +685,76 @@ def leaderboard_view(request):
             'team4': result.team4_points,
         }
 
-        user_stats[result.quizmaster]['hosts'] += 1
+        # track hosts
+        if result.quizmaster is not None:
+            user_stats[result.quizmaster]['hosts'] += 1
 
-        # --- winners ---
+        # determine winning teams and winners (these come from team users)
         max_score = max(scores.values())
         winning_teams = [team for team, score in scores.items() if score == max_score]
 
         winners = set()
         for team_key in winning_teams:
-            users = getattr(result, f"{team_key}_users").all()
-            for user in users:
+            for user in getattr(result, f"{team_key}_users").all():
                 user_stats[user]['wins'] += 1
                 winners.add(user)
 
-        # --- all participants in this quiz ---
-        participants = (
-            list(result.team1_users.all()) +
-            list(result.team2_users.all()) +
-            list(result.team3_users.all()) +
-            list(result.team4_users.all()) +
-            [result.quizmaster]
-        )
+        # --- determine players (participants as players) and overall participants (players + quizmaster) ---
+        players = set(result.team1_users.all()) | set(result.team2_users.all()) | set(result.team3_users.all()) | set(result.team4_users.all())
+        quizmaster = result.quizmaster
+        participants_all = set(players)
+        if quizmaster is not None:
+            participants_all.add(quizmaster)
 
-        # --- update win streaks ---
-        all_users = [u for u in participants if u != result.quizmaster] + [result.quizmaster]
-        for user in all_users:
-            if user in winners:
+        # --- WIN STREAK logic (participant-only) ---
+        # 1) Increment streak for winners only if they participated as players in this quiz.
+        for user in winners:
+            if user in players:
                 user_stats[user]['streak'] += 1
-                user_stats[user]['max_streak'] = max(
-                    user_stats[user]['max_streak'], user_stats[user]['streak']
-                )
+                if user_stats[user]['streak'] > user_stats[user]['max_streak']:
+                    user_stats[user]['max_streak'] = user_stats[user]['streak']
             else:
+                # Winner not a player (unlikely) - don't touch their streak.
+                pass
+
+        # 2) Reset streak for players who participated but didn't win (they had a chance and lost).
+        for user in players:
+            if user not in winners:
                 user_stats[user]['streak'] = 0
 
-        # --- update participation streaks ---
-        # everyone present increments, everyone else resets
-        current_participants = set(participants)
+        # 3) Do NOT reset streak if the user is quizmaster (they didn't participate as player) — leave unchanged.
+        # 4) Reset streak for users who were neither participant nor quizmaster (they missed the quiz).
+        for user in list(user_stats.keys()):
+            if user not in participants_all:
+                user_stats[user]['streak'] = 0
+
+        # --- PARTICIPATION STREAK logic (player OR quizmaster counts as present) ---
         for user in user_stats.keys():
-            if user in current_participants:
+            if user in participants_all:
                 user_stats[user]['participation_streak'] += 1
-                user_stats[user]['max_participation_streak'] = max(
-                    user_stats[user]['max_participation_streak'],
-                    user_stats[user]['participation_streak']
-                )
+                if user_stats[user]['participation_streak'] > user_stats[user]['max_participation_streak']:
+                    user_stats[user]['max_participation_streak'] = user_stats[user]['participation_streak']
             else:
                 user_stats[user]['participation_streak'] = 0
 
-        # --- normalized scores ---
+        # --- Normalize scores and accumulate points/games ---
         min_score = min(scores.values())
         shifted_scores = {team: score - min_score for team, score in scores.items()}
         total_shifted = sum(shifted_scores.values())
         if total_shifted == 0:
+            # all equal: skip scoring for this quiz (same as your original logic)
             continue
 
-        normalized_scores = {
-            team: (shifted / total_shifted) * 10
-            for team, shifted in shifted_scores.items()
-        }
+        normalized_scores = {team: (shifted / total_shifted) * 10 for team, shifted in shifted_scores.items()}
         for team_key, team_score in normalized_scores.items():
-            team_users = getattr(result, f"{team_key}_users").all()
-            for user in team_users:
+            for user in getattr(result, f"{team_key}_users").all():
                 user_stats[user]['points'] += team_score
                 user_stats[user]['games'] += 1
 
-    # --- build leaderboard ---
+    # build leaderboard list
     leaderboard = []
     for user, stats in user_stats.items():
+        # include users who have played or hosted at least once
         if stats['games'] > 0 or stats['hosts'] > 0:
             leaderboard.append({
                 'user': user,
@@ -758,29 +766,21 @@ def leaderboard_view(request):
                 'max_participation_streak': stats['max_participation_streak'],
             })
 
-    # --- calculate awards ---
+    # compute award flags and summary values
     if leaderboard:
         max_wins_value = max(entry['wins'] for entry in leaderboard)
-        min_games_for_max_wins = min(
-            entry['games'] for entry in leaderboard if entry['wins'] == max_wins_value
-        )
+        min_games_for_max_wins = min(entry['games'] for entry in leaderboard if entry['wins'] == max_wins_value)
         max_hosts_value = max(entry['hosts'] for entry in leaderboard)
         max_streak_value = max(entry['max_streak'] for entry in leaderboard)
         max_participation_value = max(entry['max_participation_streak'] for entry in leaderboard)
 
         for entry in leaderboard:
-            entry['win_percentage'] = (
-                (entry['wins'] / entry['games'] * 100) if entry['games'] > 0 else 0.0
-            )
-            entry['award_crown'] = (
-                entry['wins'] == max_wins_value and entry['games'] == min_games_for_max_wins
-            )
+            entry['win_percentage'] = (entry['wins'] / entry['games'] * 100) if entry['games'] > 0 else 0.0
+            entry['award_crown'] = (entry['wins'] == max_wins_value and entry['games'] == min_games_for_max_wins)
             entry['host_award'] = (entry['hosts'] == max_hosts_value and entry['hosts'] > 0)
             entry['hosting'] = (entry['hosts'] > 0)
             entry['streak_award'] = (entry['max_streak'] == max_streak_value and max_streak_value > 0)
-            entry['participation_award'] = (
-                entry['max_participation_streak'] == max_participation_value and max_participation_value > 0
-            )
+            entry['participation_award'] = (entry['max_participation_streak'] == max_participation_value and max_participation_value > 0)
 
         max_wins = max_wins_value
         max_win_percentage = max(entry['win_percentage'] for entry in leaderboard)
@@ -791,12 +791,6 @@ def leaderboard_view(request):
         max_win_percentage = 0.0
         longest_streak = 0
         longest_participation_streak = 0
-        for entry in leaderboard:
-            entry['award_crown'] = False
-            entry['host_award'] = False
-            entry['hosting'] = False
-            entry['streak_award'] = False
-            entry['participation_award'] = False
 
     leaderboard.sort(key=lambda x: (-x['avg_points'], -x['wins']))
 
@@ -808,9 +802,10 @@ def leaderboard_view(request):
         'max_wins': max_wins,
         'max_win_percentage': max_win_percentage,
         'longest_streak': longest_streak,
-        'longest_participation_streak': longest_participation_streak,  # 👈 pass to template
+        'longest_participation_streak': longest_participation_streak,
         'filterset': filterset,
     })
+
 
 
 
