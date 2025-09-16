@@ -654,21 +654,23 @@ def leaderboard_view(request):
         form = QuizGameResultForm()
         team_form = RandomTeamAssignmentForm()
 
-    # user → {'points': float, 'games': int, 'wins': int, 'hosts': int, 'streak': int, 'max_streak': int}
+    # user → stats
     user_stats = defaultdict(lambda: {
         'points': 0.0,
         'games': 0,
         'wins': 0,
         'hosts': 0,
-        'streak': 0,       # current streak while iterating
-        'max_streak': 0,   # best streak so far
+        'streak': 0,                   # current win streak
+        'max_streak': 0,               # best win streak
+        'participation_streak': 0,     # current participation streak
+        'max_participation_streak': 0, # best participation streak
     })
 
     results_qs = QuizGameResult.objects.prefetch_related(
         'team1_users', 'team2_users', 'team3_users', 'team4_users',
     )
     filterset = QuizGameResultFilter(request.GET, queryset=results_qs)
-    results = filterset.qs.order_by("quiz_date")
+    results = filterset.qs.order_by("quiz_date")  # make sure ordering is correct
 
     for result in results:
         scores = {
@@ -678,9 +680,9 @@ def leaderboard_view(request):
             'team4': result.team4_points,
         }
 
-        user_stats[result.quizmaster]['hosts'] += 1  # Track hosts
+        user_stats[result.quizmaster]['hosts'] += 1
 
-        # --- Track wins ---
+        # --- winners ---
         max_score = max(scores.values())
         winning_teams = [team for team, score in scores.items() if score == max_score]
 
@@ -691,84 +693,109 @@ def leaderboard_view(request):
                 user_stats[user]['wins'] += 1
                 winners.add(user)
 
-        # --- Update streaks ---
-        # Winners increment streak, losers reset streak
-        all_users = (
+        # --- all participants in this quiz ---
+        participants = (
             list(result.team1_users.all()) +
             list(result.team2_users.all()) +
             list(result.team3_users.all()) +
-            list(result.team4_users.all())
+            list(result.team4_users.all()) +
+            [result.quizmaster]
         )
+
+        # --- update win streaks ---
+        all_users = [u for u in participants if u != result.quizmaster] + [result.quizmaster]
         for user in all_users:
             if user in winners:
                 user_stats[user]['streak'] += 1
-                user_stats[user]['max_streak'] = max(user_stats[user]['max_streak'], user_stats[user]['streak'])
+                user_stats[user]['max_streak'] = max(
+                    user_stats[user]['max_streak'], user_stats[user]['streak']
+                )
             else:
                 user_stats[user]['streak'] = 0
 
-        # --- Normalize scores ---
+        # --- update participation streaks ---
+        # everyone present increments, everyone else resets
+        current_participants = set(participants)
+        for user in user_stats.keys():
+            if user in current_participants:
+                user_stats[user]['participation_streak'] += 1
+                user_stats[user]['max_participation_streak'] = max(
+                    user_stats[user]['max_participation_streak'],
+                    user_stats[user]['participation_streak']
+                )
+            else:
+                user_stats[user]['participation_streak'] = 0
+
+        # --- normalized scores ---
         min_score = min(scores.values())
         shifted_scores = {team: score - min_score for team, score in scores.items()}
         total_shifted = sum(shifted_scores.values())
         if total_shifted == 0:
-            continue  # Avoid division by zero (e.g., all scores equal)
+            continue
 
         normalized_scores = {
             team: (shifted / total_shifted) * 10
             for team, shifted in shifted_scores.items()
         }
-
         for team_key, team_score in normalized_scores.items():
             team_users = getattr(result, f"{team_key}_users").all()
             for user in team_users:
                 user_stats[user]['points'] += team_score
                 user_stats[user]['games'] += 1
 
-    # Build leaderboard
+    # --- build leaderboard ---
     leaderboard = []
     for user, stats in user_stats.items():
-        if stats['games'] > 0:
+        if stats['games'] > 0 or stats['hosts'] > 0:
             leaderboard.append({
                 'user': user,
-                'avg_points': stats['points'] / stats['games'],
+                'avg_points': (stats['points'] / stats['games']) if stats['games'] > 0 else 0,
                 'games': stats['games'],
                 'wins': stats['wins'],
                 'hosts': stats['hosts'],
-                'max_streak': stats['max_streak'],  # 👈 add streak info
+                'max_streak': stats['max_streak'],
+                'max_participation_streak': stats['max_participation_streak'],
             })
 
-    # Calculate win percentages and find the max
-    for entry in leaderboard:
-        entry['win_percentage'] = (entry['wins'] / entry['games'] * 100) if entry['games'] > 0 else 0.0
-
+    # --- calculate awards ---
     if leaderboard:
         max_wins_value = max(entry['wins'] for entry in leaderboard)
         min_games_for_max_wins = min(
             entry['games'] for entry in leaderboard if entry['wins'] == max_wins_value
         )
         max_hosts_value = max(entry['hosts'] for entry in leaderboard)
-        max_streak_value = max(entry['max_streak'] for entry in leaderboard)  # 👈 longest streak overall
+        max_streak_value = max(entry['max_streak'] for entry in leaderboard)
+        max_participation_value = max(entry['max_participation_streak'] for entry in leaderboard)
+
         for entry in leaderboard:
+            entry['win_percentage'] = (
+                (entry['wins'] / entry['games'] * 100) if entry['games'] > 0 else 0.0
+            )
             entry['award_crown'] = (
                 entry['wins'] == max_wins_value and entry['games'] == min_games_for_max_wins
             )
-            entry['host_award'] = (
-                entry['hosts'] == max_hosts_value and entry['hosts'] > 0
-            )
+            entry['host_award'] = (entry['hosts'] == max_hosts_value and entry['hosts'] > 0)
             entry['hosting'] = (entry['hosts'] > 0)
             entry['streak_award'] = (entry['max_streak'] == max_streak_value and max_streak_value > 0)
+            entry['participation_award'] = (
+                entry['max_participation_streak'] == max_participation_value and max_participation_value > 0
+            )
+
         max_wins = max_wins_value
         max_win_percentage = max(entry['win_percentage'] for entry in leaderboard)
         longest_streak = max_streak_value
+        longest_participation_streak = max_participation_value
     else:
         max_wins = 0
         max_win_percentage = 0.0
         longest_streak = 0
+        longest_participation_streak = 0
         for entry in leaderboard:
             entry['award_crown'] = False
             entry['host_award'] = False
             entry['hosting'] = False
             entry['streak_award'] = False
+            entry['participation_award'] = False
 
     leaderboard.sort(key=lambda x: (-x['avg_points'], -x['wins']))
 
@@ -779,9 +806,11 @@ def leaderboard_view(request):
         'team_assignment_result': team_assignment_result,
         'max_wins': max_wins,
         'max_win_percentage': max_win_percentage,
-        'longest_streak': longest_streak,  # 👈 pass to template
+        'longest_streak': longest_streak,
+        'longest_participation_streak': longest_participation_streak,  # 👈 pass to template
         'filterset': filterset,
     })
+
 
 
 def instructions_view(request):
