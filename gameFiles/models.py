@@ -220,11 +220,11 @@ def delete_file(sender, instance, *args, **kwargs):
 
 
 class QuizGameResult(models.Model):
-    game_type = models.ForeignKey(GameType, on_delete=models.CASCADE)
+    game_type = models.ForeignKey(GameType, on_delete=models.CASCADE, verbose_name="Spielart")
     category = models.CharField(max_length=100)
 
     quiz_date = models.DateField()  # New field for the date the quiz was played
-    quiz_group = models.ForeignKey('auth.Group', on_delete=models.CASCADE, related_name='quiz_games')
+    quiz_group = models.ForeignKey('auth.Group', on_delete=models.CASCADE, related_name='quiz_games', verbose_name="Wettbewerb")
     quizmaster = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quizmaster_games')
 
     team1_users = models.ManyToManyField(User, related_name='team1_games')

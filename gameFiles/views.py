@@ -668,7 +668,7 @@ def leaderboard_view(request):
         'team1_users', 'team2_users', 'team3_users', 'team4_users',
     )
     filterset = QuizGameResultFilter(request.GET, queryset=results_qs)
-    results = filterset.qs.order_by("quiz_date")  # 👈 ensure chronological order, adjust field name if different
+    results = filterset.qs.order_by("quiz_date")
 
     for result in results:
         scores = {
