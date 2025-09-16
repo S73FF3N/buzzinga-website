@@ -15,6 +15,7 @@ from django.db.models.functions import Coalesce
 from .models import GameType, Category, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, QuizGameResult
 from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, WhoKnowsMoreForm, WhoKnowsMoreElementFormSet, WhoKnowsMoreElementFormSetUpdate, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm, WhoKnowsMoreDownloadForm, SolutionForm, QuizGameResultForm, RandomTeamAssignmentForm
 from .filters import QuizGameResultFilter
+from .filters import QuizGameResultFilter
 
 from dal import autocomplete
 from collections import defaultdict
