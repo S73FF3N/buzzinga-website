@@ -46,7 +46,7 @@
                     <li class="nav-item"><a class="nav-link" id="game-type-list" href="{% url 'gameFiles:game_type_list' %}">Spiele</a></li>
                     <li class="nav-item"><a class="nav-link" id="solution-form" href="{% url 'gameFiles:solution_form' %}">Lösungen</a></li>
                     {% if perms.gameFiles.can_view_noxt_menu %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'gameFiles:leaderboard' %}">noxt!</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'gameFiles:leaderboard' %}?game_type=&quiz_date__gte=&quiz_date__lte=&quiz_group=1&quizmaster=">noxt!</a></li>
                     {% endif %}
                     <li class="nav-item">
                         <a class="nav-link" id="buzzinga-installer" href="/media/installer/buzzinga_game_installer.exe" download>

@@ -227,18 +227,20 @@
                 </div>
             </div>
 
-            <!-- Quiz Group -->
-            <div class="col-xl-2 col-md-4 mb-3">
-                <div class="form-group">
-                    {{ filterset.form.quiz_group.label_tag }}
-                    {% render_field filterset.form.quiz_group class="form-control" %}
-                    {% if filterset.form.quiz_group.errors %}
-                        <div class="invalid-feedback d-block">
-                            {{ filterset.form.quiz_group.errors }}
-                        </div>
-                    {% endif %}
+            {% if user.is_superuser %}
+                <!-- Quiz Group -->
+                <div class="col-xl-2 col-md-4 mb-3">
+                    <div class="form-group">
+                        {{ filterset.form.quiz_group.label_tag }}
+                        {% render_field filterset.form.quiz_group class="form-control" %}
+                        {% if filterset.form.quiz_group.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ filterset.form.quiz_group.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
-            </div>
+            {% endif %}
 
             <!-- Quizmaster -->
             <div class="col-xl-2 col-md-4 mb-3">
