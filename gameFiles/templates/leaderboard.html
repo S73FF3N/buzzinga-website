@@ -550,12 +550,13 @@ const quizResultsApiUrl = "{% url 'gameFiles:quiz_results_api' %}";
   const limit = 3;             // show 3 initially, then lazy-load
   let loading = false;
   let hasMore = true;
+  const filterParams = window.location.search;
 
   async function loadMore() {
     if (loading || !hasMore) return;
     loading = true;
     try {
-      const res = await fetch(`${quizResultsApiUrl}?offset=${offset}&limit=${limit}`);
+      const res = await fetch(`${quizResultsApiUrl}?offset=${offset}&limit=${limit}${filterParams ? '&' + filterParams.slice(1) : ''}`);
       if (!res.ok) throw new Error('Network error');
       const data = await res.json();
 
