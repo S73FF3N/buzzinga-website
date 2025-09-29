@@ -15,7 +15,6 @@ from django.db.models.functions import Coalesce
 from .models import GameType, Category, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, QuizGameResult
 from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, WhoKnowsMoreForm, WhoKnowsMoreElementFormSet, WhoKnowsMoreElementFormSetUpdate, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm, WhoKnowsMoreDownloadForm, SolutionForm, QuizGameResultForm, RandomTeamAssignmentForm
 from .filters import QuizGameResultFilter
-from .filters import QuizGameResultFilter
 
 from dal import autocomplete
 from collections import defaultdict
@@ -616,7 +615,11 @@ def quiz_results_api(request):
     offset = int(request.GET.get('offset', 0))
     limit = int(request.GET.get('limit', 3))
     
-    results = QuizGameResult.objects.order_by('-quiz_date')[offset:offset+limit]
+    results_qs = QuizGameResult.objects.prefetch_related(
+        'team1_users', 'team2_users', 'team3_users', 'team4_users',
+    )
+    filterset = QuizGameResultFilter(request.GET, queryset=results_qs)
+    results = filterset.qs.order_by('-quiz_date')[offset:offset+limit]
     
     data = []
     for result in results:
@@ -636,8 +639,6 @@ def quiz_results_api(request):
     
     return JsonResponse({'results': data})
 
-
-from collections import defaultdict
 
 def leaderboard_view(request):
     team_assignment_result = None
