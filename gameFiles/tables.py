@@ -37,25 +37,25 @@ class BaseTable(dt2.Table):
 class SoundTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Sound
-        fields = ('solution', 'category', 'difficulty', 'private_new', 'edit', 'delete')
+        fields = ('select', 'solution', 'category', 'difficulty', 'private_new', 'edit', 'delete')
 
 
 class ImageTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Image
-        fields = ('solution', 'category', 'difficulty', 'private_new', 'edit', 'delete')
+        fields = ('select', 'solution', 'category', 'difficulty', 'private_new', 'edit', 'delete')
 
 
 class QuestionTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Question
-        fields = ('solution', 'category', 'difficulty', 'private_new', 'edit', 'delete')
+        fields = ('select', 'solution', 'category', 'difficulty', 'private_new', 'edit', 'delete')
 
 
 class HintTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Hints
-        fields = ('solution', 'category', 'difficulty', 'private_new', 'edit', 'delete')
+        fields = ('select', 'solution', 'category', 'difficulty', 'private_new', 'edit', 'delete')
 
 
 class WhoKnowsMoreTable(BaseTable):
@@ -63,7 +63,7 @@ class WhoKnowsMoreTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = WhoKnowsMore
-        fields = ('solution', 'category', 'difficulty', 'private_new', 'edit', 'delete')
+        fields = ('select', 'solution', 'category', 'difficulty', 'private_new', 'edit', 'delete')
 
 
 class CategoryTable(dt2.Table):
