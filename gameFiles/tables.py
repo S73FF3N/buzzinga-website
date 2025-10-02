@@ -19,6 +19,7 @@ class BaseTable(dt2.Table):
         },
         orderable=False
     )
+
     edit = dt2.TemplateColumn(template_name='edit_column.html', verbose_name="Ändern")
     delete = dt2.TemplateColumn(template_name='delete_column.html', verbose_name="Löschen")
     solution = dt2.Column(verbose_name="Lösung")
@@ -37,25 +38,25 @@ class BaseTable(dt2.Table):
 class SoundTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Sound
-        fields = ('select', 'solution', 'category', 'difficulty', 'private_new', 'edit', 'delete')
+        fields = ('solution', 'category', 'difficulty', 'private_new', 'edit', 'delete', 'select')
 
 
 class ImageTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Image
-        fields = ('select', 'solution', 'category', 'difficulty', 'private_new', 'edit', 'delete')
+        fields = ('solution', 'category', 'difficulty', 'private_new', 'edit', 'delete', 'select')
 
 
 class QuestionTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Question
-        fields = ('select', 'solution', 'category', 'difficulty', 'private_new', 'edit', 'delete')
+        fields = ('solution', 'category', 'difficulty', 'private_new', 'edit', 'delete', 'select')
 
 
 class HintTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = Hints
-        fields = ('select', 'solution', 'category', 'difficulty', 'private_new', 'edit', 'delete')
+        fields = ('solution', 'category', 'difficulty', 'private_new', 'edit', 'delete', 'select')
 
 
 class WhoKnowsMoreTable(BaseTable):
@@ -63,7 +64,7 @@ class WhoKnowsMoreTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = WhoKnowsMore
-        fields = ('select', 'solution', 'category', 'difficulty', 'private_new', 'edit', 'delete')
+        fields = ('solution', 'category', 'difficulty', 'private_new', 'edit', 'delete', 'select')
 
 
 class CategoryTable(dt2.Table):
