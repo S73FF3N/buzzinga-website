@@ -116,7 +116,7 @@ class DownloadView(View):
         user = request.user
         ModelClass = TABLE_MAPPING[active_table][0]
 
-        download_all = element_string == "all"
+        download_all = element_string and element_string.strip("/") == "all"
         if active_table == "category":
             elements = ModelClass.objects.filter(created_by=user) | ModelClass.objects.filter(private=False)
         elif download_all:
