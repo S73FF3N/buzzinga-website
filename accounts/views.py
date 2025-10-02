@@ -139,7 +139,7 @@ class DownloadView(View):
             else:  # For questions, hints, whoknowsmore
                 categories = elements.values_list("category", flat=True).distinct()
                 for cat_id in categories:
-                    category_name = categories[cat_id].name_de
+                    category_name = get_object_or_404(Category, id=cat_id).name_de
                     category_elements = elements.filter(category=cat_id)
 
                     json_data = (
