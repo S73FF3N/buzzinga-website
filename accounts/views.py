@@ -117,7 +117,13 @@ class DownloadView(View):
         ModelClass = TABLE_MAPPING[active_table][0]
 
         download_all = element_string == "all"
-        elements = ModelClass.objects.filter(created_by=user) | ModelClass.objects.filter(category__private=False, private_new=False) if download_all else ModelClass.objects.filter(id__in=element_string.split("+"))
+        if active_table == "category":
+            elements = ModelClass.objects.filter(created_by=user) | ModelClass.objects.filter(private=False)
+        elif download_all:
+            elements = ModelClass.objects.filter(created_by=user) | ModelClass.objects.filter(category__private=False, private_new=False)
+        else:
+            elements = ModelClass.objects.filter(id__in=element_string.split("+"))
+        #elements = ModelClass.objects.filter(created_by=user) | ModelClass.objects.filter(category__private=False, private_new=False) if download_all else ModelClass.objects.filter(id__in=element_string.split("+"))
 
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
             if active_table in ["images_", "sounds_"]:
@@ -133,7 +139,7 @@ class DownloadView(View):
             else:  # For questions, hints, whoknowsmore
                 categories = elements.values_list("category", flat=True).distinct()
                 for cat_id in categories:
-                    category_name = get_object_or_404(Category, id=cat_id).name_de
+                    category_name = categories[cat_id].name_de
                     category_elements = elements.filter(category=cat_id)
 
                     json_data = (
