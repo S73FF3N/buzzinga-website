@@ -64,9 +64,23 @@ class QuestionForm(BaseMediaForm):
     """Form for Question model."""
     class Meta(BaseMediaForm.Meta):
         model = Question
-        fields = ('solution', 'quiz_question', 'option1', 'option2', 'option3', 'difficulty', 'explicit', 'category', 'private_new')
+        fields = ('solution', 'quiz_question', 'num_options', 'option1', 'option2', 'option3', 'difficulty', 'explicit', 'category', 'private_new')
         widgets = {**BaseMediaForm.Meta.widgets, 'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete', forward=(forward.Const(4, 'game_type'),))}
         error_messages = {NON_FIELD_ERRORS: {'unique_together': "%(model_name)s's %(field_labels)s are not unique."}}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['option2'].required = False
+        self.fields['option3'].required = False
+
+    def clean(self):
+        cleaned_data = super().clean()
+        num_options = int(cleaned_data.get('num_options', 4))
+        if num_options >= 3 and not cleaned_data.get('option2'):
+            self.add_error('option2', 'Dieses Feld ist erforderlich bei 3 oder mehr Optionen.')
+        if num_options >= 4 and not cleaned_data.get('option3'):
+            self.add_error('option3', 'Dieses Feld ist erforderlich bei 4 Optionen.')
+        return cleaned_data
 
 
 class HintForm(BaseMediaForm):

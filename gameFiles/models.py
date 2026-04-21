@@ -164,14 +164,18 @@ class Sound(CategoryElement):
     sound_file = models.FileField(upload_to=get_upload_path, storage=upload_storage, verbose_name="Sounddatei")
 
 
+NUM_OPTIONS = [(2, '2'), (3, '3'), (4, '4')]
+
+
 class Question(CategoryElement):
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name="questions"
     )
     quiz_question = models.CharField(max_length=150, verbose_name="Frage")
+    num_options = models.PositiveIntegerField(choices=NUM_OPTIONS, default=4, verbose_name="Anzahl Optionen")
     option1 = models.CharField(max_length=80, verbose_name="Option 1")
-    option2 = models.CharField(max_length=80, verbose_name="Option 2")
-    option3 = models.CharField(max_length=80, verbose_name="Option 3")
+    option2 = models.CharField(max_length=80, blank=True, default="", verbose_name="Option 2")
+    option3 = models.CharField(max_length=80, blank=True, default="", verbose_name="Option 3")
 
 
 class Hints(CategoryElement):
