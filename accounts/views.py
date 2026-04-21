@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.template.loader import render_to_string
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, FileResponse
 from django.conf import settings
 from django.core import serializers
 from django.contrib.auth.decorators import login_required
@@ -151,6 +151,6 @@ class DownloadView(View):
                     zf.writestr(f"{table_name}/{category_name}.json", json_data)
 
         zip_buffer.seek(0)
-        response = HttpResponse(zip_buffer.getvalue(), content_type="application/zip")
+        response = FileResponse(zip_buffer, content_type="application/zip")
         response["Content-Disposition"] = f'attachment; filename="{zip_filename}"'
         return response

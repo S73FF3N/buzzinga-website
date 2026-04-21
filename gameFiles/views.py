@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect, FileResponse
 from django.views.generic import ListView, FormView, CreateView, UpdateView, DeleteView
 from django.conf import settings
 from django.urls import reverse
@@ -474,7 +474,7 @@ class BaseDownloadView(LoginRequiredMixin, FormView):
                 zf.write(file_path, f"{folder_name}/{file_name}")
 
         zip_buffer.seek(0)
-        response = HttpResponse(zip_buffer, content_type="application/zip")
+        response = FileResponse(zip_buffer, content_type="application/zip")
         response['Content-Disposition'] = f'attachment; filename={zip_filename}'
         return response
 
@@ -525,7 +525,7 @@ class QuestionDownloadView(BaseDownloadView):
             json_data = json.dumps(json.loads(json_str), indent=6, ensure_ascii=False)
             zf.writestr(f"{category_name}.json", json_data)
         zip_buffer.seek(0)
-        response = HttpResponse(zip_buffer.getvalue(), content_type="application/zip")
+        response = FileResponse(zip_buffer, content_type="application/zip")
         response['Content-Disposition'] = f'attachment; filename="{zip_filename}"'
         return response
 
@@ -544,7 +544,7 @@ class HintDownloadView(BaseDownloadView):
             json_data = json.dumps(json.loads(json_str), indent=6, ensure_ascii=False)
             zf.writestr(f"{category_name}.json", json_data)
         zip_buffer.seek(0)
-        response = HttpResponse(zip_buffer.getvalue(), content_type="application/zip")
+        response = FileResponse(zip_buffer, content_type="application/zip")
         response['Content-Disposition'] = f'attachment; filename="{zip_filename}"'
         return response
 
@@ -564,7 +564,7 @@ class WhoknowsmoreDownloadView(BaseDownloadView):
             json_data = json.dumps(json.loads(json_str), indent=6, ensure_ascii=False)
             zf.writestr(f"{category_name}.json", json_data)
         zip_buffer.seek(0)
-        response = HttpResponse(zip_buffer.getvalue(), content_type="application/zip")
+        response = FileResponse(zip_buffer, content_type="application/zip")
         response['Content-Disposition'] = f'attachment; filename="{zip_filename}"'
         return response
 

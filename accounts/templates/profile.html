@@ -259,7 +259,7 @@ $("#download_elements").click(function(ev) {
 
   if ($(selected_ids).length) {
     selected_ids = selected_ids.join("+");
-    window.location.href = base_url + "/accounts/download/" + active_table + "/" + selected_ids;
+    window.location.href = base_url + "/accounts/download/" + active_table + "/" + selected_ids + "/";
   } else {
     window.location.href = base_url + "/accounts/download/" + active_table + "/all/";
   }
