@@ -1,6 +1,6 @@
 from dal import autocomplete, forward
 from django import forms
-from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
+from django.core.exceptions import ValidationError
 from django.forms import inlineformset_factory, BaseInlineFormSet
 from django.contrib.auth.models import User, Group
 from .models import GameType, Category, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, DIFFICULTY, QuizGameResult
@@ -66,7 +66,6 @@ class QuestionForm(BaseMediaForm):
         model = Question
         fields = ('solution', 'quiz_question', 'num_options', 'option1', 'option2', 'option3', 'difficulty', 'explicit', 'category', 'private_new')
         widgets = {**BaseMediaForm.Meta.widgets, 'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete', forward=(forward.Const(4, 'game_type'),))}
-        error_messages = {NON_FIELD_ERRORS: {'unique_together': "%(model_name)s's %(field_labels)s are not unique."}}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

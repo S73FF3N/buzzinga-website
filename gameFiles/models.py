@@ -177,6 +177,9 @@ class Question(CategoryElement):
     option2 = models.CharField(max_length=80, blank=True, default="", verbose_name="Option 2")
     option3 = models.CharField(max_length=80, blank=True, default="", verbose_name="Option 3")
 
+    class Meta:
+        unique_together = ()
+
 
 class Hints(CategoryElement):
     category = models.ForeignKey(
