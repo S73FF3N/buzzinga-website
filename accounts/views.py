@@ -10,7 +10,6 @@ from django_tables2.config import RequestConfig
 from io import BytesIO
 import zipfile
 import json
-import tempfile
 
 from gameFiles.tables import SoundTable, ImageTable, QuestionTable, HintTable, CategoryTable, WhoKnowsMoreTable
 from gameFiles.filters import ImageFilter, SoundFilter, QuestionFilter, CategoryFilter, HintFilter, \
@@ -148,13 +147,10 @@ class DownloadView(View):
                         else json.dumps(json.loads(serializers.serialize("json", category_elements)), indent=6, ensure_ascii=False)
                     )
 
-                    with tempfile.NamedTemporaryFile(mode="w+", delete=False) as tmp_file:
-                        tmp_file.write(json_data)
-                        tmp_file.flush()
-                        table_name = "who-knows-more" if active_table == "whoknowsmore" else active_table
-                        zf.write(tmp_file.name, f"{table_name}/{category_name}.json")
+                    table_name = "who-knows-more" if active_table == "whoknowsmore" else active_table
+                    zf.writestr(f"{table_name}/{category_name}.json", json_data)
 
         zip_buffer.seek(0)
         response = HttpResponse(zip_buffer.getvalue(), content_type="application/zip")
-        response["Content-Disposition"] = f"attachment; filename={zip_filename}"
+        response["Content-Disposition"] = f'attachment; filename="{zip_filename}"'
         return response
