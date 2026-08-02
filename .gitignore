@@ -115,3 +115,7 @@ GitHub.sublime-settings
 !.vscode/launch.json
 !.vscode/extensions.json
 .history
+
+# Apps living in their own repos, cloned into this project
+mealplanner/
+invoice-scanner/
