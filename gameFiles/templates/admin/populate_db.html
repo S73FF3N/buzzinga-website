@@ -38,7 +38,7 @@
         </tbody>
     </table>
 
-    <form method="POST" action="{% url 'admin:confirm-insert' %}">
+    <form method="POST" action="{{ confirm_url }}">
         {% csrf_token %}
         <button type="submit">Confirm & Insert</button>
     </form>
