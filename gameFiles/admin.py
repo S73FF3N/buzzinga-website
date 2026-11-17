@@ -10,7 +10,7 @@ from django.utils.timezone import now
 from django.contrib.auth.models import User
 from .models import (
     GameType, Category, Sound, Image, Question, Hints,
-    WhoKnowsMore, WhoKnowsMoreElement, QuizGameResult
+    WhoKnowsMore, WhoKnowsMoreElement, Sort, SortElement, SORT_GAME_TYPE_ID, QuizGameResult
 )
 
 # Base JSON Upload Mixin
@@ -162,4 +162,40 @@ class WhoKnowsMoreAdmin(JsonUploadMixin, admin.ModelAdmin):
             WhoKnowsMoreElement.objects.bulk_create([
                 WhoKnowsMoreElement(category_element=wkm_instance, answer=ans["answer"], count_id=ans["count_id"])
                 for ans in entry["answers"]
+            ])
+
+
+# Sort Admin
+class SortElementInline(admin.TabularInline):
+    model = SortElement
+    extra = 2
+
+
+@admin.register(Sort)
+class SortAdmin(JsonUploadMixin, admin.ModelAdmin):
+    list_display = ['category', 'solution']
+    inlines = [SortElementInline]
+    change_list_template = "admin/sort_changelist.html"
+    game_type_id = SORT_GAME_TYPE_ID
+
+    def process_data(self, data, category, default_user):
+        """Inserts Sort rounds from a game file (`data/sort/*.json` of the Buzzinga game)."""
+        for entry in data:
+            reference = entry["reference"]
+            sort_round = Sort.objects.create(
+                category=category,
+                difficulty=5,
+                solution=entry["criterion"],
+                top_label=entry.get("top_label", ""),
+                bottom_label=entry.get("bottom_label", ""),
+                unit=entry.get("unit", ""),
+                descending=entry.get("descending", True),
+                reference_name=reference["name"],
+                reference_value=reference["value"],
+                reference_display=reference.get("display", ""),
+                created_by=default_user,
+            )
+            SortElement.objects.bulk_create([
+                SortElement(category_element=sort_round, name=e["name"], value=e["value"], display=e.get("display", ""))
+                for e in entry["elements"]
             ])

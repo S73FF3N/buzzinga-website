@@ -1,7 +1,7 @@
 import django_filters
 from django import forms
 from dal import autocomplete
-from .models import Image, Sound, Question, Category, Hints, WhoKnowsMore, QuizGameResult
+from .models import Image, Sound, Question, Category, Hints, WhoKnowsMore, Sort, QuizGameResult
 
 
 class BaseFilter(django_filters.FilterSet):
@@ -37,6 +37,7 @@ SoundFilter = BaseProfileFilter.create_filter(Sound)
 QuestionFilter = BaseProfileFilter.create_filter(Question)
 HintFilter = BaseProfileFilter.create_filter(Hints)
 WhoKnowsMoreFilter = BaseProfileFilter.create_filter(WhoKnowsMore)
+SortFilter = BaseProfileFilter.create_filter(Sort)
 
 
 class CategoryFilter(django_filters.FilterSet):

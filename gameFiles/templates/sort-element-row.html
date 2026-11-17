@@ -1,0 +1,19 @@
+{% load widget_tweaks %}
+<tr>
+    <td>
+        {{ f.id }}
+        {% render_field f.name class="form-control" %}
+        {% if f.name.errors %}<div class="invalid-feedback d-block">{{ f.name.errors }}</div>{% endif %}
+    </td>
+    <td>
+        {% render_field f.value class="form-control" %}
+        {% if f.value.errors %}<div class="invalid-feedback d-block">{{ f.value.errors }}</div>{% endif %}
+    </td>
+    <td>
+        {% render_field f.display class="form-control" %}
+        {% if f.display.errors %}<div class="invalid-feedback d-block">{{ f.display.errors }}</div>{% endif %}
+    </td>
+    {% if can_delete %}
+        <td>{% render_field f.DELETE class="form-check-input" %}</td>
+    {% endif %}
+</tr>

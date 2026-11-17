@@ -3,7 +3,7 @@ from django import forms
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.forms import inlineformset_factory, BaseInlineFormSet
 from django.contrib.auth.models import User, Group
-from .models import GameType, Category, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, DIFFICULTY, QuizGameResult
+from .models import GameType, Category, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, Sort, SortElement, SORT_GAME_TYPE_ID, DIFFICULTY, QuizGameResult
 import random
 
 
@@ -117,6 +117,46 @@ WhoKnowsMoreElementFormSetUpdate = inlineformset_factory(
 )
 
 
+class SortForm(BaseMediaForm):
+    """Form for one Sort round; its elements are edited with SortElementFormSet."""
+    class Meta(BaseMediaForm.Meta):
+        model = Sort
+        fields = ('solution', 'top_label', 'bottom_label', 'unit', 'descending',
+                  'reference_name', 'reference_value', 'reference_display',
+                  'difficulty', 'explicit', 'category', 'private_new')
+        labels = {'solution': "Kriterium"}
+        help_texts = {'solution': "Wonach sortiert wird, z. B. \"Einwohnerzahl (Eurostat 2024)\""}
+        widgets = {**BaseMediaForm.Meta.widgets, 'category': autocomplete.ModelSelect2(url='gamefiles:category-autocomplete', forward=(forward.Const(SORT_GAME_TYPE_ID, 'game_type'),))}
+
+
+class BaseSortElementFormSet(BaseInlineFormSet):
+    """Rejects duplicate names, including a clash with the round's reference element.
+
+    Must be validated after the round's form, because the reference name is read from
+    `self.instance`, which that form fills in during its own validation.
+    """
+    def clean(self):
+        super().clean()
+        names = {self.instance.reference_name.strip().casefold()} if self.instance.reference_name else set()
+        for form in self.forms:
+            if not form.cleaned_data or form.cleaned_data.get('DELETE', False):
+                continue
+            name = form.cleaned_data.get('name')
+            if name:
+                key = name.strip().casefold()
+                if key in names:
+                    raise ValidationError(f'"{name}" kommt mehrfach vor (Elemente und Referenzelement müssen verschieden sein).')
+                names.add(key)
+
+
+SORT_ELEMENT_FORMSET_OPTIONS = dict(
+    fields=['name', 'value', 'display'], formset=BaseSortElementFormSet,
+    min_num=2, validate_min=True, max_num=60, validate_max=True,
+)
+SortElementFormSet = inlineformset_factory(Sort, SortElement, extra=8, can_delete=False, **SORT_ELEMENT_FORMSET_OPTIONS)
+SortElementFormSetUpdate = inlineformset_factory(Sort, SortElement, extra=0, can_delete=True, **SORT_ELEMENT_FORMSET_OPTIONS)
+
+
 class BaseDownloadForm(forms.ModelForm):
     """Base form for downloading models."""
     min_difficulty = forms.ChoiceField(choices=DIFFICULTY, label="Minimale Schwierigkeit")
@@ -174,6 +214,13 @@ class WhoKnowsMoreDownloadForm(BaseDownloadForm):
     """Download form for WhoKnowsMore model."""
     class Meta(BaseDownloadForm.Meta):
         model = WhoKnowsMore
+
+
+class SortDownloadForm(BaseDownloadForm):
+    """Download form for Sort model."""
+    class Meta(BaseDownloadForm.Meta):
+        model = Sort
+
 
 class SolutionForm(forms.Form):
     game_type = forms.ModelChoiceField(
