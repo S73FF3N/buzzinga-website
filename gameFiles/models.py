@@ -11,7 +11,10 @@ from pathlib import Path
 import logging
 logger = logging.getLogger(__name__)
 
-upload_storage = FileSystemStorage(location=settings.UPLOAD_ROOT, base_url='/uploads')
+def upload_storage():
+    # Passed to the file fields as a callable so migrations record a reference to this
+    # function instead of the machine-specific UPLOAD_ROOT path.
+    return FileSystemStorage(location=settings.UPLOAD_ROOT, base_url='/uploads')
 
 import random
 
