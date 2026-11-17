@@ -8,12 +8,13 @@ from django.core.serializers import serialize
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.base import ContentFile
 from django.contrib import messages
+from django.db import transaction
 from django.db.models import Count, OuterRef, Subquery, IntegerField
 from django.db.models.expressions import Value
 from django.db.models.functions import Coalesce
 
-from .models import GameType, Category, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, QuizGameResult
-from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, WhoKnowsMoreForm, WhoKnowsMoreElementFormSet, WhoKnowsMoreElementFormSetUpdate, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm, WhoKnowsMoreDownloadForm, SolutionForm, QuizGameResultForm, RandomTeamAssignmentForm
+from .models import GameType, Category, Image, Sound, Question, Hints, WhoKnowsMore, WhoKnowsMoreElement, Sort, SORT_GAME_TYPE_ID, QuizGameResult
+from .forms import CategoryForm, ImageForm, ImageEditForm, SoundForm, QuestionForm, WhoKnowsMoreForm, WhoKnowsMoreElementFormSet, WhoKnowsMoreElementFormSetUpdate, ImageDownloadForm, SoundDownloadForm, QuestionDownloadForm, HintForm, HintDownloadForm, WhoKnowsMoreDownloadForm, SortForm, SortElementFormSet, SortElementFormSetUpdate, SortDownloadForm, SolutionForm, QuizGameResultForm, RandomTeamAssignmentForm
 from .filters import QuizGameResultFilter
 
 from dal import autocomplete
@@ -54,13 +55,18 @@ def home(request):
         category=OuterRef('pk'), private_new=False
     ).values('category').annotate(count=Count('id')).values('count')
 
+    sort_count = Sort.objects.filter(
+        category=OuterRef('pk'), private_new=False
+    ).values('category').annotate(count=Count('id')).values('count')
+
     # Aggregate all subqueries
     newest_categories = Category.objects.filter(private=False).annotate(
         file_count=Coalesce(Subquery(image_count, output_field=IntegerField()), Value(0)) +
                    Coalesce(Subquery(sound_count, output_field=IntegerField()), Value(0)) +
                    Coalesce(Subquery(question_count, output_field=IntegerField()), Value(0)) +
                    Coalesce(Subquery(hint_count, output_field=IntegerField()), Value(0)) +
-                   Coalesce(Subquery(whoknowsmore_count, output_field=IntegerField()), Value(0))
+                   Coalesce(Subquery(whoknowsmore_count, output_field=IntegerField()), Value(0)) +
+                   Coalesce(Subquery(sort_count, output_field=IntegerField()), Value(0))
     ).filter(file_count__gt=0).order_by('-created_on')[:4]
     latest_create_dates = sorted(
         [c.latest_elements() for c in newest_categories],
@@ -111,6 +117,7 @@ def category_detail(request, game_type, id):
         3: "gamefiles:hint-download",
         4: "gamefiles:question-download",
         5: "gamefiles:whoknowsmore-download",
+        SORT_GAME_TYPE_ID: "gamefiles:sort-download",
     }
     
     # Get the correct download URL based on category type
@@ -252,6 +259,52 @@ class WhoknowsmoreEditView(LoginRequiredMixin, SuccessUrlMixin, UpdateView):
                                                              formset=formset))
 
 
+class SortFormsetMixin(LoginRequiredMixin, SuccessUrlMixin):
+    """Create/edit a Sort round together with its elements in one form submission."""
+    model = Sort
+    form_class = SortForm
+    template_name = 'sort-edit.html'
+    formset_class = None
+
+    def get_form(self, form_class=None):
+        if form_class is None:
+            form_class = self.get_form_class()
+        return form_class(user=self.request.user, **self.get_form_kwargs())
+
+    def get_context_data(self, **kwargs):
+        if 'formset' not in kwargs:
+            kwargs['formset'] = self.formset_class(instance=self.object)
+        return super().get_context_data(**kwargs)
+
+    def form_valid(self, form):
+        # form.instance already carries the submitted reference name, which the
+        # formset needs to reject elements that duplicate it.
+        formset = self.formset_class(self.request.POST, instance=form.instance)
+        if not formset.is_valid():
+            return self.render_to_response(self.get_context_data(form=form, formset=formset))
+        with transaction.atomic():
+            self.object = form.save()
+            formset.instance = self.object
+            formset.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def form_invalid(self, form):
+        formset = self.formset_class(self.request.POST, instance=form.instance)
+        return self.render_to_response(self.get_context_data(form=form, formset=formset))
+
+
+class SortCreateView(SortFormsetMixin, CreateView):
+    formset_class = SortElementFormSet
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        return super().form_valid(form)
+
+
+class SortEditView(SortFormsetMixin, UpdateView):
+    formset_class = SortElementFormSetUpdate
+
+
 class BaseDeleteView(LoginRequiredMixin, SuccessUrlMixin, DeleteView):
     #def get(self, request, *args, **kwargs):
     #    # Skip rendering a confirmation page and directly perform deletion
@@ -286,6 +339,10 @@ class HintDeleteView(BaseDeleteView, LoginRequiredMixin):
 
 class WhoknowsmoreDeleteView(BaseDeleteView, LoginRequiredMixin):
     model = WhoKnowsMore
+
+
+class SortDeleteView(BaseDeleteView, LoginRequiredMixin):
+    model = Sort
 
 
 class ParentCreateView(SuccessUrlMixin, CreateView):
@@ -577,6 +634,26 @@ class WhoknowsmoreDownloadView(BaseDownloadView):
         response = HttpResponse(zip_buffer.getvalue(), content_type="application/zip")
         response['Content-Disposition'] = f'attachment; filename={zip_filename}'
         return response
+
+class SortDownloadView(BaseDownloadView):
+    form_class = SortDownloadForm
+
+    def form_valid(self, form):
+        rounds = self.filter_queryset(Sort, form)
+        category_name = form.cleaned_data["category"].name_de
+
+        zip_buffer = BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+            zf.writestr(f"{category_name}.json", sort_rounds_to_json(rounds))
+        response = HttpResponse(zip_buffer.getvalue(), content_type="application/zip")
+        response['Content-Disposition'] = f'attachment; filename={category_name}.zip'
+        return response
+
+
+def sort_rounds_to_json(rounds):
+    """Serialize Sort rounds into the content of a `data/sort/<category>.json` game file."""
+    return json.dumps([r.to_game_json() for r in rounds], indent=2, ensure_ascii=False)
+
 
 def solution_form_view(request):
     """Handles solution selection through form submission."""

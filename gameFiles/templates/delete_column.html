@@ -12,6 +12,8 @@ data-bs-toggle="modal" data-bs-target="#deleteModal"
          onclick="setDeleteUrl('{% url 'gamefiles:question-delete' record.pk %}')"
     {% elif record.category.game_type.pk == 3 %}
          onclick="setDeleteUrl('{% url 'gamefiles:hint-delete' record.pk %}')"
+    {% elif record.category.game_type.pk == 6 %}
+         onclick="setDeleteUrl('{% url 'gamefiles:sort-delete' record.pk %}')"
     {% else %}
          onclick="setDeleteUrl('{% url 'gamefiles:whoknowsmore-delete' record.pk %}')"
     {% endif %}

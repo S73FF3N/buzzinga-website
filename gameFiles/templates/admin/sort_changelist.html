@@ -1,0 +1,53 @@
+{% extends "admin/change_list.html" %}
+
+{% block content %}
+<div class="module">
+    <h2>Upload JSON File</h2>
+    <form method="post" enctype="multipart/form-data" action="{{ upload_url }}">
+        {% csrf_token %}
+        <input type="file" name="json_file" accept=".json" required>
+        <button type="submit" class="button">Upload</button>
+    </form>
+</div>
+
+{% if request.session.json_data %}
+<div class="module">
+    <h2>Preview Data</h2>
+    <p><strong>File Name:</strong> {{ request.session.json_file_name }}</p>
+
+    <table border="1" cellpadding="5">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Criterion</th>
+                <th>Reference</th>
+                <th>Elements</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in request.session.json_data %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ entry.criterion }}{% if entry.unit %} ({{ entry.unit }}){% endif %}</td>
+                <td>{{ entry.reference.name }}: {{ entry.reference.value }}</td>
+                <td>
+                    <ul>
+                        {% for element in entry.elements %}
+                        <li>{{ element.name }}: {{ element.value }}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <form method="post" action="{{ confirm_url }}">
+        {% csrf_token %}
+        <button type="submit" class="button button-primary">Confirm and Insert</button>
+    </form>
+</div>
+{% endif %}
+
+{{ block.super }}
+{% endblock %}

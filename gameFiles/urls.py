@@ -29,7 +29,7 @@ urlpatterns = [
 ]
 
 # Dynamic CRUD operations for multiple models
-models = ["sound", "image", "question", "hint", "whoknowsmore"]
+models = ["sound", "image", "question", "hint", "whoknowsmore", "sort"]
 
 for model in models:
     urlpatterns.extend([

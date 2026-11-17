@@ -12,11 +12,11 @@ import zipfile
 import json
 import tempfile
 
-from gameFiles.tables import SoundTable, ImageTable, QuestionTable, HintTable, CategoryTable, WhoKnowsMoreTable
+from gameFiles.tables import SoundTable, ImageTable, QuestionTable, HintTable, CategoryTable, WhoKnowsMoreTable, SortTable
 from gameFiles.filters import ImageFilter, SoundFilter, QuestionFilter, CategoryFilter, HintFilter, \
-    WhoKnowsMoreFilter
-from gameFiles.models import Category, Image, Sound, Question, Hints, WhoKnowsMore
-from gameFiles.views import WhoKnowsMoreSerializer
+    WhoKnowsMoreFilter, SortFilter
+from gameFiles.models import Category, Image, Sound, Question, Hints, WhoKnowsMore, Sort
+from gameFiles.views import WhoKnowsMoreSerializer, sort_rounds_to_json
 
 TABLE_MAPPING = {
     #"image": (Image, ImageFilter, ImageTable),
@@ -24,6 +24,7 @@ TABLE_MAPPING = {
     "question": (Question, QuestionFilter, QuestionTable),
     "hint": (Hints, HintFilter, HintTable),
     "whoknowsmore": (WhoKnowsMore, WhoKnowsMoreFilter, WhoKnowsMoreTable),
+    "sort": (Sort, SortFilter, SortTable),
     "category": (Category, CategoryFilter, CategoryTable),
 }
 
@@ -33,7 +34,8 @@ TABLE_NAMES = {
             #"sound": "Sounds",
             "question": "Fragen",
             "hint": "Hinweise",
-            "whoknowsmore": "Wer weiß mehr?"
+            "whoknowsmore": "Wer weiß mehr?",
+            "sort": "Sortieren",
             }
 
 @login_required
@@ -136,17 +138,18 @@ class DownloadView(View):
                     if len(file_parts) > 2 and len(file_parts[2]) > 4:
                         zf.write(settings.UPLOAD_ROOT + "/" + file_path, f"{base_path}/{file_parts[1]}/{file_parts[2]}")
 
-            else:  # For questions, hints, whoknowsmore
+            else:  # For questions, hints, whoknowsmore, sort
                 categories = elements.values_list("category", flat=True).distinct()
                 for cat_id in categories:
                     category_name = get_object_or_404(Category, id=cat_id).name_de
                     category_elements = elements.filter(category=cat_id)
 
-                    json_data = (
-                        json.dumps(WhoKnowsMoreSerializer(category_elements, many=True).data, ensure_ascii=False)
-                        if active_table == "whoknowsmore"
-                        else json.dumps(json.loads(serializers.serialize("json", category_elements)), indent=6, ensure_ascii=False)
-                    )
+                    if active_table == "whoknowsmore":
+                        json_data = json.dumps(WhoKnowsMoreSerializer(category_elements, many=True).data, ensure_ascii=False)
+                    elif active_table == "sort":
+                        json_data = sort_rounds_to_json(category_elements)
+                    else:
+                        json_data = json.dumps(json.loads(serializers.serialize("json", category_elements)), indent=6, ensure_ascii=False)
 
                     with tempfile.NamedTemporaryFile(mode="w+", delete=False) as tmp_file:
                         tmp_file.write(json_data)
