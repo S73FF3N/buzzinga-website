@@ -1,5 +1,5 @@
 import django_tables2 as dt2
-from .models import Category, Sound, Image, Question, Hints, WhoKnowsMore
+from .models import Category, Sound, Image, Question, Hints, WhoKnowsMore, Sort
 
 
 def print_checkbox_pk(**kwargs):
@@ -64,6 +64,14 @@ class WhoKnowsMoreTable(BaseTable):
 
     class Meta(BaseTable.Meta):
         model = WhoKnowsMore
+        fields = ('solution', 'category', 'difficulty', 'private_new', 'edit', 'delete', 'select')
+
+
+class SortTable(BaseTable):
+    solution = dt2.Column(verbose_name="Kriterium")  # Overrides base solution label
+
+    class Meta(BaseTable.Meta):
+        model = Sort
         fields = ('solution', 'category', 'difficulty', 'private_new', 'edit', 'delete', 'select')
 
 

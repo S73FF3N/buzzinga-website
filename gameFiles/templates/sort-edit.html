@@ -1,0 +1,108 @@
+{% extends "index.html" %}
+{% load widget_tweaks %}
+
+{% block title %}
+    Sortieren
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1>Sortieren</h1>
+
+            <form method="POST" class="sort-form">
+                {% csrf_token %}
+                {{ form.media }}
+                {% for error in form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        <strong>{{ error|escape }}</strong>
+                    </div>
+                {% endfor %}
+
+                <div class="row g-3">
+                    {% for field in form %}
+                        {% if field.name == "solution" or field.name == "reference_name" %}
+                            {% if field.name == "reference_name" %}
+                                <div class="col-12 mt-4">
+                                    <h3 class="mb-0">Referenzelement</h3>
+                                    <p class="text-muted mb-0">Liegt zu Beginn der Runde schon in der Liste.</p>
+                                </div>
+                            {% endif %}
+                            <div class="col-12 mb-3">
+                        {% elif field.name == "explicit" or field.name == "private_new" or field.name == "descending" %}
+                            <div class="col-12 col-lg-4 mb-3">
+                        {% else %}
+                            <div class="col-12 col-lg-6 mb-3">
+                        {% endif %}
+                            <div class="form-group">
+                                {{ field.label_tag }}
+                                {% if field.field.widget.input_type == "checkbox" %}
+                                    {% render_field field class="form-check-input" %}
+                                {% else %}
+                                    {% render_field field class="form-control" %}
+                                {% endif %}
+                                {% if field.help_text %}
+                                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                                {% endif %}
+                                {% if field.errors %}
+                                    <div class="invalid-feedback d-block">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <h3 class="mt-4">Elemente</h3>
+                <p class="text-muted">
+                    Die Spieler sortieren diese Elemente nacheinander ein. Die Werte bleiben bis zum Ende der Runde verborgen;
+                    ein optionaler Anzeigetext ersetzt den Wert bei der Auflösung.
+                </p>
+                {% for error in formset.non_form_errors %}
+                    <div class="alert alert-danger">
+                        <strong>{{ error|escape }}</strong>
+                    </div>
+                {% endfor %}
+                {{ formset.management_form }}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Element</th>
+                            <th>Wert</th>
+                            <th>Anzeigetext (optional)</th>
+                            {% if formset.can_delete %}<th>Löschen</th>{% endif %}
+                        </tr>
+                    </thead>
+                    <tbody id="sort-elements">
+                        {% for f in formset %}
+                            {% include "sort-element-row.html" with f=f can_delete=formset.can_delete %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <template id="sort-element-template">
+                    {% include "sort-element-row.html" with f=formset.empty_form can_delete=formset.can_delete %}
+                </template>
+                <input type="button" class="btn btn-primary btn-sm" value="Element hinzufügen" id="add_element">
+
+                <div class="form-actions mt-3">
+                    <button type="submit" id="submit" class="btn btn-primary">
+                        <i class="fa fa-save me-2" aria-hidden="true"></i>Speichern
+                    </button>
+                    <a href="javascript:history.back()" class="btn btn-secondary ms-2">
+                        Abbrechen
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    document.getElementById('add_element').addEventListener('click', function () {
+        const totalForms = document.getElementById('id_{{ formset.prefix }}-TOTAL_FORMS');
+        const index = parseInt(totalForms.value, 10);
+        const html = document.getElementById('sort-element-template').innerHTML.replace(/__prefix__/g, index);
+        document.getElementById('sort-elements').insertAdjacentHTML('beforeend', html);
+        totalForms.value = index + 1;
+    });
+</script>
+{% endblock %}

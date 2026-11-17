@@ -23,6 +23,8 @@ LICENSE = (
     ('CC BY-SA', 'Creative Commons Attribution-ShareAlike')
 )
 
+SORT_GAME_TYPE_ID = 6
+
 GAME_TYPE_FOLDER_MAP = {
     2: "sounds",
     1: "images",
@@ -67,6 +69,7 @@ class Category(models.Model):
             4: self.questions,
             3: self.hints,
             5: self.whoknowsmoreelements,
+            SORT_GAME_TYPE_ID: self.sorts,
         }
         related_manager = model_map.get(self.game_type.id)
 
@@ -204,6 +207,60 @@ class WhoKnowsMoreElement(models.Model):
     answer = models.CharField(max_length=80, verbose_name="Antwort")
     count_id = models.IntegerField(blank=True, null=True)
 
+
+
+class Sort(CategoryElement):
+    """One round of the "Sortieren" game: elements are sorted by `value` around a fixed reference.
+
+    The reference element is stored on the round itself because every round has exactly one;
+    the elements players insert are `SortElement` rows.
+    """
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, related_name="sorts"
+    )
+    top_label = models.CharField(max_length=50, blank=True, verbose_name="Beschriftung oben",
+                                 help_text="z. B. \"mehr Einwohner\" – leer: \"mehr\" bzw. \"weniger\"")
+    bottom_label = models.CharField(max_length=50, blank=True, verbose_name="Beschriftung unten",
+                                    help_text="z. B. \"weniger Einwohner\" – leer: \"weniger\" bzw. \"mehr\"")
+    unit = models.CharField(max_length=20, blank=True, verbose_name="Einheit")
+    descending = models.BooleanField(default=True, verbose_name="Größter Wert oben")
+    reference_name = models.CharField(max_length=80, verbose_name="Referenzelement")
+    reference_value = models.FloatField(verbose_name="Wert")
+    reference_display = models.CharField(max_length=80, blank=True, verbose_name="Anzeigetext",
+                                         help_text="Ersetzt den Wert bei der Auflösung, z. B. \"etwa 670.000\"")
+
+    def to_game_json(self):
+        """Return the round in the format the Buzzinga game reads from `data/sort/*.json`."""
+        round_data = {"id": self.id, "criterion": self.solution}
+        for key in ("top_label", "bottom_label", "unit"):
+            if value := getattr(self, key):
+                round_data[key] = value
+        if not self.descending:
+            round_data["descending"] = False
+        round_data["reference"] = _sort_entry(self.reference_name, self.reference_value, self.reference_display)
+        round_data["elements"] = [_sort_entry(e.name, e.value, e.display) for e in self.elements.all()]
+        return round_data
+
+
+class SortElement(models.Model):
+    category_element = models.ForeignKey(Sort, related_name="elements", on_delete=models.CASCADE)
+    name = models.CharField(max_length=80, verbose_name="Element")
+    value = models.FloatField(verbose_name="Wert")
+    display = models.CharField(max_length=80, blank=True, verbose_name="Anzeigetext")
+
+    class Meta:
+        ordering = ["id"]
+
+    def __str__(self):
+        return self.name
+
+
+def _sort_entry(name, value, display):
+    # Whole numbers are written without a trailing ".0" so the JSON reads like hand-written data.
+    entry = {"name": name, "value": int(value) if float(value).is_integer() else value}
+    if display:
+        entry["display"] = display
+    return entry
 
 
 def _delete_file(path):

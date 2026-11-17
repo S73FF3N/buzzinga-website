@@ -12,6 +12,8 @@
         {% url 'gamefiles:question-edit' record.pk %}
     {% elif record.category.game_type.pk == 3 %}
         {% url 'gamefiles:hint-edit' record.pk %}
+    {% elif record.category.game_type.pk == 6 %}
+        {% url 'gamefiles:sort-edit' record.pk %}
     {% else %}
         {% url 'gamefiles:whoknowsmore-edit' record.pk %}
     {% endif %}
